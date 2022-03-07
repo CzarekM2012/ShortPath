@@ -65,7 +65,7 @@
               "namedChunks": true
             },
             "gh-pages": {
-              "baseHref": "graph_algorithms_step_by_step/",
+              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",
