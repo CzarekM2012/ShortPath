@@ -20,16 +20,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'graphAlgorithmsStepByStep'`, () => {
+  it(`should have as title 'ShortPath'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('graphAlgorithmsStepByStep');
+    expect(app.title).toEqual('ShortPath');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('graphAlgorithmsStepByStep app is running!');
+    expect(compiled.querySelector('.content span')?.textContent).toContain('ShortPath app is running!');
   });
 });

@@ -3,18 +3,14 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { InteractiveGraphModule} from 'interactive-graph';
-import { StandardInteractiveGraphComponent } from './standard-interactive-graph/standard-interactive-graph.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    StandardInteractiveGraphComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
-    InteractiveGraphModule
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
