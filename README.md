@@ -13,6 +13,7 @@ Run `ng generate component component-name` to generate a new component. You can 
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `docs/` directory.
+Run `ng build -c gh-pages` to build the project deployable on Github Pages. The build artifacts will be stored in the `docs/` directory.
 
 ## Running unit tests
 

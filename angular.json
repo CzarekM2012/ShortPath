@@ -65,7 +65,7 @@
               "namedChunks": true
             },
             "gh-pages": {
-              "baseHref": "",
+              "baseHref": "/ShortPath/",
               "budgets": [
                 {
                   "type": "initial",
