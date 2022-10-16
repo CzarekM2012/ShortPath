@@ -1,7 +1,9 @@
-import {AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild} from '@angular/core';
-import Graph from 'graphology';
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
 import {random} from 'graphology-layout';
+import ForceSupervisor from 'graphology-layout-force/worker';
 import {Sigma} from 'sigma';
+
+import {GraphStorageService} from '../../services/graph-storage.service';
 
 @Component({
   selector: 'app-graph-display',
@@ -10,16 +12,16 @@ import {Sigma} from 'sigma';
 })
 export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
   @ViewChild('container') container: ElementRef|null = null;
-  @Input('graph') graph: Graph = new Graph();
   sigma?: Sigma;
 
-  ngAfterViewInit(): void {
-    this.graph.addNode('John', {size: 5, label: 'John', color: 'blue'});
-    this.graph.addNode('Martha', {size: 3, label: 'Mary', color: 'red'});
+  constructor(private graphStorage: GraphStorageService) {}
 
-    this.graph.addEdge('John', 'Martha');
-    random.assign(this.graph);
-    this.sigma = new Sigma(this.graph, this.container?.nativeElement);
+  ngAfterViewInit(): void {
+    random.assign(this.graphStorage.graph);
+    const layout = new ForceSupervisor(this.graphStorage.graph)
+    layout.start();
+    this.sigma =
+        new Sigma(this.graphStorage.graph, this.container?.nativeElement);
   }
 
   ngOnDestroy(): void {

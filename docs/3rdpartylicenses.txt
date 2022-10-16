@@ -111,6 +111,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
+graphology-layout-force
+MIT
+
 graphology-utils
 MIT
 The MIT License (MIT)
