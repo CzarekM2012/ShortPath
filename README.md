@@ -25,3 +25,15 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Descritption
+
+ShortPath is an educational environment designed to help with understanding of graph algorithms by visualising solving of the problem and providing necessary explanations and information about current state of the graph.
+
+## Supported algorithms:
+
+## Planned algorithms:
+
+- Djikstra algorithn
+- A* algorithm
+- Bellman-Ford algorithm

@@ -1,30 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild} from '@angular/core';
+import Graph from 'graphology';
+import {random} from 'graphology-layout';
+import {Sigma} from 'sigma';
 
 @Component({
   selector: 'app-graph-display',
   templateUrl: './graph-display.component.html',
   styleUrls: ['./graph-display.component.css']
 })
-export class GraphDisplayComponent implements OnInit {
+export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('container') container: ElementRef|null = null;
+  @Input('graph') graph: Graph = new Graph();
+  sigma?: Sigma;
 
-  canvas: HTMLCanvasElement | null = null;
-  context: CanvasRenderingContext2D | null = null;
+  ngAfterViewInit(): void {
+    this.graph.addNode('John', {size: 5, label: 'John', color: 'blue'});
+    this.graph.addNode('Martha', {size: 3, label: 'Mary', color: 'red'});
 
-  constructor() { }
-
-  ngOnInit(): void {
-    const canvas = document.getElementById("canvas");
-    if (canvas == null) {
-      throw Error("Canvas is none");
-    }
-    this.canvas = canvas as HTMLCanvasElement;
-    const context = this.canvas.getContext("2d");
-    if (context == null) {
-      throw Error("Canvas context is none")
-    }
-    this.context = context as CanvasRenderingContext2D;
-    this.context.fillStyle = "#FF0000";
-    this.context.fillRect(0, 0, 80, 100);
+    this.graph.addEdge('John', 'Martha');
+    random.assign(this.graph);
+    this.sigma = new Sigma(this.graph, this.container?.nativeElement);
   }
 
+  ngOnDestroy(): void {
+    if (this.sigma) {
+      this.sigma.kill();
+    }
+  }
+
+  clear(): void {}
 }
