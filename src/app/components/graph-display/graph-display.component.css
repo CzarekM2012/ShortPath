@@ -1,4 +1,14 @@
-div {
-  height: 500px;
-  width: 500px;
+#container {
+  display: flex;
+}
+
+#buttonsColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+#graph {
+  height: 270px;
+  width: 480px;
+  background-color: azure;
 }

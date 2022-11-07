@@ -3,20 +3,40 @@ import * as assert from 'assert';
 import {UndirectedGraph} from 'graphology';
 import {countConnectedComponents} from 'graphology-components';
 import {complete} from 'graphology-generators/classic';
+import {Coordinates} from 'sigma/types';
 
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
+  newNodeKey: string = '0';
 
-  constructor() {
-    this.graph = GraphStorageService.randomGraph(15, 70);
+  constructor() {}
+
+  isValid(): boolean {
+    return countConnectedComponents(this.graph) == 1;  // is connected
   }
 
-  static isValid(graph: UndirectedGraph): boolean {
-    return countConnectedComponents(graph) == 1;  // is connected
+  addNode(coords: Coordinates): void {
+    this.graph.addNode(this.newNodeKey, {...coords});
+    this.newNodeKey = (parseInt(this.newNodeKey) + 1).toString();
   }
 
-  static randomGraph(nodes: number, edges: number): UndirectedGraph {
+  removeNode(nodeKey: string): void {
+    this.graph.dropNode(nodeKey);
+  }
+
+  addEdge(nodeKey1: string, nodeKey2: string): void {
+    if (this.graph.hasNode(nodeKey1) && this.graph.hasNode(nodeKey2) &&
+        !(this.graph.hasEdge(nodeKey1, nodeKey2) ||
+          this.graph.hasEdge(nodeKey2, nodeKey1)))
+      this.graph.addEdge(nodeKey1, nodeKey2);
+  }
+
+  removeEdge(edgeKey: string): void {
+    this.graph.dropEdge(edgeKey);
+  }
+
+  randomGraph(nodes: number, edges: number): void {
     assert(
         edges <= nodes * (nodes - 1) / 2,
         'Given number of edges is higher than maximum number of edges for \
@@ -25,9 +45,12 @@ graph with given number of nodes');
         edges > nodes - 1,
         'Given number of edges is lower than minimum number of edges for \
 graph with given number of nodes');
-    let graph = complete(UndirectedGraph, nodes);
+    this.graph = complete(UndirectedGraph, nodes);
+    // nodes from `complete` generator have numeric keys from range [0,
+    // number_of_nodes)
+    this.newNodeKey = nodes.toString();
 
-    let edgesKeys = graph.edges();
+    let edgesKeys = this.graph.edges();
     let edgeCount = edgesKeys.length;
     // remove random edges from graph until it has number of edges equal to one
     // given to function
@@ -35,13 +58,12 @@ graph with given number of nodes');
       let edgeIndex = Math.floor(Math.random() * (edgesKeys.length));
       const edge = edgesKeys[edgeIndex];
       edgesKeys.splice(edgeIndex, 1);
-      const ends = graph.extremities(edge);
-      graph.dropEdge(edge);
-      if (GraphStorageService.isValid(graph))
+      const ends = this.graph.extremities(edge);
+      this.graph.dropEdge(edge);
+      if (this.isValid())
         edgeCount--;
       else  // removing edge disconnected the graph, re-add it
-        graph.addEdge(ends[0], ends[1]);
+        this.graph.addEdge(ends[0], ends[1]);
     }
-    return graph;
   }
 }
