@@ -1,3 +1,4 @@
-<div>
-  <app-graph-display></app-graph-display>
+<div id="container">
+  <app-graph-display (choosenElement)="elementChoice($event)"></app-graph-display>
+  <app-element-info-display [elementDescriptor]="elementDescriptor"></app-element-info-display>
 </div>

@@ -13,6 +13,7 @@ export class GraphStorageService {
   constructor() {}
 
   isValid(): boolean {
+    // Doesn't detect singular disconnected nodes
     return countConnectedComponents(this.graph) == 1;  // is connected
   }
 
@@ -29,7 +30,7 @@ export class GraphStorageService {
     if (this.graph.hasNode(nodeKey1) && this.graph.hasNode(nodeKey2) &&
         !(this.graph.hasEdge(nodeKey1, nodeKey2) ||
           this.graph.hasEdge(nodeKey2, nodeKey1)))
-      this.graph.addEdge(nodeKey1, nodeKey2);
+      this.graph.addEdge(nodeKey1, nodeKey2, {'cost': 1});
   }
 
   removeEdge(edgeKey: string): void {
@@ -64,6 +65,16 @@ graph with given number of nodes');
         edgeCount--;
       else  // removing edge disconnected the graph, re-add it
         this.graph.addEdge(ends[0], ends[1]);
+    }
+
+    // create cost field that can be edited by user in info display
+    for (const edgeKey of this.graph.edges()) {
+      this.graph.setEdgeAttribute(edgeKey, 'cost', 1);
+    }
+
+    // for easier testing of display, nodes are easier to click
+    for (const nodeKey of this.graph.nodes()) {
+      this.graph.setNodeAttribute(nodeKey, 'test', 13);
     }
   }
 }

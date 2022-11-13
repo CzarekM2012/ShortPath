@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild} from '@angular/core';
 import * as assert from 'assert';
 import {random} from 'graphology-layout';
 import ForceSupervisor from 'graphology-layout-force/worker';
@@ -6,7 +6,7 @@ import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
 import {GraphStorageService} from '../../services/graph-storage.service';
-import {DisplayCommand, DisplayState} from '../../utility/types';
+import {DisplayCommand, DisplayState, ElementDescriptor} from '../../types';
 
 @Component({
   selector: 'app-graph-display',
@@ -15,6 +15,7 @@ import {DisplayCommand, DisplayState} from '../../utility/types';
 })
 export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
   @ViewChild('graphContainer') container?: ElementRef;
+  @Output() choosenElement = new EventEmitter<ElementDescriptor>();
   state: DisplayState = 'choose';
   renderer?: Sigma;
   layout?: ForceSupervisor;
@@ -56,7 +57,7 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
     this.renderer.on('clickNode', (event) => {
       switch (this.state) {
         case 'choose':
-          console.log(event.node);
+          this.choosenElement.emit({key: event.node, type: 'node'});
           break;
         case 'addEdge':
           if (this.nodeKey == undefined) {
@@ -78,7 +79,7 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
     this.renderer.on('clickEdge', (event) => {
       switch (this.state) {
         case 'choose':
-          console.log(event.edge);
+          this.choosenElement.emit({key: event.edge, type: 'edge'});
           break;
         case 'remove':
           this.graphStorage.removeEdge(event.edge);
@@ -94,7 +95,9 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
       this.graphStorage.randomGraph(15, 70);
       this.stopRendering();
       this.startRendering();
-    } else
+    } else {
+      if (this.state != arg) this.nodeKey = undefined;
       this.state = arg;
+    }
   }
 }

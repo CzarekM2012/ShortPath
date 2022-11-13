@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+
+import {ElementDescriptor} from '../../types';
 
 @Component({
   selector: 'app-gui',
@@ -6,10 +8,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./gui.component.css']
 })
 export class GUIComponent implements OnInit {
+  elementDescriptor?: ElementDescriptor;
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  elementChoice(event: ElementDescriptor) {
+    this.elementDescriptor = event;
   }
-
 }
