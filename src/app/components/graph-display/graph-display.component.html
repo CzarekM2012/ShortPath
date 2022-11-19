@@ -1,10 +1,10 @@
-<div id="container">
-  <div id="buttonsColumn">
+<div class="horizontal">
+  <div class="vertical">
     <button (click)="buttonsHandler('choose')">Choose</button>
     <button (click)="buttonsHandler('addNode')">Add node</button>
     <button (click)="buttonsHandler('addEdge')">Add edge</button>
     <button (click)="buttonsHandler('remove')">Remove</button>
     <button (click)="buttonsHandler('generateRandom')">Random graph</button>
   </div>
-  <div #graphContainer id="graph"></div>
+  <div #display id="graph"></div>
 </div>

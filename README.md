@@ -35,6 +35,6 @@ ShortPath is an educational environment designed to help with understanding of g
 
 ## Planned algorithms:
 
-- Djikstra algorithn
+- Dijkstra algorithn
 - A* algorithm
 - Bellman-Ford algorithm

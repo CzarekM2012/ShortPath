@@ -1,5 +1,4 @@
 import {AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild} from '@angular/core';
-import * as assert from 'assert';
 import Attributes from 'graphology';
 
 import {GraphStorageService} from '../../services/graph-storage.service';
@@ -11,17 +10,13 @@ import {ElementDescriptor} from '../../types';
   styleUrls: ['./element-info-display.component.css']
 })
 export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
-  @ViewChild('container') container?: ElementRef;
+  @ViewChild('display') display!: ElementRef;
   @Input() elementDescriptor?: ElementDescriptor;
   test: string = '';
 
   constructor(private graphStorage: GraphStorageService) {}
 
-  ngAfterViewInit(): void {
-    assert(
-        typeof this.container != 'undefined',
-        'Container object does not exist. It will not be possible to display graph element data.');
-  }
+  ngAfterViewInit(): void {}
 
   ngOnChanges() {
     if (this.elementDescriptor == undefined) return;
@@ -41,7 +36,7 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
         return;
     }
     const nodes = this.createInterface(attributes as Attributes).flat();
-    (this.container?.nativeElement as HTMLElement).replaceChildren(...nodes);
+    (this.display.nativeElement as HTMLElement).replaceChildren(...nodes);
   }
 
   createInterface(object: Attributes) {
