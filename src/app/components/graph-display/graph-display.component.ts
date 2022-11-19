@@ -6,6 +6,7 @@ import {Coordinates} from 'sigma/types';
 
 import {GraphStorageService} from '../../services/graph-storage.service';
 import {DisplayCommand, DisplayState, ElementDescriptor} from '../../types';
+import {enforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility';
 
 @Component({
   selector: 'app-graph-display',
@@ -14,6 +15,8 @@ import {DisplayCommand, DisplayState, ElementDescriptor} from '../../types';
 })
 export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
   @ViewChild('display') display!: ElementRef;
+  @ViewChild('numberOfNodes') nodesInput!: ElementRef;
+  @ViewChild('numberOfEdges') edgesInput!: ElementRef;
   @Output() choosenElement = new EventEmitter<ElementDescriptor>();
   state: DisplayState = 'choose';
   renderer?: Sigma;
@@ -88,12 +91,36 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
 
   buttonsHandler(arg: DisplayCommand) {
     if (arg == 'generateRandom') {
-      this.graphStorage.randomGraph(15, 70);
+      this.graphStorage.randomGraph(
+          this.nodesInput.nativeElement.value,
+          this.edgesInput.nativeElement.value);
       this.stopRendering();
       this.startRendering();
     } else {
       if (this.state != arg) this.nodeKey = undefined;
       this.state = arg;
     }
+  }
+
+  handleNodesNumber() {
+    const nodesInput = this.nodesInput.nativeElement as HTMLInputElement;
+    enforceNumberInput.enforceRange(nodesInput);
+    enforceNumberInput.enforceInteger(nodesInput);
+
+    const nodesNumber = Number(nodesInput.value);
+    const edgesInput = this.edgesInput.nativeElement as HTMLInputElement;
+    const edgesNumber = Number(edgesInput.value);
+    const minEdges = minEdgesForConnectedGraph(nodesNumber);
+    const maxEdges = maxEdgesForConnectedGraph(nodesNumber);
+    edgesInput.min = minEdges.toString();
+    edgesInput.max = maxEdges.toString();
+    if (edgesNumber < minEdges)
+      edgesInput.value = edgesInput.min;
+    else if (edgesNumber > maxEdges)
+      edgesInput.value = edgesInput.max;
+  }
+  handleEdgesNumber() {
+    enforceNumberInput.enforceRange(this.edgesInput.nativeElement);
+    enforceNumberInput.enforceInteger(this.edgesInput.nativeElement);
   }
 }

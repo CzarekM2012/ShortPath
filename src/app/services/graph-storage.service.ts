@@ -5,6 +5,8 @@ import {countConnectedComponents} from 'graphology-components';
 import {complete} from 'graphology-generators/classic';
 import {Coordinates} from 'sigma/types';
 
+import {maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../utility';
+
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
@@ -39,11 +41,11 @@ export class GraphStorageService {
 
   randomGraph(nodes: number, edges: number): void {
     assert(
-        edges <= nodes * (nodes - 1) / 2,
+        edges <= maxEdgesForConnectedGraph(nodes),
         'Given number of edges is higher than maximum number of edges for \
 graph with given number of nodes');
     assert(
-        edges > nodes - 1,
+        edges > minEdgesForConnectedGraph(nodes),
         'Given number of edges is lower than minimum number of edges for \
 graph with given number of nodes');
     this.graph = complete(UndirectedGraph, nodes);

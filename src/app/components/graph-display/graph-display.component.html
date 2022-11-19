@@ -1,9 +1,21 @@
-<div class="horizontal">
-  <div class="vertical">
+<div class="vertical">
+  <div class="horizontal">
     <button (click)="buttonsHandler('choose')">Choose</button>
     <button (click)="buttonsHandler('addNode')">Add node</button>
     <button (click)="buttonsHandler('addEdge')">Add edge</button>
     <button (click)="buttonsHandler('remove')">Remove</button>
+    <div class="vertical">
+      <div class="horizontal">
+        <label for="nodes">Nodes:</label>
+        <input #numberOfNodes type="number" (change)="handleNodesNumber()" name="nodes" min="2" value="10">
+      </div>
+      <div class="horizontal">
+        <label for="edges">Edges:</label>
+        <input #numberOfEdges type="number" (change)="handleEdgesNumber()" name="edges" min="9" max="45" value="20">
+        <!--min and max are manually calculated minimal and maximal number of edges for connected graph with 10 nodes
+          (initial value of nodes number input), these values will change together with value in nodes number input-->
+      </div>
+    </div>
     <button (click)="buttonsHandler('generateRandom')">Random graph</button>
   </div>
   <div #display id="graph"></div>
