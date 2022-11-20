@@ -1,0 +1,4 @@
+<select #selection (change)="handleChoice()">
+  <option value={{IMPROPER_ALGORITHM}} hidden>Choose algorithm</option>
+</select>
+<button #execution (click)="executeAlgorithm()" disabled>Execute</button>

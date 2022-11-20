@@ -5,6 +5,7 @@ import {countConnectedComponents} from 'graphology-components';
 import {complete} from 'graphology-generators/classic';
 import {Coordinates} from 'sigma/types';
 
+import {GraphAlgorithms} from '../types';
 import {maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../utility';
 
 @Injectable({providedIn: 'root'})
@@ -17,6 +18,35 @@ export class GraphStorageService {
   isValid(): boolean {
     // Doesn't detect singular disconnected nodes
     return countConnectedComponents(this.graph) == 1;  // is connected
+  }
+
+  adjustEdgeFields(edgeKey: string, algorithm: string) {
+    switch (algorithm) {
+      case GraphAlgorithms.dijkstra:
+        this.graph.setEdgeAttribute(edgeKey, 'cost', 1);
+        break;
+      default:
+        break;
+    }
+  }
+
+  adjustNodeFields(nodeKey: string, algorithm: string) {
+    switch (algorithm) {
+      case GraphAlgorithms.dijkstra:
+        this.graph.setNodeAttribute(nodeKey, 'distance', Infinity);
+        break;
+      default:
+        break;
+    }
+  }
+
+  adjustGraphFields(algorithm: string) {
+    this.graph.forEachEdge((edgeKey: string) => {
+      this.adjustEdgeFields(edgeKey, algorithm);
+    });
+    this.graph.forEachNode((nodeKey: string) => {
+      this.adjustNodeFields(nodeKey, algorithm);
+    });
   }
 
   addNode(coords: Coordinates): void {
@@ -45,7 +75,7 @@ export class GraphStorageService {
         'Given number of edges is higher than maximum number of edges for \
 graph with given number of nodes');
     assert(
-        edges > minEdgesForConnectedGraph(nodes),
+        edges >= minEdgesForConnectedGraph(nodes),
         'Given number of edges is lower than minimum number of edges for \
 graph with given number of nodes');
     this.graph = complete(UndirectedGraph, nodes);
@@ -67,16 +97,6 @@ graph with given number of nodes');
         edgeCount--;
       else  // removing edge disconnected the graph, re-add it
         this.graph.addEdge(ends[0], ends[1]);
-    }
-
-    // create cost field that can be edited by user in info display
-    for (const edgeKey of this.graph.edges()) {
-      this.graph.setEdgeAttribute(edgeKey, 'cost', 1);
-    }
-
-    // for easier testing of display, nodes are easier to click
-    for (const nodeKey of this.graph.nodes()) {
-      this.graph.setNodeAttribute(nodeKey, 'test', 13);
     }
   }
 }

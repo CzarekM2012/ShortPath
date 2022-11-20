@@ -6,3 +6,9 @@ export interface ElementDescriptor {
   key: string;
   type: 'node'|'edge';
 }
+
+export enum GraphAlgorithms {
+  dijkstra = 'Dijkstra',
+  aStar = 'A*',
+  bellmanFord = 'Bellman-Ford',
+}
