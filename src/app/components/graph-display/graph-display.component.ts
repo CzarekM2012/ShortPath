@@ -4,9 +4,9 @@ import ForceSupervisor from 'graphology-layout-force/worker';
 import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
-import {GraphStorageService} from '../../services/graph-storage.service';
-import {DisplayCommand, DisplayState, ElementDescriptor} from '../../types';
-import {enforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility';
+import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
+import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {DisplayCommand, DisplayState, ElementDescriptor} from '../../utility/types';
 
 @Component({
   selector: 'app-graph-display',
@@ -104,8 +104,8 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
 
   handleNodesNumber() {
     const nodesInput = this.nodesInput.nativeElement as HTMLInputElement;
-    enforceNumberInput.enforceRange(nodesInput);
-    enforceNumberInput.enforceInteger(nodesInput);
+    EnforceNumberInput.enforceRange(nodesInput);
+    EnforceNumberInput.enforceInteger(nodesInput);
 
     const nodesNumber = Number(nodesInput.value);
     const edgesInput = this.edgesInput.nativeElement as HTMLInputElement;
@@ -120,7 +120,7 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
       edgesInput.value = edgesInput.max;
   }
   handleEdgesNumber() {
-    enforceNumberInput.enforceRange(this.edgesInput.nativeElement);
-    enforceNumberInput.enforceInteger(this.edgesInput.nativeElement);
+    EnforceNumberInput.enforceRange(this.edgesInput.nativeElement);
+    EnforceNumberInput.enforceInteger(this.edgesInput.nativeElement);
   }
 }

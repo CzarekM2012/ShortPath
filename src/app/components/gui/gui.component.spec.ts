@@ -1,16 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { GUIComponent } from './gui.component';
+import {GUIComponent} from './gui.component';
 
 describe('GUIComponent', () => {
   let component: GUIComponent;
   let fixture: ComponentFixture<GUIComponent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ GUIComponent ]
-    })
-    .compileComponents();
+    await TestBed.configureTestingModule({declarations: [GUIComponent]})
+        .compileComponents();
 
     fixture = TestBed.createComponent(GUIComponent);
     component = fixture.componentInstance;
@@ -19,5 +17,9 @@ describe('GUIComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should have step number input', () => {
+    expect(component.stepsInput).toBeDefined();
   });
 });

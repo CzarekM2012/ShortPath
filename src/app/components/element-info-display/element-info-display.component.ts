@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild} from '@angular/core';
 import Attributes from 'graphology';
 
-import {GraphStorageService} from '../../services/graph-storage.service';
-import {ElementDescriptor} from '../../types';
+import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
+import {ElementDescriptor} from '../../utility/types';
 
 @Component({
   selector: 'app-element-info-display',

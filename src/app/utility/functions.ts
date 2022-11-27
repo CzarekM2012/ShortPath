@@ -1,8 +1,8 @@
 /* Since both empty inputs and those with strings that are not considered
  * numbers, but can be written (such as "123-46.58") have value equal to '',
- * functions from "enforceNumberInput" also have an effect of replacing improper
+ * functions from "EnforceNumberInput" also have an effect of replacing improper
  * strings in inputs.*/
-export namespace enforceNumberInput {
+export namespace EnforceNumberInput {
   /*Limitations on range of values can be bypassed by writingthe value directly
    * into input.*/
   export function enforceRange(input: HTMLInputElement) {

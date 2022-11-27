@@ -5,8 +5,8 @@ import {countConnectedComponents} from 'graphology-components';
 import {complete} from 'graphology-generators/classic';
 import {Coordinates} from 'sigma/types';
 
-import {GraphAlgorithms} from '../types';
-import {maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../utility';
+import {maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {GraphAlgorithms} from '../../utility/types';
 
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {

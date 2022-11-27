@@ -3,7 +3,15 @@
     <app-graph-display (choosenElement)="elementChoice($event)"></app-graph-display>
     <div class="horizontal">
       <app-algorithm-choice></app-algorithm-choice>
+      Step:
+      <button (click)="changeExecutionStep('backward')">&#8592;</button>
+      <input #stepsCount type="number" min="1" value="1" (change)="handleStepsNumber()">
+      <button (click)="changeExecutionStep('forward')">&#8594;</button>
     </div>
   </div>
+  <div class="vertical">
+    <div id="description" #description>Overall description of choosen algorithm or current step of its execution will
+      appear here</div>
     <app-element-info-display [elementDescriptor]="elementDescriptor"></app-element-info-display>
+  </div>
 </div>

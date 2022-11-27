@@ -1,7 +1,8 @@
 import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 
-import {GraphStorageService} from '../../../services/graph-storage.service';
-import {GraphAlgorithms} from '../../../types';
+import {AlgorithmSolutionService} from '../../../services/algorithm-solution/algorithm-solution.service';
+import {GraphStorageService} from '../../../services/graph-storage/graph-storage.service';
+import {GraphAlgorithms} from '../../../utility/types';
 
 @Component({
   selector: 'app-algorithm-choice',
@@ -14,7 +15,9 @@ export class AlgorithmChoiceComponent implements AfterViewInit {
   IMPROPER_ALGORITHM: string = 'none';
   choosenAlgorithm: string = this.IMPROPER_ALGORITHM;
 
-  constructor(private graphStorage: GraphStorageService) {}
+  constructor(
+      private graphStorage: GraphStorageService,
+      private algorithmSolution: AlgorithmSolutionService) {}
 
   ngAfterViewInit(): void {
     const algorithmsList = this.algorithms.nativeElement as HTMLSelectElement;
@@ -36,5 +39,8 @@ export class AlgorithmChoiceComponent implements AfterViewInit {
     }
   }
 
-  executeAlgorithm() {}
+  executeAlgorithm() {
+    if (this.choosenAlgorithm != this.IMPROPER_ALGORITHM)
+      this.algorithmSolution.executeAlgorithm(this.choosenAlgorithm);
+  }
 }
