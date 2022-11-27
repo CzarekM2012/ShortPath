@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 
+import {GraphAlgorithms} from '../../../algorithms/register';
 import {AlgorithmSolutionService} from '../../../services/algorithm-solution/algorithm-solution.service';
 import {GraphStorageService} from '../../../services/graph-storage/graph-storage.service';
-import {GraphAlgorithms} from '../../../utility/types';
 
 @Component({
   selector: 'app-algorithm-choice',
@@ -21,9 +21,9 @@ export class AlgorithmChoiceComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const algorithmsList = this.algorithms.nativeElement as HTMLSelectElement;
-    for (const value of Object.values(GraphAlgorithms)) {
+    for (const key of Object.keys(GraphAlgorithms)) {
       const option = document.createElement('option');
-      option.innerText = value;
+      option.innerText = key;
       algorithmsList.appendChild(option);
     }
   }

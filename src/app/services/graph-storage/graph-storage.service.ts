@@ -5,8 +5,8 @@ import {countConnectedComponents} from 'graphology-components';
 import {complete} from 'graphology-generators/classic';
 import {Coordinates} from 'sigma/types';
 
+import {GraphAlgorithms} from '../../algorithms/register';
 import {maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
-import {GraphAlgorithms} from '../../utility/types';
 
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {
@@ -21,23 +21,12 @@ export class GraphStorageService {
   }
 
   adjustEdgeFields(edgeKey: string, algorithm: string) {
-    switch (algorithm) {
-      case GraphAlgorithms.dijkstra:
-        this.graph.setEdgeAttribute(edgeKey, 'cost', 1);
-        break;
-      default:
-        break;
-    }
+    this.graph.setEdgeAttribute(edgeKey, 'cost', 1);
   }
 
+
   adjustNodeFields(nodeKey: string, algorithm: string) {
-    switch (algorithm) {
-      case GraphAlgorithms.dijkstra:
-        this.graph.setNodeAttribute(nodeKey, 'distance', Infinity);
-        break;
-      default:
-        break;
-    }
+    this.graph.setNodeAttribute(nodeKey, 'distance', Infinity);
   }
 
   adjustGraphFields(algorithm: string) {

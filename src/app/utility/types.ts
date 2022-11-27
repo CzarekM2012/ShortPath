@@ -7,8 +7,8 @@ export interface ElementDescriptor {
   type: 'node'|'edge';
 }
 
-export enum GraphAlgorithms {
-  dijkstra = 'Dijkstra',
-  aStar = 'A*',
-  bellmanFord = 'Bellman-Ford',
-}
+export type propertyDescriptor = {
+  name: string, type: 'string', default: string;
+}|{
+  name: string, type: 'number', default: number;
+};
