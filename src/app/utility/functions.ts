@@ -2,13 +2,18 @@ import {graphAlgorithms} from '../algorithms/register';
 
 import {AttributeDescriptor} from './types';
 
-/* Since both empty inputs and those with strings that are not considered
+/**
+ * Since both empty inputs and those with strings that are not considered
  * numbers, but can be written (such as "123-46.58") have value equal to '',
  * functions from "EnforceNumberInput" also have an effect of replacing improper
- * strings in inputs.*/
+ * strings in inputs.
+ */
 export namespace EnforceNumberInput {
-  /*Limitations on range of values can be bypassed by writingthe value directly
-   * into input.*/
+  /**
+   * Enforces value range limitations of number HTMLInputElement that can be
+   * bypassed by writing value directly
+   * @param input Number HTMLInputElement object
+   */
   export function enforceRange(input: HTMLInputElement) {
     let value = Number(input.value);
     if (input.min != '' && value < Number(input.min)) {
@@ -22,20 +27,31 @@ export namespace EnforceNumberInput {
     input.value = value.toString();
   }
 
+  /**
+   * Forcibly changes value of number HTMLInputElement to integer by truncating
+   * digits after decimal point
+   * @param input Number HTMLInputElement object
+   */
   export function enforceInteger(input: HTMLInputElement) {
     input.value = Math.trunc(Number(input.value)).toString();
   }
 }
 
-/* Minimum number of edges in graph with given number of nodes, required for
- * path between any pair of nodes to exist*/
+/**
+ * @param nodes Number of nodes in graph
+ * @returns Minimal number of edges necessary for path between any pair of nodes
+ *     in the graph to exist
+ */
 export function minEdgesForConnectedGraph(nodes: number) {
   return nodes - 1;
 }
 
-/*Maximum number of edges in graph with given number of nodes. Graph with these
- * numbers of nodes and edges will be fully connected (every node will be
- * connected with every other node)*/
+/**
+ * @param nodes Number of nodes in graph
+ * @returns Number of edges in fully connected graph with given number of nodes.
+ *     Maximum number of edges possible to create in graph for any pair of
+ *     neighbour nodes to be connected with a single edge
+ */
 export function maxEdgesForConnectedGraph(nodes: number) {
   return nodes * (nodes - 1) / 2;
 }
