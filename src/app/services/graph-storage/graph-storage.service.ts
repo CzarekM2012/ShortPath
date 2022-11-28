@@ -5,13 +5,16 @@ import {countConnectedComponents} from 'graphology-components';
 import {complete} from 'graphology-generators/classic';
 import {Coordinates} from 'sigma/types';
 
-import {GraphAlgorithms} from '../../algorithms/register';
-import {maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {graphAlgorithms} from '../../algorithms/register';
+import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+
+const IMPROPER_ALGORITHM = 'none';
 
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
   newNodeKey: string = '0';
+  choosenAlgorithm: string = IMPROPER_ALGORITHM
 
   constructor() {}
 
@@ -20,38 +23,64 @@ export class GraphStorageService {
     return countConnectedComponents(this.graph) == 1;  // is connected
   }
 
-  adjustEdgeFields(edgeKey: string, algorithm: string) {
-    this.graph.setEdgeAttribute(edgeKey, 'cost', 1);
-  }
+  changeAlgorithm(algorithm: string) {
+    const propertyChanges =
+        analyzeAlgorithmChange(this.choosenAlgorithm, algorithm);
+    const edgeSets =
+        propertyChanges.edges.add.concat(propertyChanges.edges.replace);
+    const nodeSets =
+        propertyChanges.nodes.add.concat(propertyChanges.nodes.replace);
 
-
-  adjustNodeFields(nodeKey: string, algorithm: string) {
-    this.graph.setNodeAttribute(nodeKey, 'distance', Infinity);
-  }
-
-  adjustGraphFields(algorithm: string) {
     this.graph.forEachEdge((edgeKey: string) => {
-      this.adjustEdgeFields(edgeKey, algorithm);
+      propertyChanges.edges.remove.forEach((desc) => {
+        this.graph.removeEdgeAttribute(edgeKey, desc.name);
+      });
+      edgeSets.forEach((desc) => {
+        this.graph.setEdgeAttribute(edgeKey, desc.name, desc.default);
+      });
     });
+
     this.graph.forEachNode((nodeKey: string) => {
-      this.adjustNodeFields(nodeKey, algorithm);
+      propertyChanges.nodes.remove.forEach((desc) => {
+        this.graph.removeNodeAttribute(nodeKey, desc.name);
+      });
+      nodeSets.forEach((desc) => {
+        this.graph.setNodeAttribute(nodeKey, desc.name, desc.default);
+      });
     });
+
+    this.choosenAlgorithm = algorithm;
   }
 
   addNode(coords: Coordinates): void {
     this.graph.addNode(this.newNodeKey, {...coords});
+    // Newly added node has no algorithm-specific attributes so all of them
+    // should be added
+    graphAlgorithms[this.choosenAlgorithm]?.nodeProperties.forEach(
+        (descriptor) => {
+          this.graph.setNodeAttribute(
+              this.newNodeKey, descriptor.name, descriptor.default);
+        });
     this.newNodeKey = (parseInt(this.newNodeKey) + 1).toString();
-  }
-
-  removeNode(nodeKey: string): void {
-    this.graph.dropNode(nodeKey);
   }
 
   addEdge(nodeKey1: string, nodeKey2: string): void {
     if (this.graph.hasNode(nodeKey1) && this.graph.hasNode(nodeKey2) &&
         !(this.graph.hasEdge(nodeKey1, nodeKey2) ||
-          this.graph.hasEdge(nodeKey2, nodeKey1)))
-      this.graph.addEdge(nodeKey1, nodeKey2, {'cost': 1});
+          this.graph.hasEdge(nodeKey2, nodeKey1))) {
+      this.graph.addEdge(nodeKey1, nodeKey2);
+      // Newly added edge has no algorithm-specific attributes so all of them
+      // should be added
+      graphAlgorithms[this.choosenAlgorithm]?.edgeProperties.forEach(
+          (descriptor) => {
+            this.graph.setEdgeAttribute(
+                nodeKey1, nodeKey2, descriptor.name, descriptor.default);
+          });
+    }
+  }
+
+  removeNode(nodeKey: string): void {
+    this.graph.dropNode(nodeKey);
   }
 
   removeEdge(edgeKey: string): void {

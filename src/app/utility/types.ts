@@ -7,8 +7,6 @@ export interface ElementDescriptor {
   type: 'node'|'edge';
 }
 
-export type propertyDescriptor = {
-  name: string, type: 'string', default: string;
-}|{
-  name: string, type: 'number', default: number;
-};
+export type AttributeDescriptor = {
+  name: string, default: string|number;
+}

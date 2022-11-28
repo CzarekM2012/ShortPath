@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 
-import {GraphAlgorithms} from '../../../algorithms/register';
+import {graphAlgorithms} from '../../../algorithms/register';
 import {AlgorithmSolutionService} from '../../../services/algorithm-solution/algorithm-solution.service';
 import {GraphStorageService} from '../../../services/graph-storage/graph-storage.service';
 
@@ -21,7 +21,7 @@ export class AlgorithmChoiceComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const algorithmsList = this.algorithms.nativeElement as HTMLSelectElement;
-    for (const key of Object.keys(GraphAlgorithms)) {
+    for (const key of Object.keys(graphAlgorithms)) {
       const option = document.createElement('option');
       option.innerText = key;
       algorithmsList.appendChild(option);
@@ -33,7 +33,7 @@ export class AlgorithmChoiceComponent implements AfterViewInit {
     const selected = select.options.item(select.selectedIndex)!.value;
     if (selected != this.choosenAlgorithm) {
       this.choosenAlgorithm = selected;
-      this.graphStorage.adjustGraphFields(this.choosenAlgorithm);
+      this.graphStorage.changeAlgorithm(this.choosenAlgorithm);
       (this.algorithmExecution!.nativeElement as HTMLButtonElement).disabled =
           false;
     }

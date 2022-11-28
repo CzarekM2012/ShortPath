@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 
-import {GraphAlgorithms} from '../../algorithms/register';
+import {graphAlgorithms} from '../../algorithms/register';
 import {GraphStorageService} from '../graph-storage/graph-storage.service';
 
 @Injectable({providedIn: 'root'})
@@ -20,11 +20,11 @@ export class AlgorithmSolutionService {
   }
 
   executeAlgorithm(algorithm: string) {
-    if (algorithm in GraphAlgorithms) {
+    if (algorithm in graphAlgorithms) {
       if (typeof Worker !== 'undefined') {
         this.executionStack = [];
         const worker = new Worker(
-            new URL(GraphAlgorithms[algorithm].workerPath, import.meta.url));
+            new URL(graphAlgorithms[algorithm].workerPath, import.meta.url));
         worker.onmessage = ({data}) => {
           console.log(data);
           this.executionStack.push(data);
@@ -40,7 +40,7 @@ export class AlgorithmSolutionService {
             'execute algorithm in the background.\nAlgorithm will be executed ' +
             'in main thread, GUI may stop responding, depending on complexity ' +
             'of the task');
-        GraphAlgorithms[algorithm].mainThreadFunction();
+        graphAlgorithms[algorithm].mainThreadFunction();
       }
     } else
       console.error('Attempted to execute unsupported algorithm.');
