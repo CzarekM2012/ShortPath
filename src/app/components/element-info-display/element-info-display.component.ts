@@ -2,6 +2,7 @@ import {AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild} from 
 import Attributes from 'graphology';
 
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
+import {getTypeCastedValue} from '../../utility/functions';
 import {ElementDescriptor} from '../../utility/types';
 
 @Component({
@@ -12,7 +13,6 @@ import {ElementDescriptor} from '../../utility/types';
 export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
   @ViewChild('display') display!: ElementRef;
   @Input() elementDescriptor?: ElementDescriptor;
-  test: string = '';
 
   constructor(private graphStorage: GraphStorageService) {}
 
@@ -64,7 +64,6 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       switch (typeof value) {
         case 'number':
           input.type = 'number';
-          input.step = '1'
           break;
         default:
           input.type = 'string';
@@ -74,13 +73,13 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
         case 'node':
           input.onchange = () => {
             this.graphStorage.graph.setNodeAttribute(
-                this.elementDescriptor?.key, key, input.value);
+                this.elementDescriptor?.key, key, getTypeCastedValue(input));
           };
           break;
         case 'edge':
           input.onchange = () => {
             this.graphStorage.graph.setEdgeAttribute(
-                this.elementDescriptor?.key, key, input.value);
+                this.elementDescriptor?.key, key, getTypeCastedValue(input));
           };
           break;
         default:

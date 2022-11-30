@@ -36,6 +36,20 @@ export namespace EnforceNumberInput {
     input.value = Math.trunc(Number(input.value)).toString();
   }
 }
+/**
+ * Inputs of types: number, string are supported
+ * @param input HTMLInputElement object
+ * @returns Value of passed input. Value is returned as object of type
+ *     appropriate to type property of input object
+ */
+export function getTypeCastedValue(input: HTMLInputElement) {
+  switch (input.type) {
+    case 'number':
+      return Number(input.value);
+    default:
+      return input.value;
+  }
+}
 
 /**
  * @param nodes Number of nodes in graph
