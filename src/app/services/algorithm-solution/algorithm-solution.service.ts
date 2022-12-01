@@ -45,27 +45,62 @@ export class AlgorithmSolutionService {
   executeAlgorithm(algorithm: string) {
     if (algorithm in graphAlgorithms) {
       if (typeof Worker !== 'undefined') {
-        this.executionStack = [];
-        const worker = new Worker(
-            new URL(graphAlgorithms[algorithm].workerPath, import.meta.url));
-        worker.onmessage = ({data}) => {
-          console.log(data);
-          this.executionStack.push(data);
-        };
-        worker.postMessage({
-          graph: this.graphStorage.graph,
-          source: this.graphStorage.graph.nodes()[0],
-          destination: this.graphStorage.graph.nodes()[-1]
-        });
+        this.workerAlgorithmCall(algorithm);
       } else {
-        alert(
-            'Your browser does not support webworkers, making it impossible to ' +
-            'execute algorithm in the background.\nAlgorithm will be executed ' +
-            'in main thread, GUI may stop responding, depending on complexity ' +
-            'of the task');
-        graphAlgorithms[algorithm].mainThreadFunction();
+        this.mainThreadAlgorithmCall(algorithm);
       }
     } else
       console.error('Attempted to execute unsupported algorithm.');
+  }
+
+  workerAlgorithmCall(algorithm: string) {
+    if (!this._checkEnds()) return;
+    this.executionStack = [];
+    const worker = graphAlgorithms[algorithm].getWorker();
+    //  Values of properties are preserved, but methods are lost due to
+    //  algorithm used to copy data passed through messages
+    worker.onmessage = ({data}: {data: ExecutionStage}) => {
+      const restoredStage = new ExecutionStage();
+      restoredStage.description = data.description
+      restoredStage.changes = data.changes.map((degeneratedChange) => {
+        return new GraphChange(
+            degeneratedChange.element, degeneratedChange.property,
+            degeneratedChange.formerValue, degeneratedChange.newValue);
+      });
+      this.executionStack.push(restoredStage);
+    };
+    worker.postMessage({
+      graphData: this.graphStorage.graph.export(),
+      source: this.graphStorage.startNode,
+      destination: this.graphStorage.endNode,
+    });
+  }
+
+  mainThreadAlgorithmCall(algorithm: string) {
+    if (!this._checkEnds()) return;
+    this.executionStack = [];
+    alert(
+        'Your browser does not support webworkers, making it impossible to ' +
+        'execute algorithm in the background.\nAlgorithm will be executed ' +
+        'in main thread, GUI may stop responding, depending on complexity ' +
+        'of the task');
+    graphAlgorithms[algorithm].mainThreadFunction(
+        this.executionStack,
+        this.graphStorage.graph,
+        this.graphStorage.startNode as string,
+        this.graphStorage.endNode as string,
+    );
+    this.currentIndex = this.executionStack.length;
+    this.step(-Infinity);
+  }
+
+  _checkEnds() {
+    if (this.graphStorage.startNode === undefined ||
+        this.graphStorage.endNode === undefined) {
+      alert(
+          'Both start and end node need to be choosen before executing algorithm');
+      return false;
+    }
+    return true;
   }
 }

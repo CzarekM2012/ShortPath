@@ -1,33 +1,44 @@
+import Graph from 'graphology';
+
+import {ExecutionStage} from '../utility/execution-stage/execution-stage';
 import {AttributeDescriptor} from '../utility/types';
 
 export const graphAlgorithms: {
   [key: string]: {
     nodeProperties: AttributeDescriptor[],
     edgeProperties: AttributeDescriptor[],
-    workerPath: string,
-    mainThreadFunction: () => void
+    getWorker: () => Worker,
+    mainThreadFunction:
+        (executionStack: ExecutionStage[], graph: Graph, source: string,
+         destination: string) => void
   }
 } = {
   'Dijkstra': {
     nodeProperties: [
-      {name: 'cost', default: 1},
-    ],
-    edgeProperties: [
       {name: 'distance', default: Infinity},
     ],
-    workerPath: '',
+    edgeProperties: [
+      {name: 'cost', default: 1},
+    ],
+    getWorker: () => {
+      return new Worker('');
+    },
     mainThreadFunction: () => {alert('Dijkstra is unsupported as of yet')},
   },
   'A*': {
-    nodeProperties: [{name: 'cost', default: 10}],
+    nodeProperties: [{name: 'distance', default: 10}],
     edgeProperties: [],
-    workerPath: '',
+    getWorker: () => {
+      return new Worker('');
+    },
     mainThreadFunction: () => {alert('A* is unsupported as of yet')},
   },
   'Bellman-Ford': {
-    nodeProperties: [{name: 'cost', default: 'zzzzzzzzzzzzzzzzzzz'}],
+    nodeProperties: [{name: 'distance', default: 'zzzzzzzzzzzzzzzzzzz'}],
     edgeProperties: [],
-    workerPath: '',
+    getWorker: () => {
+      return new Worker('');
+    },
     mainThreadFunction: () => {alert('Bellman-Ford is unsupported as of yet')},
   },
 }
