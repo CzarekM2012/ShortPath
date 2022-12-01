@@ -3,6 +3,8 @@ import Graph from 'graphology';
 import {ExecutionStage} from '../utility/execution-stage/execution-stage';
 import {AttributeDescriptor} from '../utility/types';
 
+import {dijkstra} from './dijkstra/dijkstra-algorithm';
+
 export const graphAlgorithms: {
   [key: string]: {
     nodeProperties: AttributeDescriptor[],
@@ -20,10 +22,9 @@ export const graphAlgorithms: {
     edgeProperties: [
       {name: 'cost', default: 1},
     ],
-    getWorker: () => {
-      return new Worker('');
-    },
-    mainThreadFunction: () => {alert('Dijkstra is unsupported as of yet')},
+    getWorker: () => {return new Worker(
+        new URL('dijkstra/dijkstra.worker', import.meta.url))},
+    mainThreadFunction: dijkstra,
   },
   'A*': {
     nodeProperties: [{name: 'distance', default: 10}],
