@@ -1,6 +1,7 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 
 import {AlgorithmSolutionService} from '../../services/algorithm-solution/algorithm-solution.service';
+import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput} from '../../utility/functions';
 import {ElementDescriptor} from '../../utility/types';
 
@@ -9,13 +10,28 @@ import {ElementDescriptor} from '../../utility/types';
   templateUrl: './gui.component.html',
   styleUrls: ['./gui.component.css']
 })
-export class GUIComponent implements AfterViewInit {
+export class GUIComponent implements OnInit, AfterViewInit {
   @ViewChild('stepsCount') stepsInput!: ElementRef;
+  @ViewChild('stageDescription') stageDescription!: ElementRef;
   elementDescriptor?: ElementDescriptor;
+  descriptionSubscription: any;
 
-  constructor(private algorithmSolution: AlgorithmSolutionService) {}
+  constructor(
+      private graphStorage: GraphStorageService,
+      private algorithmSolution: AlgorithmSolutionService) {}
+
+  ngOnInit(): void {
+    this.descriptionSubscription =
+        this.graphStorage.graphicRefresh.subscribe((text) => {
+          (this.stageDescription.nativeElement as HTMLElement).innerText = text;
+        });
+  }
 
   ngAfterViewInit(): void {}
+
+  ngOnDestroy(): void {
+    this.descriptionSubscription.unsubscribe();
+  }
 
   elementChoice(event: ElementDescriptor) {
     this.elementDescriptor = event;

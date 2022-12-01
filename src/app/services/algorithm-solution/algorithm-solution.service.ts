@@ -38,7 +38,10 @@ export class AlgorithmSolutionService {
         stage.reverse(this.graphStorage.graph);
       });
     }
-    this.graphStorage.triggerGraphicRefresh();
+    this.graphStorage.triggerGraphicRefresh(
+        newIndex >= 1 ?
+            this.executionStack[newIndex - 1].description :
+            'You came back to before the first stage of algorithm execution');
     this.currentIndex = newIndex;
   }
 

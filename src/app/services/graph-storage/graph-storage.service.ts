@@ -17,7 +17,10 @@ export class GraphStorageService {
   choosenAlgorithm: string = IMPROPER_ALGORITHM
   startNode?: string;
   endNode?: string;
-  graphicRefresh = new EventEmitter(true);
+  // Subscribing to Event emitter or even using it in context other than
+  // comunication between parent and children components through @Input
+  // and @Output decorators is an antipattern. To fix.
+  graphicRefresh = new EventEmitter<string>(true);
 
   constructor() {}
 
@@ -140,7 +143,9 @@ graph with given number of nodes');
     this.triggerGraphicRefresh();
   }
 
-  triggerGraphicRefresh() {
-    this.graphicRefresh.emit();
+  triggerGraphicRefresh(
+      text: string =
+          'Overall description of choosen algorithm or current step of its execution will appear here') {
+    this.graphicRefresh.emit(text);
   }
 }
