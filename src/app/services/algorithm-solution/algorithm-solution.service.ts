@@ -1,22 +1,45 @@
 import {Injectable} from '@angular/core';
 
 import {graphAlgorithms} from '../../algorithms/register';
+import {ExecutionStage} from '../../utility/execution-stage/execution-stage';
+import {GraphChange} from '../../utility/graph-change/graph-change';
 import {GraphStorageService} from '../graph-storage/graph-storage.service';
 
 @Injectable({providedIn: 'root'})
 export class AlgorithmSolutionService {
-  executionStack: any[] = [];
+  executionStack: ExecutionStage[] = [];
   currentIndex: number = 0;
 
   constructor(private graphStorage: GraphStorageService) {}
 
   step(step: number) {
-    this.currentIndex += step;
-    if (this.currentIndex < 0)
-      this.currentIndex = 0;
-    else if (this.currentIndex >= this.executionStack.length)
-      this.currentIndex =
-          this.executionStack.length > 0 ? this.executionStack.length - 1 : 0;
+    let newIndex = this.currentIndex + step;
+    if (newIndex < 0)
+      newIndex = 0;
+    else if (newIndex > this.executionStack.length)
+      newIndex =
+          this.executionStack.length > 0 ? this.executionStack.length : 0;
+    if (newIndex == this.currentIndex) return;
+
+    let begin = newIndex;
+    let end = this.currentIndex;
+    if (newIndex > this.currentIndex) {
+      begin = this.currentIndex;
+      end = newIndex;
+    }
+    let changes = this.executionStack.slice(begin, end);
+    if (newIndex > this.currentIndex) {
+      changes.forEach((stage) => {
+        stage.apply(this.graphStorage.graph);
+      });
+    } else {
+      changes.reverse();
+      changes.forEach((stage) => {
+        stage.reverse(this.graphStorage.graph);
+      });
+    }
+    this.graphStorage.triggerGraphicRefresh();
+    this.currentIndex = newIndex;
   }
 
   executeAlgorithm(algorithm: string) {
