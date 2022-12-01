@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {random} from 'graphology-layout';
 import ForceSupervisor from 'graphology-layout-force/worker';
 import {Sigma} from 'sigma';
@@ -13,7 +13,7 @@ import {DisplayCommand, DisplayState, ElementDescriptor} from '../../utility/typ
   templateUrl: './graph-display.component.html',
   styleUrls: ['./graph-display.component.css']
 })
-export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
+export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('display') display!: ElementRef;
   @ViewChild('numberOfNodes') nodesInput!: ElementRef;
   @ViewChild('numberOfEdges') edgesInput!: ElementRef;
@@ -22,8 +22,16 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
   renderer?: Sigma;
   layout?: ForceSupervisor;
   nodeKey?: string
+  refreshSubscription: any;
 
   constructor(private graphStorage: GraphStorageService) {}
+
+  ngOnInit():
+      void{
+          this.refreshSubscription =
+              this.graphStorage.graphicRefresh.subscribe((_) => {
+                this.renderer?.refresh();
+              })}
 
   ngAfterViewInit(): void {
     this.startRendering();
@@ -31,6 +39,7 @@ export class GraphDisplayComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopRendering();
+    this.refreshSubscription.unsubscribe();
   }
 
   stopRendering(): void {

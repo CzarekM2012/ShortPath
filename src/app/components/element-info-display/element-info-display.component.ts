@@ -19,23 +19,41 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
   ngAfterViewInit(): void {}
 
   ngOnChanges() {
-    if (this.elementDescriptor == undefined) return;
-    let attributes = undefined;
-    switch (this.elementDescriptor.type) {
-      case 'node':
-        attributes = this.graphStorage.graph.getNodeAttributes(
-            this.elementDescriptor.key);
-        break;
-      case 'edge':
-        attributes = this.graphStorage.graph.getEdgeAttributes(
-            this.elementDescriptor.key);
-        break;
-      default:
-        console.error(
-            'Element info display tried to display data of an element of unsupported type');
-        return;
-    }
+    if (this.elementDescriptor === undefined) return;
+    const attributes = this.elementDescriptor.type == 'edge' ?
+        this.graphStorage.graph.getEdgeAttributes(this.elementDescriptor.key) :
+        this.graphStorage.graph.getNodeAttributes(this.elementDescriptor.key);
     const nodes = this.createInterface(attributes as Attributes).flat();
+
+    if (this.elementDescriptor.type == 'node') {
+      const startLabel = document.createElement('label');
+      startLabel.setAttribute('for', 'startRadio');
+      startLabel.textContent = `start node:\t`;
+      const startInput = document.createElement('input');
+      startInput.id = 'startRadio'
+      startInput.type = 'radio';
+      startInput.name = 'chooseEnd'
+      startInput.onchange = (_) => {
+        this.graphStorage.setPathEnd(
+            this.elementDescriptor?.key as string, 'start');
+      };
+      if (this.elementDescriptor.key == this.graphStorage.startNode)
+        startInput.checked = true;
+      const endLabel = document.createElement('label');
+      endLabel.setAttribute('for', 'endRadio');
+      endLabel.textContent = `end node:\t`;
+      const endInput = document.createElement('input');
+      endInput.id = 'endRadio'
+      endInput.type = 'radio';
+      endInput.name = 'chooseEnd'
+      endInput.onchange = (_) => {
+        this.graphStorage.setPathEnd(
+            this.elementDescriptor?.key as string, 'end');
+      };
+      if (this.elementDescriptor.key == this.graphStorage.endNode)
+        endInput.checked = true;
+      nodes.push(startLabel, startInput, endLabel, endInput);
+    }
     (this.display.nativeElement as HTMLElement).replaceChildren(...nodes);
   }
 

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import * as assert from 'assert';
 import {UndirectedGraph} from 'graphology';
 import {countConnectedComponents} from 'graphology-components';
@@ -15,6 +15,9 @@ export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
   newNodeKey: string = '0';
   choosenAlgorithm: string = IMPROPER_ALGORITHM
+  startNode?: string;
+  endNode?: string;
+  graphicRefresh = new EventEmitter(true);
 
   constructor() {}
 
@@ -116,5 +119,28 @@ graph with given number of nodes');
       else  // removing edge disconnected the graph, re-add it
         this.graph.addEdge(ends[0], ends[1]);
     }
+  }
+
+  setPathEnd(nodeKey: string, type: 'start'|'end') {
+    if (!this.graph.hasNode(nodeKey))
+      console.error(
+          'There is no node associated with key passed ' +
+          'while trying to mark an end of the path');
+    if (type == 'start') {
+      if (this.startNode !== undefined)
+        this.graph.removeNodeAttribute(this.startNode, 'color');
+      this.graph.setNodeAttribute(nodeKey, 'color', 'blue');
+      this.startNode = nodeKey;
+      return;
+    }
+    if (this.endNode !== undefined)
+      this.graph.removeNodeAttribute(this.endNode, 'color');
+    this.graph.setNodeAttribute(nodeKey, 'color', 'red');
+    this.endNode = nodeKey;
+    this.triggerGraphicRefresh();
+  }
+
+  triggerGraphicRefresh() {
+    this.graphicRefresh.emit();
   }
 }
