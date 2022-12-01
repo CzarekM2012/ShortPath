@@ -9,6 +9,7 @@ import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 
 const IMPROPER_ALGORITHM = 'none';
+const ELEMENT_SIZE = 5;
 
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {
@@ -59,7 +60,7 @@ export class GraphStorageService {
   }
 
   addNode(coords: Coordinates): void {
-    this.graph.addNode(this.newNodeKey, {...coords});
+    this.graph.addNode(this.newNodeKey, {...coords, size: ELEMENT_SIZE});
     // Newly added node has no algorithm-specific attributes so all of them
     // should be added
     graphAlgorithms[this.choosenAlgorithm]?.nodeProperties.forEach(
@@ -74,7 +75,7 @@ export class GraphStorageService {
     if (this.graph.hasNode(nodeKey1) && this.graph.hasNode(nodeKey2) &&
         !(this.graph.hasEdge(nodeKey1, nodeKey2) ||
           this.graph.hasEdge(nodeKey2, nodeKey1))) {
-      this.graph.addEdge(nodeKey1, nodeKey2);
+      this.graph.addEdge(nodeKey1, nodeKey2, {size: ELEMENT_SIZE});
       // Newly added edge has no algorithm-specific attributes so all of them
       // should be added
       graphAlgorithms[this.choosenAlgorithm]?.edgeProperties.forEach(
@@ -122,6 +123,11 @@ graph with given number of nodes');
       else  // removing edge disconnected the graph, re-add it
         this.graph.addEdge(ends[0], ends[1]);
     }
+    this.graph.forEachNode(
+        (node) => {this.graph.setNodeAttribute(node, 'size', ELEMENT_SIZE)});
+
+    this.graph.forEachEdge(
+        (edge) => {this.graph.setEdgeAttribute(edge, 'size', ELEMENT_SIZE)});
   }
 
   setPathEnd(nodeKey: string, type: 'start'|'end') {
