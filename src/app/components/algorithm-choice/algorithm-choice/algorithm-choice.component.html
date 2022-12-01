@@ -2,3 +2,5 @@
   <option value={{IMPROPER_ALGORITHM}} hidden>Choose algorithm</option>
 </select>
 <button #execution (click)="executeAlgorithm()" disabled>Execute</button>
+<button #mainThreadExecution (click)="executeAlgorithm('mainThread')" disabled>Execute in main thread (for
+  testing)</button>

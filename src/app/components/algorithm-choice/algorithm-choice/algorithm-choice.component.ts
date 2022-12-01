@@ -12,6 +12,7 @@ import {GraphStorageService} from '../../../services/graph-storage/graph-storage
 export class AlgorithmChoiceComponent implements AfterViewInit {
   @ViewChild('selection') algorithms!: ElementRef;
   @ViewChild('execution') algorithmExecution!: ElementRef;
+  @ViewChild('mainThreadExecution') algorithmMainThreadExecution!: ElementRef;
   IMPROPER_ALGORITHM: string = 'none';
   choosenAlgorithm: string = this.IMPROPER_ALGORITHM;
 
@@ -34,13 +35,20 @@ export class AlgorithmChoiceComponent implements AfterViewInit {
     if (selected != this.choosenAlgorithm) {
       this.choosenAlgorithm = selected;
       this.graphStorage.changeAlgorithm(this.choosenAlgorithm);
-      (this.algorithmExecution!.nativeElement as HTMLButtonElement).disabled =
+      (this.algorithmExecution.nativeElement as HTMLButtonElement).disabled =
           false;
+      (this.algorithmMainThreadExecution.nativeElement as HTMLButtonElement)
+          .disabled = false;
     }
   }
 
-  executeAlgorithm() {
-    if (this.choosenAlgorithm != this.IMPROPER_ALGORITHM)
-      this.algorithmSolution.executeAlgorithm(this.choosenAlgorithm);
+  executeAlgorithm(mode: 'normal'|'mainThread' = 'normal') {
+    if (this.choosenAlgorithm != this.IMPROPER_ALGORITHM) {
+      if (mode == 'normal') {
+        this.algorithmSolution.executeAlgorithm(this.choosenAlgorithm);
+        return;
+      }
+      this.algorithmSolution.mainThreadAlgorithmCall(this.choosenAlgorithm);
+    }
   }
 }
