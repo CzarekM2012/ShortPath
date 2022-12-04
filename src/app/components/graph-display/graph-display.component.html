@@ -1,9 +1,15 @@
 <div class="vertical">
   <div class="horizontal">
-    <button (click)="buttonsHandler('choose')">Choose</button>
-    <button (click)="buttonsHandler('addNode')">Add node</button>
-    <button (click)="buttonsHandler('addEdge')">Add edge</button>
-    <button (click)="buttonsHandler('remove')">Remove</button>
+    <div id="radioContainer">
+      <input type="radio" name="state" value="choose" [formControl]="state" id="stateChoose">
+      <label for="stateChoose">Choose</label>
+      <input type="radio" name="state" value="addNode" [formControl]="state" id="stateAddNode">
+      <label for="stateAddNode">Add Node</label>
+      <input type="radio" name="state" value="addEdge" [formControl]="state" id="stateAddEdge">
+      <label for="stateAddEdge">Add Edge</label>
+      <input type="radio" name="state" value="remove" [formControl]="state" id="stateRemove">
+      <label for="stateRemove">Remove</label>
+    </div>
     <div class="vertical">
       <div class="horizontal">
         <label for="nodes">Nodes:</label>
@@ -16,7 +22,7 @@
           (initial value of nodes number input), these values will change together with value in nodes number input-->
       </div>
     </div>
-    <button (click)="buttonsHandler('generateRandom')">Random graph</button>
+    <button (click)="randomGraph()">Random graph</button>
   </div>
   <div #display id="graph"></div>
 </div>

@@ -1,3 +1,13 @@
+#radioContainer {
+  display: inline-grid;
+  grid-auto-flow: dense;
+  align-items: center;
+}
+
+#radioContainer label {
+  grid-column: 2;
+}
+
 #graph {
   height: 630px;
   width: 1120px;

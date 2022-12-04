@@ -1,4 +1,5 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {FormControl} from '@angular/forms';
 import {random} from 'graphology-layout';
 import ForceSupervisor from 'graphology-layout-force/worker';
 import {Sigma} from 'sigma';
@@ -6,7 +7,7 @@ import {Coordinates} from 'sigma/types';
 
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
-import {DisplayCommand, DisplayState, ElementDescriptor} from '../../utility/types';
+import {DisplayState, ElementDescriptor} from '../../utility/types';
 
 @Component({
   selector: 'app-graph-display',
@@ -18,7 +19,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('numberOfNodes') nodesInput!: ElementRef;
   @ViewChild('numberOfEdges') edgesInput!: ElementRef;
   @Output() choosenElement = new EventEmitter<ElementDescriptor>();
-  state: DisplayState = 'choose';
+  state: FormControl =
+      new FormControl<DisplayState>('choose', {nonNullable: true});
   renderer?: Sigma;
   layout?: ForceSupervisor;
   nodeKey?: string
@@ -55,7 +57,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
         this.graphStorage.graph, this.display.nativeElement,
         {enableEdgeClickEvents: true});
     this.renderer.on('clickStage', (event) => {
-      if (this.state == 'addNode') {
+      if (this.state.value == 'addNode') {
         const {x, y} = event.event;
         const nodeCoords =
             this.renderer?.viewportToGraph({x, y}) as Coordinates;
@@ -63,7 +65,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     this.renderer.on('clickNode', (event) => {
-      switch (this.state) {
+      switch (this.state.value) {
         case 'choose':
           this.choosenElement.emit({key: event.node, type: 'node'});
           break;
@@ -85,7 +87,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
     this.renderer.on('clickEdge', (event) => {
-      switch (this.state) {
+      switch (this.state.value) {
         case 'choose':
           this.choosenElement.emit({key: event.edge, type: 'edge'});
           break;
@@ -98,17 +100,12 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  buttonsHandler(arg: DisplayCommand) {
-    if (arg == 'generateRandom') {
-      this.graphStorage.randomGraph(
-          this.nodesInput.nativeElement.value,
-          this.edgesInput.nativeElement.value);
-      this.stopRendering();
-      this.startRendering();
-    } else {
-      if (this.state != arg) this.nodeKey = undefined;
-      this.state = arg;
-    }
+  randomGraph() {
+    this.graphStorage.randomGraph(
+        this.nodesInput.nativeElement.value,
+        this.edgesInput.nativeElement.value);
+    this.stopRendering();
+    this.startRendering();
   }
 
   handleNodesNumber() {
