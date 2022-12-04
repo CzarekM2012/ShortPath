@@ -2,6 +2,7 @@ import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, O
 import {FormControl} from '@angular/forms';
 import {random} from 'graphology-layout';
 import ForceSupervisor from 'graphology-layout-force/worker';
+import {Subscription} from 'rxjs';
 import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
@@ -22,18 +23,29 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   state: FormControl =
       new FormControl<DisplayState>('choose', {nonNullable: true});
   renderer?: Sigma;
-  layout?: ForceSupervisor;
+  layout: {
+    worker?: ForceSupervisor, active: FormControl
+  } = {active: new FormControl<Boolean>(true, {nonNullable: true})};
+  subscriptions: Subscription = new Subscription();
   nodeKey?: string
   refreshSubscription: any;
 
   constructor(private graphStorage: GraphStorageService) {}
 
-  ngOnInit():
-      void{
-          this.refreshSubscription =
-              this.graphStorage.graphicRefresh.subscribe((_) => {
-                this.renderer?.refresh();
-              })}
+  ngOnInit(): void {
+    this.refreshSubscription =
+        this.graphStorage.graphicRefresh.subscribe((_) => {
+          this.renderer?.refresh();
+        });
+    this.subscriptions.add(
+        // layout control
+        this.layout.active.valueChanges.subscribe((runLayout: Boolean) => {
+          if (runLayout)
+            this.layout.worker?.start();
+          else
+            this.layout.worker?.stop();
+        }));
+  }
 
   ngAfterViewInit(): void {
     this.startRendering();
@@ -42,17 +54,18 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopRendering();
     this.refreshSubscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   stopRendering(): void {
-    this.layout?.kill();
+    this.layout.worker?.kill();
     this.renderer?.kill();
   }
 
   startRendering(): void {
     random.assign(this.graphStorage.graph);
-    this.layout = new ForceSupervisor(this.graphStorage.graph);
-    this.layout.start();
+    this.layout.worker = new ForceSupervisor(this.graphStorage.graph);
+    this.layout.active.setValue(true);
     this.renderer = new Sigma(
         this.graphStorage.graph, this.display.nativeElement,
         {enableEdgeClickEvents: true});

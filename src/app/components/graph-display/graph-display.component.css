@@ -1,10 +1,10 @@
-#radioContainer {
+.switchContainer {
   display: inline-grid;
   grid-auto-flow: dense;
   align-items: center;
 }
 
-#radioContainer label {
+.switchContainer label {
   grid-column: 2;
 }
 

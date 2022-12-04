@@ -1,6 +1,6 @@
 <div class="vertical">
   <div class="horizontal">
-    <div id="radioContainer">
+    <div class="switchContainer">
       <input type="radio" name="state" value="choose" [formControl]="state" id="stateChoose">
       <label for="stateChoose">Choose</label>
       <input type="radio" name="state" value="addNode" [formControl]="state" id="stateAddNode">
@@ -9,6 +9,10 @@
       <label for="stateAddEdge">Add Edge</label>
       <input type="radio" name="state" value="remove" [formControl]="state" id="stateRemove">
       <label for="stateRemove">Remove</label>
+    </div>
+    <div class="switchContainer">
+      <input type="checkbox" name="layout" [formControl]="layout.active">
+      <label for="layout">Graph layout</label>
     </div>
     <div class="vertical">
       <div class="horizontal">
