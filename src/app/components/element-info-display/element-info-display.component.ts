@@ -3,6 +3,7 @@ import Attributes from 'graphology';
 
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {getTypeCastedValue} from '../../utility/functions';
+import {setElementAttribute} from '../../utility/graphFunctions';
 import {ElementDescriptor} from '../../utility/types';
 
 @Component({
@@ -87,22 +88,12 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
           input.type = 'string';
           break;
       }
-      switch (this.elementDescriptor?.type) {
-        case 'node':
-          input.onchange = () => {
-            this.graphStorage.graph.setNodeAttribute(
-                this.elementDescriptor?.key, key, getTypeCastedValue(input));
-          };
-          break;
-        case 'edge':
-          input.onchange = () => {
-            this.graphStorage.graph.setEdgeAttribute(
-                this.elementDescriptor?.key, key, getTypeCastedValue(input));
-          };
-          break;
-        default:
-          break;
-      }
+      input.onchange = () => {
+        setElementAttribute(
+            this.graphStorage.graph,
+            this.elementDescriptor as ElementDescriptor, key,
+            getTypeCastedValue(input));
+      };
       return [label, input];
     });
     return nodes;

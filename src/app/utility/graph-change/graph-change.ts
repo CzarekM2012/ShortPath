@@ -1,5 +1,6 @@
 import Graph from 'graphology';
 
+import {getElementAttribute, removeElementAttribute, setElementAttribute} from '../graphFunctions';
 import {ElementDescriptor} from '../types';
 
 const COLORS = {
@@ -26,11 +27,7 @@ export class GraphChange {
       graph: Graph, element: ElementDescriptor,
       type: 'inspect'|'approve'|'reject'): GraphChange {
     const markingProperty = 'color';
-    let currentValue;
-    if (element.type == 'edge')
-      currentValue = graph.getEdgeAttribute(element.key, markingProperty);
-    else
-      currentValue = graph.getNodeAttribute(element.key, markingProperty);
+    const currentValue = getElementAttribute(graph, element, markingProperty);
     const change =
         new GraphChange(element, markingProperty, currentValue, COLORS[type]);
     // change is applied in order to maintain continuity of formerValue and
@@ -42,11 +39,7 @@ export class GraphChange {
   static setProperty(
       graph: Graph, element: ElementDescriptor, propertyName: string,
       value: any): GraphChange {
-    let currentValue;
-    if (element.type == 'edge')
-      currentValue = graph.getEdgeAttribute(element.key, propertyName);
-    else
-      currentValue = graph.getNodeAttribute(element.key, propertyName);
+    const currentValue = getElementAttribute(graph, element, propertyName);
     if (currentValue === undefined)
       console.error(`Attempt to set value of nonexistent ${
           element.type} property ${propertyName}.`);
@@ -62,28 +55,14 @@ export class GraphChange {
   }
 
   apply(graph: Graph) {
-    if (this.element.type == 'edge') {
-      graph.setEdgeAttribute(this.element.key, this.property, this.newValue);
-      return;
-    }
-    graph.setNodeAttribute(this.element.key, this.property, this.newValue);
+    setElementAttribute(graph, this.element, this.property, this.newValue);
   }
 
   reverse(graph: Graph) {
     if (this.formerValue === undefined) {
-      if (this.element.type == 'edge') {
-        graph.removeEdgeAttribute(this.element.key, this.property);
-      } else {
-        graph.removeNodeAttribute(this.element.key, this.property);
-      }
+      removeElementAttribute(graph, this.element, this.property);
     } else {
-      if (this.element.type == 'edge') {
-        graph.setEdgeAttribute(
-            this.element.key, this.property, this.formerValue);
-      } else {
-        graph.setNodeAttribute(
-            this.element.key, this.property, this.formerValue);
-      }
+      setElementAttribute(graph, this.element, this.property, this.formerValue);
     }
   }
 }
