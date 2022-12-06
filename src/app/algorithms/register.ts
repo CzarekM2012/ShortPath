@@ -17,17 +17,24 @@ export const graphAlgorithms: {
 } = {
   'Dijkstra': {
     nodeProperties: [
-      {name: 'distance', default: Infinity},
+      {
+        name: 'distance',
+        defaultValue: Infinity,
+        visible: true,
+        userModifiable: false,
+      },
     ],
     edgeProperties: [
-      {name: 'cost', default: 1},
+      {name: 'cost', defaultValue: 1, visible: true, userModifiable: true},
     ],
     getWorker: () => {return new Worker(
         new URL('dijkstra/dijkstra.worker', import.meta.url))},
     mainThreadFunction: dijkstra,
   },
   'A*': {
-    nodeProperties: [{name: 'distance', default: 10}],
+    nodeProperties: [
+      {name: 'distance', defaultValue: 10, visible: true, userModifiable: false}
+    ],
     edgeProperties: [],
     getWorker: () => {
       return new Worker('');
@@ -35,7 +42,9 @@ export const graphAlgorithms: {
     mainThreadFunction: () => {alert('A* is unsupported as of yet')},
   },
   'Bellman-Ford': {
-    nodeProperties: [{name: 'distance', default: 'zzzzzzzzzzzzzzzzzzz'}],
+    nodeProperties: [
+      {name: 'distance', defaultValue: 0, visible: true, userModifiable: false}
+    ],
     edgeProperties: [],
     getWorker: () => {
       return new Worker('');

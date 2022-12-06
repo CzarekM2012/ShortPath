@@ -1,10 +1,10 @@
 import {AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild} from '@angular/core';
-import Attributes from 'graphology';
 
+import {graphAlgorithms} from '../../algorithms/register';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {getTypeCastedValue} from '../../utility/functions';
-import {setElementAttribute} from '../../utility/graphFunctions';
-import {ElementDescriptor} from '../../utility/types';
+import {getElementAttribute, setElementAttribute} from '../../utility/graphFunctions';
+import {AttributeDescriptor, ElementDescriptor} from '../../utility/types';
 
 @Component({
   selector: 'app-element-info-display',
@@ -12,7 +12,7 @@ import {ElementDescriptor} from '../../utility/types';
   styleUrls: ['./element-info-display.component.css']
 })
 export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
-  @ViewChild('display') display!: ElementRef;
+  @ViewChild('display') display?: ElementRef;
   @Input() elementDescriptor?: ElementDescriptor;
 
   constructor(private graphStorage: GraphStorageService) {}
@@ -20,11 +20,27 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
   ngAfterViewInit(): void {}
 
   ngOnChanges() {
-    if (this.elementDescriptor === undefined) return;
-    const attributes = this.elementDescriptor.type == 'edge' ?
-        this.graphStorage.graph.getEdgeAttributes(this.elementDescriptor.key) :
-        this.graphStorage.graph.getNodeAttributes(this.elementDescriptor.key);
-    const nodes = this.createInterface(attributes as Attributes).flat();
+    // first input check before display has been linked to HTMLElement
+    if (this.display === undefined) return;
+    // element whose data was displayed has beend unchecked/removed
+    if (this.elementDescriptor === undefined) {
+      (this.display.nativeElement as HTMLElement)
+          .replaceChildren('Choose a node or an edge');
+      return;
+    };
+    let nodes: HTMLElement[][] = [];
+    if (this.graphStorage.choosenAlgorithm in graphAlgorithms) {
+      const attributes = this.elementDescriptor.type == 'edge' ?
+          graphAlgorithms[this.graphStorage.choosenAlgorithm].edgeProperties :
+          graphAlgorithms[this.graphStorage.choosenAlgorithm].nodeProperties;
+      nodes = attributes.map((attribute) => {
+        return this.createDataElement(
+            attribute,
+            getElementAttribute(
+                this.graphStorage.graph, this.elementDescriptor!,
+                attribute.name));
+      });
+    }
 
     if (this.elementDescriptor.type == 'node') {
       const startLabel = document.createElement('label');
@@ -34,9 +50,8 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       startInput.id = 'startRadio'
       startInput.type = 'radio';
       startInput.name = 'chooseEnd'
-      startInput.onchange = (_) => {
-        this.graphStorage.setPathEnd(
-            this.elementDescriptor?.key as string, 'start');
+      startInput.onchange = () => {
+        this.graphStorage.setPathEnd(this.elementDescriptor!.key, 'start');
       };
       if (this.elementDescriptor.key == this.graphStorage.startNode)
         startInput.checked = true;
@@ -47,55 +62,41 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       endInput.id = 'endRadio'
       endInput.type = 'radio';
       endInput.name = 'chooseEnd'
-      endInput.onchange = (_) => {
-        this.graphStorage.setPathEnd(
-            this.elementDescriptor?.key as string, 'end');
+      endInput.onchange = () => {
+        this.graphStorage.setPathEnd(this.elementDescriptor!.key, 'end');
       };
       if (this.elementDescriptor.key == this.graphStorage.endNode)
         endInput.checked = true;
-      nodes.push(startLabel, startInput, endLabel, endInput);
+      nodes.push([startLabel, startInput], [endLabel, endInput]);
     }
-    (this.display.nativeElement as HTMLElement).replaceChildren(...nodes);
+    (this.display.nativeElement as HTMLElement)
+        .replaceChildren(...(nodes.flat()));
   }
 
-  createInterface(object: Attributes) {
-    const propertiesToHide = ['x', 'y'];
-    let properties = Object.entries(object);
-    properties = properties.filter(([key, _]) => {
-      return !propertiesToHide.includes(key);
-    });
-    properties.sort(([keyA, _A], [keyB, _B]) => {
-      if (keyA < keyB)
-        return -1;
-      else if (keyA > keyB)
-        return 1;
-      else
-        return 0;
-    });
-
-    const nodes = properties.map(([key, value]) => {
-      const label = document.createElement('label')
-      label.setAttribute('for', key);
-      label.textContent = `${key}:\t`;
+  createDataElement(attribute: AttributeDescriptor, value: number): []|
+      (HTMLLabelElement|HTMLInputElement)[]|
+      (HTMLLabelElement|HTMLSpanElement)[] {
+    if (!attribute.visible) {
+      return [];
+    }
+    const label = document.createElement('label')
+    label.setAttribute('for', attribute.name);
+    label.textContent = `${attribute.name}:`;
+    if (attribute.userModifiable) {
       const input = document.createElement('input');
-      input.name = key;
-      input.value = value;
-      switch (typeof value) {
-        case 'number':
-          input.type = 'number';
-          break;
-        default:
-          input.type = 'string';
-          break;
-      }
+      input.type = 'number';
+      input.name = attribute.name;
+      input.value = value.toString();
       input.onchange = () => {
         setElementAttribute(
-            this.graphStorage.graph,
-            this.elementDescriptor as ElementDescriptor, key,
+            this.graphStorage.graph, this.elementDescriptor!, attribute.name,
             getTypeCastedValue(input));
       };
       return [label, input];
-    });
-    return nodes;
+    } else {
+      const output = document.createElement('span');
+      output.textContent = value.toString();
+      return [label, output];
+    }
   }
 }

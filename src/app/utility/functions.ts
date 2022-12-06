@@ -111,7 +111,7 @@ function analyzeAttributeChanges(
   // If datatypes match, attribute should be left alone, since user could have
   // set its value to one he wanted, otherwise replace value
   commonNames.forEach(([currentDesc, targetDesc]) => {
-    if (typeof currentDesc.default != typeof targetDesc.default) {
+    if (typeof currentDesc.defaultValue != typeof targetDesc.defaultValue) {
       toReplace.push(targetDesc);
     }
   });

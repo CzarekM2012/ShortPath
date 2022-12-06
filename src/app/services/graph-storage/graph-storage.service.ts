@@ -43,7 +43,7 @@ export class GraphStorageService {
         this.graph.removeEdgeAttribute(edgeKey, desc.name);
       });
       edgeSets.forEach((desc) => {
-        this.graph.setEdgeAttribute(edgeKey, desc.name, desc.default);
+        this.graph.setEdgeAttribute(edgeKey, desc.name, desc.defaultValue);
       });
     });
 
@@ -52,7 +52,7 @@ export class GraphStorageService {
         this.graph.removeNodeAttribute(nodeKey, desc.name);
       });
       nodeSets.forEach((desc) => {
-        this.graph.setNodeAttribute(nodeKey, desc.name, desc.default);
+        this.graph.setNodeAttribute(nodeKey, desc.name, desc.defaultValue);
       });
     });
 
@@ -66,7 +66,7 @@ export class GraphStorageService {
     graphAlgorithms[this.choosenAlgorithm]?.nodeProperties.forEach(
         (descriptor) => {
           this.graph.setNodeAttribute(
-              this.newNodeKey, descriptor.name, descriptor.default);
+              this.newNodeKey, descriptor.name, descriptor.defaultValue);
         });
     this.newNodeKey = (parseInt(this.newNodeKey) + 1).toString();
   }
@@ -81,7 +81,7 @@ export class GraphStorageService {
       graphAlgorithms[this.choosenAlgorithm]?.edgeProperties.forEach(
           (descriptor) => {
             this.graph.setEdgeAttribute(
-                nodeKey1, nodeKey2, descriptor.name, descriptor.default);
+                nodeKey1, nodeKey2, descriptor.name, descriptor.defaultValue);
           });
     }
   }

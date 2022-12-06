@@ -6,5 +6,8 @@ export interface ElementDescriptor {
 }
 
 export type AttributeDescriptor = {
-  name: string, default: string|number;
+  name: string,
+  defaultValue: number,
+  visible: boolean,
+  userModifiable: boolean,
 }
