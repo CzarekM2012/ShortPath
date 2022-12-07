@@ -8,6 +8,8 @@ import {Coordinates} from 'sigma/types';
 
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {GraphChange} from '../../utility/graph-change/graph-change';
+import {getElementAttribute} from '../../utility/graphFunctions';
 import {DisplayState, ElementDescriptor} from '../../utility/types';
 
 @Component({
@@ -22,12 +24,14 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() choosenElement = new EventEmitter<ElementDescriptor>();
   state: FormControl =
       new FormControl<DisplayState>('choose', {nonNullable: true});
+  choosenMarking?: GraphChange;
   renderer?: Sigma;
   layout: {
     worker?: ForceSupervisor, active: FormControl
   } = {active: new FormControl<Boolean>(true, {nonNullable: true})};
   subscriptions: Subscription = new Subscription();
-  nodeKey?: string
+  // temporarily remembered node, used for adding edges
+  tempNode?: string
   refreshSubscription: any;
 
   constructor(private graphStorage: GraphStorageService) {}
@@ -80,16 +84,18 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     this.renderer.on('clickNode', (event) => {
       switch (this.state.value) {
         case 'choose':
-          this.choosenElement.emit({key: event.node, type: 'node'});
+          const node: ElementDescriptor = {key: event.node, type: 'node'};
+          this.markChoosen(node);
+          this.choosenElement.emit(node);
           break;
         case 'addEdge':
-          if (this.nodeKey == undefined) {
-            this.nodeKey = event.node;
+          if (this.tempNode == undefined) {
+            this.tempNode = event.node;
             break;
           }
-          if (this.nodeKey != event.node) {
-            this.graphStorage.addEdge(this.nodeKey, event.node);
-            this.nodeKey = undefined;
+          if (this.tempNode != event.node) {
+            this.graphStorage.addEdge(this.tempNode, event.node);
+            this.tempNode = undefined;
           }
           break;
         case 'remove':
@@ -102,7 +108,9 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     this.renderer.on('clickEdge', (event) => {
       switch (this.state.value) {
         case 'choose':
-          this.choosenElement.emit({key: event.edge, type: 'edge'});
+          const edge: ElementDescriptor = {key: event.edge, type: 'edge'};
+          this.markChoosen(edge);
+          this.choosenElement.emit(edge);
           break;
         case 'remove':
           this.graphStorage.removeEdge(event.edge);
@@ -141,5 +149,15 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   handleEdgesNumber() {
     EnforceNumberInput.enforceRange(this.edgesInput.nativeElement);
     EnforceNumberInput.enforceInteger(this.edgesInput.nativeElement);
+  }
+
+  markChoosen(element: ElementDescriptor) {
+    if (this.choosenMarking !== undefined &&
+        getElementAttribute(
+            this.graphStorage.graph, this.choosenMarking.element, 'color') ==
+            this.choosenMarking.newValue)
+      this.choosenMarking.reverse(this.graphStorage.graph);
+    this.choosenMarking =
+        GraphChange.markElement(this.graphStorage.graph, element, 'choose');
   }
 }
