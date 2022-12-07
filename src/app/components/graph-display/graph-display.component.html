@@ -1,13 +1,15 @@
 <div class="vertical">
   <div class="horizontal">
     <div class="switchContainer">
-      <input type="radio" name="state" value="choose" [formControl]="state" id="stateChoose">
+      <input type="radio" name="state" value="choose" [formControl]="state" id="stateChoose" (change)="resetTempNode()">
       <label for="stateChoose">Choose</label>
-      <input type="radio" name="state" value="addNode" [formControl]="state" id="stateAddNode">
+      <input type="radio" name="state" value="addNode" [formControl]="state" id="stateAddNode"
+        (change)="resetTempNode()">
       <label for="stateAddNode">Add Node</label>
-      <input type="radio" name="state" value="addEdge" [formControl]="state" id="stateAddEdge">
+      <input type="radio" name="state" value="addEdge" [formControl]="state" id="stateAddEdge"
+        (change)="resetTempNode()">
       <label for="stateAddEdge">Add Edge</label>
-      <input type="radio" name="state" value="remove" [formControl]="state" id="stateRemove">
+      <input type="radio" name="state" value="remove" [formControl]="state" id="stateRemove" (change)="resetTempNode()">
       <label for="stateRemove">Remove</label>
     </div>
     <div class="switchContainer">

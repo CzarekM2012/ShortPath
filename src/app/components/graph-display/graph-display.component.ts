@@ -160,4 +160,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     this.choosenMarking =
         GraphChange.markElement(this.graphStorage.graph, element, 'choose');
   }
+
+  resetTempNode() {
+    this.tempNode = undefined;
+  }
 }
