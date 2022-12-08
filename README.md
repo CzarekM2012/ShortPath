@@ -39,3 +39,12 @@ ShortPath is an educational environment designed to help with understanding of g
 
 - A* algorithm
 - Bellman-Ford algorithm
+
+
+## TODO:
+Repair graphic refresh of graph display
+Show algorithm description on choice
+Update attribute update on algorithm change
+Auto refresh of data displayed on data display on stage change
+Auto refresh of data displayed on data display on algorithm change
+Manual drag node for user

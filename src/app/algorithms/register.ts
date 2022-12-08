@@ -1,7 +1,5 @@
-import Graph from 'graphology';
-
-import {ExecutionStage} from '../utility/execution-stage/execution-stage';
-import {AttributeDescriptor} from '../utility/types';
+import {GraphChecks} from '../utility/graphFunctions';
+import {AttributeDescriptor, GraphCheck, mainThreadAlgorithmCall} from '../utility/types';
 
 import {dijkstra} from './dijkstra/dijkstra-algorithm';
 
@@ -10,9 +8,8 @@ export const graphAlgorithms: {
     nodeProperties: AttributeDescriptor[],
     edgeProperties: AttributeDescriptor[],
     getWorker: () => Worker,
-    mainThreadFunction:
-        (executionStack: ExecutionStage[], graph: Graph, source: string,
-         destination: string) => void
+    mainThreadFunction: mainThreadAlgorithmCall,
+    correctnessChecks: GraphCheck[],
   }
 } = {
   'Dijkstra': {
@@ -30,6 +27,13 @@ export const graphAlgorithms: {
     getWorker: () => {return new Worker(
         new URL('dijkstra/dijkstra.worker', import.meta.url))},
     mainThreadFunction: dijkstra,
+    correctnessChecks: [
+      GraphChecks.staticChecks.isConnected,
+      (graph) => {
+        return GraphChecks.dynamicChecks.areAttributesInRange(
+            graph, 'edge', 'cost', {min: 0});
+      },
+    ],
   },
   'A*': {
     nodeProperties: [
@@ -40,6 +44,7 @@ export const graphAlgorithms: {
       return new Worker('');
     },
     mainThreadFunction: () => {alert('A* is unsupported as of yet')},
+    correctnessChecks: [],
   },
   'Bellman-Ford': {
     nodeProperties: [
@@ -50,5 +55,6 @@ export const graphAlgorithms: {
       return new Worker('');
     },
     mainThreadFunction: () => {alert('Bellman-Ford is unsupported as of yet')},
+    correctnessChecks: [],
   },
 }

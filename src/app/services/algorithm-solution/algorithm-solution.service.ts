@@ -9,6 +9,7 @@ import {GraphStorageService} from '../graph-storage/graph-storage.service';
 export class AlgorithmSolutionService {
   executionStack: ExecutionStage[] = [];
   currentIndex: number = 0;
+  errorMarkings: GraphChange[] = [];
 
   constructor(private graphStorage: GraphStorageService) {}
 
@@ -46,7 +47,19 @@ export class AlgorithmSolutionService {
   }
 
   executeAlgorithm(algorithm: string) {
+    this.errorMarkings.forEach((change) => {
+      change.reverse(this.graphStorage.graph);
+    });
+    this.errorMarkings = [];
     if (algorithm in graphAlgorithms) {
+      for (const condition of graphAlgorithms[algorithm].correctnessChecks) {
+        const {message, markings} = condition(this.graphStorage.graph);
+        if (markings.length > 0) {
+          alert(message);
+          this.errorMarkings = markings;
+          return;
+        };
+      }
       if (typeof Worker !== 'undefined') {
         this.workerAlgorithmCall(algorithm);
       } else {

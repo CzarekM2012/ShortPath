@@ -8,6 +8,7 @@ const COLORS = {
   'approve': 'green',
   'reject': 'red',
   'choose': 'blueviolet',
+  'error': 'black',
 };
 
 export class GraphChange {
@@ -28,22 +29,25 @@ export class GraphChange {
    * Mark an element of the graph by changing its colour
    * @param graph Graph on which element should be marked
    * @param element Descriptor of the element that should be marked
-   * @param type Keyword associated with colour. Colour under `'choose'` is used
-   *     for marking elements choosen manually by user, is treated by following
-   * markings of an element as default and should not be used in the context
-   * of an algorithm
+   * @param type Keyword associated with colour. Colours under `'choose'` and
+   *     `'error'` are treated by following markings of an element as default
+   *     and should not be used in the context of an algorithm
    * @returns An instance of GraphChange representing the marking of an element
    */
   static markElement(
       graph: Graph, element: ElementDescriptor,
-      type: 'inspect'|'approve'|'reject'|'choose'): GraphChange {
+      type: 'inspect'|'approve'|'reject'|'choose'|'error'): GraphChange {
     const markingProperty = 'color';
     let currentValue = getElementAttribute(graph, element, markingProperty);
-    if (currentValue == COLORS['choose']) currentValue = undefined;
+    // TODO: Think of a better way to separate markings that should be ignored
+    // by markings from algorithm execution
+    if (currentValue in [COLORS['choose'], COLORS['error']])
+      currentValue = undefined;
     const change =
         new GraphChange(element, markingProperty, currentValue, COLORS[type]);
-    // change is applied in order to maintain continuity of formerValue and
-    // newValue between stages, need to think of a better way to realize it
+    // change is applied immediately in order to maintain continuity of
+    // formerValue and newValue between stages, need to think of a better way to
+    // realize it
     change.apply(graph);
     return change;
   }

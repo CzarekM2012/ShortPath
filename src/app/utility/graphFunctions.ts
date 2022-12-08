@@ -3,10 +3,12 @@
  * dependency to occur - it should be investigated and fixed if possible, when
  * all required functions are ready
  */
-
+import * as assert from 'assert';
 import Graph from 'graphology';
+import {largestConnectedComponentSubgraph} from 'graphology-components';
 
-import {ElementDescriptor} from './types';
+import {GraphChange} from './graph-change/graph-change';
+import {ElementDescriptor, ElementType, GraphCheckResult} from './types';
 
 export function getElementAttribute(
     graph: Graph, element: ElementDescriptor, attributeName: string|number) {
@@ -31,4 +33,96 @@ export function setElementAttribute(
     graph.setEdgeAttribute(element.key, attributeName, value);
   else
     graph.setNodeAttribute(element.key, attributeName, value);
+}
+
+export namespace GraphChecks {
+  export namespace staticChecks {
+    export function isConnected(graph: Graph): GraphCheckResult {
+      const connectedNodes = largestConnectedComponentSubgraph(graph).nodes();
+      const allNodes = graph.nodes();
+      if (connectedNodes.length == allNodes.length)
+        return {message: '', markings: []};
+      const markings: GraphChange[] = [];
+      allNodes.forEach((node) => {
+        if (!(node in connectedNodes))
+          markings.push(GraphChange.markElement(
+              graph, {key: node, type: 'node'}, 'error'));
+      });
+      return {
+        message: 'A path between any pair of nodes in graph must exist',
+        markings
+      };
+    }
+  }
+  export namespace dynamicChecks {
+    /**
+     * Checks if value of specified attribute is within given range for each
+     * element of specified type in graph
+     * @param graph Graph that the check should be performed on
+     * @param elementType Specification of whether the check should be performed
+     *     on nodes or edges
+     * @param attributeName Name of the attribute that should be checked
+     * @param min Minimum value allowed for specified attribute
+     * @param max Maximum value allowed for specified attribute
+     *
+     * Since mechanisms of retrieval of values of attributes from graph do not
+     * return typed values, it is up to the user to make sure that values of
+     * `min` and `max` are comparable with value of specified attribute
+     * @returns GraphChange[] describing markings of elements not meeting the
+     *     condition, empty if condition is met
+     */
+    export function areAttributesInRange(
+        graph: Graph, elementType: ElementType, attributeName: string,
+        range: {min?: any, max?: any}): GraphCheckResult {
+      const {min, max} = range;
+      if (min === undefined && max === undefined)
+        return {message: '', markings: []};
+
+      if (min !== undefined && max !== undefined) {
+        assert(
+            min <= max,
+            'areAttributesInRange in range GraphCheck is called improperly, conditions min <= max should be met');
+      }
+      const markings: GraphChange[] = [];
+
+      if (elementType == 'edge') {
+        graph.forEachEdge((edge) => {
+          if (min !== undefined &&
+              min > graph.getEdgeAttribute(edge, attributeName)) {
+            markings.push(GraphChange.markElement(
+                graph, {key: edge, type: elementType}, 'error'));
+            return;
+          }
+          if (max !== undefined &&
+              max < graph.getEdgeAttribute(edge, attributeName)) {
+            markings.push(GraphChange.markElement(
+                graph, {key: edge, type: elementType}, 'error'));
+          }
+        });
+      } else {
+        graph.forEachNode((node) => {
+          if (min !== undefined &&
+              min > graph.getNodeAttribute(node, attributeName)) {
+            markings.push(GraphChange.markElement(
+                graph, {key: node, type: elementType}, 'error'));
+            return;
+          }
+          if (max !== undefined &&
+              max < graph.getNodeAttribute(node, attributeName)) {
+            markings.push(GraphChange.markElement(
+                graph, {key: node, type: elementType}, 'error'));
+          }
+        });
+      }
+      let message = '';
+      if (markings.length > 0) {
+        message = `Value of ${attributeName} on each ${elementType} must be ${
+            min !== undefined ?
+                `higher than or equal to ${min}` :
+                ''}${min !== undefined && max !== undefined ? ' and ' : ''}${
+            max !== undefined ? `lower than or equal to ${max}` : ''}.`
+      }
+      return {message, markings};
+    }
+  }
 }
