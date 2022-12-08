@@ -9,7 +9,7 @@ import {Coordinates} from 'sigma/types';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 import {GraphChange} from '../../utility/graph-change/graph-change';
-import {getElementAttribute} from '../../utility/graphFunctions';
+import {getElementAttribute, hasElement} from '../../utility/graphFunctions';
 import {DisplayState, ElementDescriptor} from '../../utility/types';
 
 @Component({
@@ -151,8 +151,13 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     EnforceNumberInput.enforceInteger(this.edgesInput.nativeElement);
   }
 
+  // TODO: Was failing when previously marked element got removed and couldn't
+  // be found by getElementAttribute. Consider adding observables emitting
+  // changes to graph and subscribtions in elements storing copies of this info
+  // allowing to adjust them
   markChoosen(element: ElementDescriptor) {
     if (this.choosenMarking !== undefined &&
+        hasElement(this.graphStorage.graph, this.choosenMarking.element) &&
         getElementAttribute(
             this.graphStorage.graph, this.choosenMarking.element, 'color') ==
             this.choosenMarking.newValue)
