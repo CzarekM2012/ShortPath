@@ -60,30 +60,31 @@ export class GraphStorageService {
   }
 
   addNode(coords: Coordinates): void {
-    this.graph.addNode(this.newNodeKey, {...coords, size: ELEMENT_SIZE});
-    // Newly added node has no algorithm-specific attributes so all of them
-    // should be added
-    graphAlgorithms[this.choosenAlgorithm]?.nodeProperties.forEach(
-        (descriptor) => {
-          this.graph.setNodeAttribute(
-              this.newNodeKey, descriptor.name, descriptor.defaultValue);
-        });
+    let attributes: Record<string, any> = {...coords, 'size': ELEMENT_SIZE};
+    if (this.choosenAlgorithm in graphAlgorithms) {
+      const algorithm = graphAlgorithms[this.choosenAlgorithm];
+      algorithm.nodeProperties.forEach((descriptor) => {
+        attributes[descriptor.name] = descriptor.defaultValue;
+      });
+    }
+    this.graph.addNode(this.newNodeKey, attributes);
     this.newNodeKey = (parseInt(this.newNodeKey) + 1).toString();
   }
 
   addEdge(nodeKey1: string, nodeKey2: string): void {
-    if (this.graph.hasNode(nodeKey1) && this.graph.hasNode(nodeKey2) &&
-        !(this.graph.hasEdge(nodeKey1, nodeKey2) ||
-          this.graph.hasEdge(nodeKey2, nodeKey1))) {
-      this.graph.addEdge(nodeKey1, nodeKey2, {size: ELEMENT_SIZE});
-      // Newly added edge has no algorithm-specific attributes so all of them
-      // should be added
-      graphAlgorithms[this.choosenAlgorithm]?.edgeProperties.forEach(
-          (descriptor) => {
-            this.graph.setEdgeAttribute(
-                nodeKey1, nodeKey2, descriptor.name, descriptor.defaultValue);
-          });
+    if (!this.graph.hasNode(nodeKey1) || !this.graph.hasNode(nodeKey2) ||
+        this.graph.hasEdge(nodeKey1, nodeKey2) ||
+        this.graph.hasEdge(nodeKey2, nodeKey1))
+      return;
+
+    let attributes: Record<string, any> = {'size': ELEMENT_SIZE};
+    if (this.choosenAlgorithm in graphAlgorithms) {
+      const algorithm = graphAlgorithms[this.choosenAlgorithm];
+      algorithm.edgeProperties.forEach((descriptor) => {
+        attributes[descriptor.name] = descriptor.defaultValue;
+      });
     }
+    this.graph.addEdge(nodeKey1, nodeKey2, attributes);
   }
 
   removeNode(nodeKey: string): void {
