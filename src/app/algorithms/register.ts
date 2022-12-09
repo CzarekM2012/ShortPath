@@ -10,6 +10,8 @@ export const graphAlgorithms: {
     getWorker: () => Worker,
     mainThreadFunction: mainThreadAlgorithmCall,
     correctnessChecks: GraphCheck[],
+    nodesLabel?: string,
+    edgesLabel?: string,
   }
 } = {
   'Dijkstra': {
@@ -24,6 +26,8 @@ export const graphAlgorithms: {
     edgeProperties: [
       {name: 'cost', defaultValue: 1, visible: true, userModifiable: true},
     ],
+    edgesLabel: 'cost',
+    nodesLabel: 'distance',
     getWorker: () => {return new Worker(
         new URL('dijkstra/dijkstra.worker', import.meta.url))},
     mainThreadFunction: dijkstra,

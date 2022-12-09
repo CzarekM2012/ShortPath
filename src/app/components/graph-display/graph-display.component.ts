@@ -70,9 +70,12 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     random.assign(this.graphStorage.graph);
     this.layout.worker = new ForceSupervisor(this.graphStorage.graph);
     this.layout.active.setValue(true);
-    this.renderer = new Sigma(
-        this.graphStorage.graph, this.display.nativeElement,
-        {enableEdgeClickEvents: true});
+    this.renderer =
+        new Sigma(this.graphStorage.graph, this.display.nativeElement, {
+          enableEdgeClickEvents: true,
+          renderLabels: true,
+          renderEdgeLabels: true,
+        });
     this.renderer.on('clickStage', (event) => {
       if (this.state.value == 'addNode') {
         const {x, y} = event.event;

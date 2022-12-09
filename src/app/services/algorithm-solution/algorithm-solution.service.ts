@@ -39,6 +39,7 @@ export class AlgorithmSolutionService {
         stage.reverse(this.graphStorage.graph);
       });
     }
+    this.graphStorage.refreshLabels();
     this.graphStorage.triggerGraphicRefresh(
         newIndex >= 1 ?
             this.executionStack[newIndex - 1].description :

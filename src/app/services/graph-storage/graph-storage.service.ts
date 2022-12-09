@@ -30,6 +30,7 @@ export class GraphStorageService {
   }
 
   changeAlgorithm(algorithm: string) {
+    if (!(algorithm in graphAlgorithms)) return;
     const propertyChanges =
         analyzeAlgorithmChange(this.choosenAlgorithm, algorithm);
     const edgeSets =
@@ -55,16 +56,39 @@ export class GraphStorageService {
       });
     });
 
+    let currentEdgeLabel: string|undefined = undefined;
+    let currentNodeLabel: string|undefined = undefined;
+    if (this.choosenAlgorithm in graphAlgorithms) {
+      currentEdgeLabel = graphAlgorithms[this.choosenAlgorithm].edgesLabel;
+      currentNodeLabel = graphAlgorithms[this.choosenAlgorithm].nodesLabel;
+    }
+    const newEdgeLabel = graphAlgorithms[algorithm].edgesLabel;
+    const newNodeLabel = graphAlgorithms[algorithm].nodesLabel;
+    if (currentEdgeLabel !== undefined && newEdgeLabel === undefined) {
+      this.graph.forEachEdge((edgeKey) => {
+        this.graph.removeEdgeAttribute(edgeKey, 'label');
+      });
+    }
+    if (currentNodeLabel !== undefined && newNodeLabel === undefined) {
+      this.graph.forEachNode((nodeKey) => {
+        this.graph.removeNodeAttribute(nodeKey, 'label');
+      });
+    }
     this.choosenAlgorithm = algorithm;
+    this.refreshLabels();
   }
 
   addNode(coords: Coordinates): void {
     let attributes: Record<string, any> = {...coords, 'size': ELEMENT_SIZE};
     if (this.choosenAlgorithm in graphAlgorithms) {
+      let labelValue: any = undefined;
       const algorithm = graphAlgorithms[this.choosenAlgorithm];
       algorithm.nodeProperties.forEach((descriptor) => {
         attributes[descriptor.name] = descriptor.defaultValue;
+        if (descriptor.name == algorithm.nodesLabel)
+          labelValue = descriptor.defaultValue;
       });
+      if (labelValue !== undefined) attributes['label'] = labelValue;
     }
     this.graph.addNode(this.newNodeKey, attributes);
     this.newNodeKey = (parseInt(this.newNodeKey) + 1).toString();
@@ -78,10 +102,14 @@ export class GraphStorageService {
 
     let attributes: Record<string, any> = {'size': ELEMENT_SIZE};
     if (this.choosenAlgorithm in graphAlgorithms) {
+      let labelValue: any = undefined;
       const algorithm = graphAlgorithms[this.choosenAlgorithm];
       algorithm.edgeProperties.forEach((descriptor) => {
         attributes[descriptor.name] = descriptor.defaultValue;
+        if (descriptor.name == algorithm.edgesLabel)
+          labelValue = descriptor.defaultValue;
       });
+      if (labelValue !== undefined) attributes['label'] = labelValue;
     }
     this.graph.addEdge(nodeKey1, nodeKey2, attributes);
   }
@@ -110,8 +138,8 @@ graph with given number of nodes');
 
     let edgesKeys = this.graph.edges();
     let edgeCount = edgesKeys.length;
-    // remove random edges from graph until it has number of edges equal to one
-    // given to function
+    // remove random edges from graph until it has number of edges equal to
+    // one given to function
     while (edgeCount > edges) {
       let edgeIndex = Math.floor(Math.random() * (edgesKeys.length));
       const edge = edgesKeys[edgeIndex];
@@ -123,11 +151,13 @@ graph with given number of nodes');
       else  // removing edge disconnected the graph, re-add it
         this.graph.addEdge(ends[0], ends[1]);
     }
-    this.graph.forEachNode(
-        (node) => {this.graph.setNodeAttribute(node, 'size', ELEMENT_SIZE)});
+    this.graph.forEachNode((node) => {
+      this.graph.setNodeAttribute(node, 'size', ELEMENT_SIZE);
+    });
 
-    this.graph.forEachEdge(
-        (edge) => {this.graph.setEdgeAttribute(edge, 'size', ELEMENT_SIZE)});
+    this.graph.forEachEdge((edge) => {
+      this.graph.setEdgeAttribute(edge, 'size', ELEMENT_SIZE);
+    });
   }
 
   setPathEnd(nodeKey: string, type: 'start'|'end') {
@@ -153,5 +183,23 @@ graph with given number of nodes');
       text: string =
           'Overall description of choosen algorithm or current step of its execution will appear here') {
     this.graphicRefresh.emit(text);
+  }
+
+  refreshLabels() {
+    if (!(this.choosenAlgorithm in graphAlgorithms)) return;
+    const edgeLabel = graphAlgorithms[this.choosenAlgorithm].edgesLabel;
+    const nodeLabel = graphAlgorithms[this.choosenAlgorithm].nodesLabel;
+    if (edgeLabel !== undefined) {
+      this.graph.forEachEdge((edgeKey) => {
+        this.graph.setEdgeAttribute(
+            edgeKey, 'label', this.graph.getEdgeAttribute(edgeKey, edgeLabel));
+      });
+    }
+    if (nodeLabel !== undefined) {
+      this.graph.forEachNode((nodeKey) => {
+        this.graph.setNodeAttribute(
+            nodeKey, 'label', this.graph.getNodeAttribute(nodeKey, nodeLabel));
+      });
+    }
   }
 }
