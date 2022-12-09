@@ -87,8 +87,8 @@ export class AlgorithmSolutionService {
     };
     worker.postMessage({
       graphData: this.graphStorage.graph.export(),
-      source: this.graphStorage.startNode,
-      destination: this.graphStorage.endNode,
+      source: this.graphStorage.pathEnds.startNode,
+      destination: this.graphStorage.pathEnds.endNode,
     });
   }
 
@@ -103,16 +103,16 @@ export class AlgorithmSolutionService {
     graphAlgorithms[algorithm].mainThreadFunction(
         this.executionStack,
         this.graphStorage.graph,
-        this.graphStorage.startNode as string,
-        this.graphStorage.endNode as string,
+        this.graphStorage.pathEnds.startNode!,
+        this.graphStorage.pathEnds.endNode!,
     );
     this.currentIndex = this.executionStack.length;
     this.step(-Infinity);
   }
 
   _checkEnds() {
-    if (this.graphStorage.startNode === undefined ||
-        this.graphStorage.endNode === undefined) {
+    if (this.graphStorage.pathEnds.startNode === undefined ||
+        this.graphStorage.pathEnds.endNode === undefined) {
       alert(
           'Both start and end node need to be choosen before executing algorithm');
       return false;

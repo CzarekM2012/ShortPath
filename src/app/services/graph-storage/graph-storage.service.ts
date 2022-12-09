@@ -15,9 +15,8 @@ const ELEMENT_SIZE = 5;
 export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
   newNodeKey: string = '0';
-  choosenAlgorithm: string = IMPROPER_ALGORITHM
-  startNode?: string;
-  endNode?: string;
+  choosenAlgorithm: string = IMPROPER_ALGORITHM;
+  pathEnds: {startNode?: string, endNode?: string} = {};
   // Subscribing to Event emitter or even using it in context other than
   // comunication between parent and children components through @Input
   // and @Output decorators is an antipattern. To fix.
@@ -137,16 +136,16 @@ graph with given number of nodes');
           'There is no node associated with key passed ' +
           'while trying to mark an end of the path');
     if (type == 'start') {
-      if (this.startNode !== undefined)
-        this.graph.removeNodeAttribute(this.startNode, 'color');
+      if (this.pathEnds.startNode !== undefined)
+        this.graph.removeNodeAttribute(this.pathEnds.startNode, 'color');
       this.graph.setNodeAttribute(nodeKey, 'color', 'blue');
-      this.startNode = nodeKey;
+      this.pathEnds.startNode = nodeKey;
       return;
     }
-    if (this.endNode !== undefined)
-      this.graph.removeNodeAttribute(this.endNode, 'color');
+    if (this.pathEnds.endNode !== undefined)
+      this.graph.removeNodeAttribute(this.pathEnds.endNode, 'color');
     this.graph.setNodeAttribute(nodeKey, 'color', 'red');
-    this.endNode = nodeKey;
+    this.pathEnds.endNode = nodeKey;
     this.triggerGraphicRefresh();
   }
 

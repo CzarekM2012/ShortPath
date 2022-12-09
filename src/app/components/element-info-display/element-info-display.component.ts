@@ -53,7 +53,7 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       startInput.onchange = () => {
         this.graphStorage.setPathEnd(this.elementDescriptor!.key, 'start');
       };
-      if (this.elementDescriptor.key == this.graphStorage.startNode)
+      if (this.elementDescriptor.key == this.graphStorage.pathEnds.startNode)
         startInput.checked = true;
       const endLabel = document.createElement('label');
       endLabel.setAttribute('for', 'endRadio');
@@ -65,7 +65,7 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       endInput.onchange = () => {
         this.graphStorage.setPathEnd(this.elementDescriptor!.key, 'end');
       };
-      if (this.elementDescriptor.key == this.graphStorage.endNode)
+      if (this.elementDescriptor.key == this.graphStorage.pathEnds.endNode)
         endInput.checked = true;
       nodes.push([startLabel, startInput], [endLabel, endInput]);
     }
