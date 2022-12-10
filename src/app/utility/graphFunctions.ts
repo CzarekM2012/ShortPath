@@ -3,7 +3,6 @@
  * dependency to occur - it should be investigated and fixed if possible, when
  * all required functions are ready
  */
-import * as assert from 'assert';
 import Graph from 'graphology';
 import {largestConnectedComponentSubgraph} from 'graphology-components';
 
@@ -85,10 +84,12 @@ export namespace GraphChecks {
       if (min === undefined && max === undefined)
         return {message: '', markings: []};
 
+      // TODO: Investigate why importing assert doesn't work in this file,
+      // despite the fact it works in graph-storage.service.ts
       if (min !== undefined && max !== undefined) {
-        assert(
-            min <= max,
-            'areAttributesInRange in range GraphCheck is called improperly, conditions min <= max should be met');
+        if (!(min <= max))
+          throw new Error(
+              'areAttributesInRange in range GraphCheck is called improperly, conditions min <= max should be met');
       }
       const markings: GraphChange[] = [];
 
