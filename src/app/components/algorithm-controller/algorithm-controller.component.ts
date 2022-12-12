@@ -16,6 +16,8 @@ export class AlgorithmControllerComponent implements AfterViewInit {
   @ViewChild('return') resetGraph!: ElementRef;
   @ViewChild('mainThreadExecution') algorithmMainThreadExecution!: ElementRef;
   @ViewChild('stepsCount') stepsInput!: ElementRef;
+  @ViewChild('stepBackward') backwardButton!: ElementRef;
+  @ViewChild('stepForward') forwardButton!: ElementRef;
   IMPROPER_ALGORITHM: string = 'none';
   choosenAlgorithm: string = this.IMPROPER_ALGORITHM;
 
@@ -61,13 +63,24 @@ export class AlgorithmControllerComponent implements AfterViewInit {
     if (this.choosenAlgorithm != this.IMPROPER_ALGORITHM) {
       if (mode == 'normal') {
         this.algorithmSolution.executeAlgorithm(this.choosenAlgorithm);
-        return;
+      } else {
+        this.algorithmSolution.mainThreadAlgorithmCall(this.choosenAlgorithm);
       }
-      this.algorithmSolution.mainThreadAlgorithmCall(this.choosenAlgorithm);
+      (this.algorithms.nativeElement as HTMLSelectElement).disabled = true;
+      (this.algorithmExecution.nativeElement as HTMLButtonElement).hidden =
+          true;
+      (this.resetGraph.nativeElement as HTMLButtonElement).hidden = false;
+      (this.backwardButton.nativeElement as HTMLButtonElement).disabled = false;
+      (this.forwardButton.nativeElement as HTMLButtonElement).disabled = false;
     }
   }
 
   endInspection() {
     this.algorithmSolution.step(-Infinity);
+    (this.algorithms.nativeElement as HTMLSelectElement).disabled = false;
+    (this.algorithmExecution.nativeElement as HTMLButtonElement).hidden = false;
+    (this.resetGraph.nativeElement as HTMLButtonElement).hidden = true;
+    (this.backwardButton.nativeElement as HTMLButtonElement).disabled = true;
+    (this.forwardButton.nativeElement as HTMLButtonElement).disabled = true;
   }
 }

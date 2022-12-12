@@ -35,4 +35,12 @@ describe('AlgorithmControllerComponent', () => {
   it('should have step number input', () => {
     expect(component.stepsInput).toBeDefined();
   });
+
+  it('should have move forward button', () => {
+    expect(component.forwardButton).toBeDefined();
+  });
+
+  it('should have move backward button', () => {
+    expect(component.backwardButton).toBeDefined();
+  });
 });

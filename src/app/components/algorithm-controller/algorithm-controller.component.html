@@ -6,6 +6,6 @@
 <button #mainThreadExecution (click)="executeAlgorithm('mainThread')" disabled>Execute in main thread (for
   testing)</button>
 Step:
-<button (click)="changeExecutionStep('backward')">&#8592;</button>
+<button #stepBackward (click)="changeExecutionStep('backward')" disabled>&#8592;</button>
 <input #stepsCount type="number" min="1" value="1" (change)="handleStepsNumber()">
-<button (click)="changeExecutionStep('forward')">&#8594;</button>
+<button #stepForward (click)="changeExecutionStep('forward')" disabled>&#8594;</button>
