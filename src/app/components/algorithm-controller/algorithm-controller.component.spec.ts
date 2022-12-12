@@ -1,17 +1,17 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {AlgorithmChoiceComponent} from './algorithm-choice.component';
+import {AlgorithmControllerComponent} from './algorithm-controller.component';
 
-describe('AlgorithmChoiceComponent', () => {
-  let component: AlgorithmChoiceComponent;
-  let fixture: ComponentFixture<AlgorithmChoiceComponent>;
+describe('AlgorithmControllerComponent', () => {
+  let component: AlgorithmControllerComponent;
+  let fixture: ComponentFixture<AlgorithmControllerComponent>;
 
   beforeEach(async () => {
     await TestBed
-        .configureTestingModule({declarations: [AlgorithmChoiceComponent]})
+        .configureTestingModule({declarations: [AlgorithmControllerComponent]})
         .compileComponents();
 
-    fixture = TestBed.createComponent(AlgorithmChoiceComponent);
+    fixture = TestBed.createComponent(AlgorithmControllerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -26,4 +26,8 @@ describe('AlgorithmChoiceComponent', () => {
 
   it('should have algorithm execution trigger',
      () => {expect(component.algorithmExecution).toBeDefined()})
+
+  it('should have step number input', () => {
+    expect(component.stepsInput).toBeDefined();
+  });
 });

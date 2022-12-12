@@ -1,18 +1,20 @@
 import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 
-import {graphAlgorithms} from '../../../algorithms/register';
-import {AlgorithmSolutionService} from '../../../services/algorithm-solution/algorithm-solution.service';
-import {GraphStorageService} from '../../../services/graph-storage/graph-storage.service';
+import {graphAlgorithms} from '../../algorithms/register';
+import {AlgorithmSolutionService} from '../../services/algorithm-solution/algorithm-solution.service';
+import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
+import {EnforceNumberInput} from '../../utility/functions';
 
 @Component({
-  selector: 'app-algorithm-choice',
-  templateUrl: './algorithm-choice.component.html',
-  styleUrls: ['./algorithm-choice.component.css']
+  selector: 'app-algorithm-controller',
+  templateUrl: './algorithm-controller.component.html',
+  styleUrls: ['./algorithm-controller.component.css']
 })
-export class AlgorithmChoiceComponent implements AfterViewInit {
+export class AlgorithmControllerComponent implements AfterViewInit {
   @ViewChild('selection') algorithms!: ElementRef;
   @ViewChild('execution') algorithmExecution!: ElementRef;
   @ViewChild('mainThreadExecution') algorithmMainThreadExecution!: ElementRef;
+  @ViewChild('stepsCount') stepsInput!: ElementRef;
   IMPROPER_ALGORITHM: string = 'none';
   choosenAlgorithm: string = this.IMPROPER_ALGORITHM;
 
@@ -40,6 +42,18 @@ export class AlgorithmChoiceComponent implements AfterViewInit {
       (this.algorithmMainThreadExecution.nativeElement as HTMLButtonElement)
           .disabled = false;
     }
+  }
+
+  handleStepsNumber() {
+    EnforceNumberInput.enforceRange(this.stepsInput.nativeElement);
+    EnforceNumberInput.enforceInteger(this.stepsInput.nativeElement);
+  }
+
+  changeExecutionStep(direction: 'backward'|'forward') {
+    const stepsInput = (this.stepsInput.nativeElement as HTMLInputElement);
+    let steps = Number(stepsInput.value);
+    if (direction == 'backward') steps = -steps;
+    this.algorithmSolution.step(steps);
   }
 
   executeAlgorithm(mode: 'normal'|'mainThread' = 'normal') {

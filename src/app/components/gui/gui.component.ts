@@ -2,7 +2,6 @@ import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/
 
 import {AlgorithmSolutionService} from '../../services/algorithm-solution/algorithm-solution.service';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
-import {EnforceNumberInput} from '../../utility/functions';
 import {ElementDescriptor} from '../../utility/types';
 
 @Component({
@@ -11,7 +10,6 @@ import {ElementDescriptor} from '../../utility/types';
   styleUrls: ['./gui.component.css']
 })
 export class GUIComponent implements OnInit, AfterViewInit {
-  @ViewChild('stepsCount') stepsInput!: ElementRef;
   @ViewChild('stageDescription') stageDescription!: ElementRef;
   elementDescriptor?: ElementDescriptor;
   descriptionSubscription: any;
@@ -35,17 +33,5 @@ export class GUIComponent implements OnInit, AfterViewInit {
 
   elementChoice(event: ElementDescriptor) {
     this.elementDescriptor = event;
-  }
-
-  handleStepsNumber() {
-    EnforceNumberInput.enforceRange(this.stepsInput.nativeElement);
-    EnforceNumberInput.enforceInteger(this.stepsInput.nativeElement);
-  }
-
-  changeExecutionStep(direction: 'backward'|'forward') {
-    const stepsInput = (this.stepsInput.nativeElement as HTMLInputElement);
-    let steps = Number(stepsInput.value);
-    if (direction == 'backward') steps = -steps;
-    this.algorithmSolution.step(steps);
   }
 }

@@ -18,8 +18,4 @@ describe('GUIComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should have step number input', () => {
-    expect(component.stepsInput).toBeDefined();
-  });
 });
