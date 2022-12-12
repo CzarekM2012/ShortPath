@@ -13,6 +13,7 @@ import {EnforceNumberInput} from '../../utility/functions';
 export class AlgorithmControllerComponent implements AfterViewInit {
   @ViewChild('selection') algorithms!: ElementRef;
   @ViewChild('execution') algorithmExecution!: ElementRef;
+  @ViewChild('return') resetGraph!: ElementRef;
   @ViewChild('mainThreadExecution') algorithmMainThreadExecution!: ElementRef;
   @ViewChild('stepsCount') stepsInput!: ElementRef;
   IMPROPER_ALGORITHM: string = 'none';
@@ -64,5 +65,9 @@ export class AlgorithmControllerComponent implements AfterViewInit {
       }
       this.algorithmSolution.mainThreadAlgorithmCall(this.choosenAlgorithm);
     }
+  }
+
+  endInspection() {
+    this.algorithmSolution.step(-Infinity);
   }
 }

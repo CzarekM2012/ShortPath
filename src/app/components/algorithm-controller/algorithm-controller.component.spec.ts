@@ -24,8 +24,13 @@ describe('AlgorithmControllerComponent', () => {
     expect(component.algorithms).toBeDefined();
   });
 
-  it('should have algorithm execution trigger',
-     () => {expect(component.algorithmExecution).toBeDefined()})
+  it('should have algorithm execution button', () => {
+    expect(component.algorithmExecution).toBeDefined();
+  });
+
+  it('should have algorithm reset button', () => {
+    expect(component.resetGraph).toBeDefined();
+  });
 
   it('should have step number input', () => {
     expect(component.stepsInput).toBeDefined();
