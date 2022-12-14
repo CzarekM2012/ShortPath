@@ -4,15 +4,17 @@ import {BrowserModule} from '@angular/platform-browser';
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
+import {AlgorithmChoiceComponent} from './components/algorithm-choice/algorithm-choice.component';
 import {AlgorithmControllerComponent} from './components/algorithm-controller/algorithm-controller.component';
+import {AlgorithmVisualizerComponent} from './components/algorithm-visualizer/algorithm-visualizer.component';
 import {ElementInfoDisplayComponent} from './components/element-info-display/element-info-display.component';
 import {GraphDisplayComponent} from './components/graph-display/graph-display.component';
-import {GUIComponent} from './components/gui/gui.component';
 
 @NgModule({
   declarations: [
-    AppComponent, GraphDisplayComponent, GUIComponent,
-    ElementInfoDisplayComponent, AlgorithmControllerComponent
+    AppComponent, GraphDisplayComponent, ElementInfoDisplayComponent,
+    AlgorithmControllerComponent, AlgorithmChoiceComponent,
+    AlgorithmVisualizerComponent
   ],
   imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule],
   providers: [],

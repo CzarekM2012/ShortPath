@@ -5,11 +5,11 @@ import {GraphStorageService} from '../../services/graph-storage/graph-storage.se
 import {ElementDescriptor} from '../../utility/types';
 
 @Component({
-  selector: 'app-gui',
-  templateUrl: './gui.component.html',
-  styleUrls: ['./gui.component.css']
+  selector: 'app-algorithm-visualizer',
+  templateUrl: './algorithm-visualizer.component.html',
+  styleUrls: ['./algorithm-visualizer.component.css']
 })
-export class GUIComponent implements OnInit, AfterViewInit {
+export class AlgorithmVisualizerComponent implements OnInit, AfterViewInit {
   @ViewChild('stageDescription') stageDescription!: ElementRef;
   elementDescriptor?: ElementDescriptor;
   descriptionSubscription: any;

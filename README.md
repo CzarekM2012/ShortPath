@@ -48,3 +48,9 @@ Update attribute update on algorithm change
 Auto refresh of data displayed on data display on stage change
 Auto refresh of data displayed on data display on algorithm change
 Manual drag node for user
+
+
+Zakładka z kodem algorytmów (dobrze obkomentowana) - najniższy priorytet
+Odgórne ograniczenie na liczbę wierzchołków algorytmu (np. 8)
+Tabelka z danymi elementów (https://www.101computing.net/dijkstras-shortest-path-algorithm/) (podświetlanie rekordów zmienionych w danym kroku)
+Strona tytułowa (Tytuł, imię nazwisko, wydział), przejście do strony wyboru algorytmów z opisami, strona z definiowaniem i wizualizacją algorytmu

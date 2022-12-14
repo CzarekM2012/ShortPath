@@ -1,14 +1,15 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { GUIComponent } from './components/gui/gui.component';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+
+import {AlgorithmChoiceComponent} from './components/algorithm-choice/algorithm-choice.component';
+import {AlgorithmVisualizerComponent} from './components/algorithm-visualizer/algorithm-visualizer.component';
 
 const routes: Routes = [
-  {path: '', component: GUIComponent},
-  {path: 'standard', component: GUIComponent}
+  {path: '', component: AlgorithmChoiceComponent},
+  {path: 'choice', component: AlgorithmChoiceComponent},
+  {path: 'visualisation', component: AlgorithmVisualizerComponent},
 ];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }
+@NgModule({imports: [RouterModule.forRoot(routes)], exports: [RouterModule]})
+export class AppRoutingModule {
+}
