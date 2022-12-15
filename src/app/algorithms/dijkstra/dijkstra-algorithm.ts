@@ -3,9 +3,9 @@ import {UndirectedGraph} from 'graphology';
 import {ExecutionStage} from '../../utility/execution-stage/execution-stage';
 import {GraphChange} from '../../utility/graph-change/graph-change';
 
-export function dijkstra(
-    executionStack: ExecutionStage[], graph: UndirectedGraph, source: string,
-    destination: string) {
+export function dijkstraAlgorithm(
+    graph: UndirectedGraph, source: string, destination: string,
+    submitStage: (stage: ExecutionStage) => void) {
   let stage = new ExecutionStage();
   stage.description =
       'Starting node is set as current node and its distance from the start is set to 0. All nodes are considered to be unvisited.'
@@ -13,7 +13,7 @@ export function dijkstra(
       GraphChange.markElement(graph, {key: source, type: 'node'}, 'inspect'));
   stage.addChange(GraphChange.setProperty(
       graph, {key: source, type: 'node'}, 'distance', 0));
-  executionStack.push(stage);
+  submitStage(stage);
   let unvisited = graph.nodes();
   let current = source;
   while (current != destination) {
@@ -30,7 +30,7 @@ export function dijkstra(
         if (distance < graph.getNodeAttribute(neighbor, 'distance'))
           stage.addChange(GraphChange.setProperty(
               graph, {key: neighbor, type: 'node'}, 'distance', distance));
-        executionStack.push(stage);
+        submitStage(stage);
         stage = new ExecutionStage();
         stage.description =
             'Edge connecting current node with one of its unvisited neighbors is inspected. If sum of distance of current node and length of the edge is lower than current distance of neighbor node, distance of neighbor node is set to sum.';
@@ -55,7 +55,7 @@ export function dijkstra(
     current = unvisited[0];
     stage.addChange(GraphChange.markElement(
         graph, {key: current, type: 'node'}, 'inspect'));
-    executionStack.push(stage);
+    submitStage(stage);
   }
   // find path and post last stage marking it
   stage = new ExecutionStage()
@@ -78,5 +78,5 @@ export function dijkstra(
   }
   stage.addChange(
       GraphChange.markElement(graph, {key: current, type: 'node'}, 'approve'));
-  executionStack.push(stage);
+  submitStage(stage);
 };

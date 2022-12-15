@@ -1,7 +1,7 @@
 import {GraphChecks} from '../utility/graphFunctions';
 import {AttributeDescriptor, GraphCheck, mainThreadAlgorithmCall} from '../utility/types';
 
-import {dijkstra} from './dijkstra/dijkstra-algorithm';
+import {dijkstraAlgorithm} from './dijkstra/dijkstra-algorithm';
 
 export const graphAlgorithms: {
   [key: string]: {
@@ -30,7 +30,7 @@ export const graphAlgorithms: {
     nodesLabel: 'distance',
     getWorker: () => {return new Worker(
         new URL('dijkstra/dijkstra.worker', import.meta.url))},
-    mainThreadFunction: dijkstra,
+    mainThreadFunction: dijkstraAlgorithm,
     correctnessChecks: [
       GraphChecks.staticChecks.isConnected,
       (graph) => {

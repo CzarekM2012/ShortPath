@@ -102,11 +102,10 @@ export class AlgorithmSolutionService {
         'in main thread, GUI may stop responding, depending on complexity ' +
         'of the task');
     graphAlgorithms[algorithm].mainThreadFunction(
-        this.executionStack,
-        this.graphStorage.graph,
-        this.graphStorage.pathEnds.startNode!,
-        this.graphStorage.pathEnds.endNode!,
-    );
+        this.graphStorage.graph, this.graphStorage.pathEnds.startNode!,
+        this.graphStorage.pathEnds.endNode!, (stage) => {
+          this.executionStack.push(stage);
+        });
     this.currentIndex = this.executionStack.length;
     this.step(-Infinity);
   }

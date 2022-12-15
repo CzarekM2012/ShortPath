@@ -12,21 +12,24 @@ export interface ElementDescriptor {
   type: ElementType;
 }
 
-
 /**
- * Algorithms are going to be used mainly in Web Workers that will send
- * ExecutionStage objects as soon as they are complete.
+ * Web Workers are assumed environment of algorithm execution, however fallback
+ * method for executing them in the main thread is necessary.
  *
- * Algorithms called in main thread could return full execution stack after
- * finishing.
+ * submitStage callback is used in the implementation of the algorithm, in order
+ * to avoid copy-pasting the same function and only changing the method of
+ * submitting execution stage.
  *
- * Providing external execution stack that can be pushed to at the same moments
- * when Web Worker implementation would send messages makes it easier to reuse
- * Web Worker implementation in main thread.
+ * In case of execution in the context of the webworker, submitStage will need
+ * to be provided by algorithm implementation (it may be defined
+ * as`(stage)=>{postMessage(stage);}` in most of the cases)
+ *
+ * In case of execution in the main thread, submitStage is provided by ShortPath
+ * environment
  */
 export type mainThreadAlgorithmCall =
-    (executionStack: ExecutionStage[], graph: Graph, source: string,
-     destination: string) => void;
+    (graph: Graph, source: string, destination: string,
+     submitStage: (stage: ExecutionStage) => void) => void;
 
 export type GraphCheckResult = {
   message: string,
