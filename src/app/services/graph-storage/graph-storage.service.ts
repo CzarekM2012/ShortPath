@@ -30,7 +30,8 @@ export class GraphStorageService {
   }
 
   changeAlgorithm(algorithm: string) {
-    if (!(algorithm in graphAlgorithms)) return;
+    if (!(algorithm in graphAlgorithms) || algorithm == this.choosenAlgorithm)
+      return;
     const propertyChanges =
         analyzeAlgorithmChange(this.choosenAlgorithm, algorithm);
     const edgeSets =

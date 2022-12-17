@@ -1,1 +1,18 @@
-<p>algorithm-choice works!</p>
+<div class="vertical">
+  <div class="horizontal">
+    <div id="choice" class=" scrollable">
+      <div class="doubleColumn" *ngFor="let algorithm of algorithms">
+        <input type="radio" id="{{algorithm}}" value="{{algorithm}}" name="algorithm" [formControl]="algorithmChoice">
+        <label for="{{algorithm}}">{{algorithm}}</label>
+      </div>
+    </div>
+    <div id="description" class="scrollable" #description>
+      <p>Choose an algorithm to visualize from the list.</p>
+      <p>Algorithms are visualized on undirected graphs.</p>
+      <p>In order to present all required information clearly, number of nodes in graph is limited to 10.</p>
+    </div>
+  </div>
+  <button #visualisation [routerLink]="'/visualisation'" (click)="beforeVisualisation()"
+    [disabled]="algorithmChoice.value === null">Visualize
+    algorithm</button>
+</div>

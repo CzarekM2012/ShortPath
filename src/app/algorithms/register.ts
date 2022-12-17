@@ -5,6 +5,7 @@ import {dijkstraAlgorithm} from './dijkstra/dijkstra-algorithm';
 
 export const graphAlgorithms: {
   [key: string]: {
+    description: string,
     nodeProperties: AttributeDescriptor[],
     edgeProperties: AttributeDescriptor[],
     getWorker: () => Worker,
@@ -15,6 +16,7 @@ export const graphAlgorithms: {
   }
 } = {
   'Dijkstra': {
+    description: 'description of Dijkstra algorithm',
     nodeProperties: [
       {
         name: 'distance',
@@ -40,6 +42,7 @@ export const graphAlgorithms: {
     ],
   },
   'A*': {
+    description: 'description of A* algorithm',
     nodeProperties: [
       {name: 'distance', defaultValue: 10, visible: true, userModifiable: false}
     ],
@@ -51,6 +54,7 @@ export const graphAlgorithms: {
     correctnessChecks: [],
   },
   'Bellman-Ford': {
+    description: 'description of Bellman-Ford algorithm',
     nodeProperties: [
       {name: 'distance', defaultValue: 0, visible: true, userModifiable: false}
     ],
