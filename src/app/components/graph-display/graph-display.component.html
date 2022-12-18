@@ -19,11 +19,13 @@
     <div class="vertical">
       <div class="horizontal">
         <label for="nodes">Nodes:</label>
-        <input #numberOfNodes type="number" (change)="handleNodesNumber()" name="nodes" min="2" value="10">
+        <input #numberOfNodes type="number" (change)="handleNodesNumber()" name="nodes" min="2"
+          [max]="_graphParams.maxNodes">
       </div>
       <div class="horizontal">
         <label for="edges">Edges:</label>
-        <input #numberOfEdges type="number" (change)="handleEdgesNumber()" name="edges" min="9" max="45" value="20">
+        <input #numberOfEdges type="number" (change)="handleEdgesNumber()" name="edges" [min]="_graphParams.minEdges"
+          [max]="_graphParams.maxEdges">
         <!--min and max are manually calculated minimal and maximal number of edges for connected graph with 10 nodes
           (initial value of nodes number input), these values will change together with value in nodes number input-->
       </div>

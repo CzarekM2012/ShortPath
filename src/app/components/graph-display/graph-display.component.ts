@@ -6,6 +6,7 @@ import {Subscription} from 'rxjs';
 import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
+import {GlobalSettingsService} from '../../services/global-settings/global-settings.service';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 import {GraphChange} from '../../utility/graph-change/graph-change';
@@ -19,8 +20,8 @@ import {DisplayState, ElementDescriptor} from '../../utility/types';
 })
 export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('display') display!: ElementRef;
-  @ViewChild('numberOfNodes') nodesInput!: ElementRef;
-  @ViewChild('numberOfEdges') edgesInput!: ElementRef;
+  @ViewChild('numberOfNodes') nodesInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('numberOfEdges') edgesInput!: ElementRef<HTMLInputElement>;
   @Output() choosenElement = new EventEmitter<ElementDescriptor>();
   state: FormControl =
       new FormControl<DisplayState>('choose', {nonNullable: true});
@@ -34,8 +35,23 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   tempNode?: string;
   isDragging: boolean = false;
   refreshSubscription: any;
+  //_graphParams.maxNodes cannot be accessed during initialization of
+  //_graphParams, so minEdges and maxEdges have temporary values assigned,
+  // proper values are assigned in constructor
+  _graphParams: {
+    maxNodes: number,  // also initial value of nodesInput
+    minEdges: number,  // also initial value of edgesInput
+    maxEdges: number,
+  } = {maxNodes: this.globalSettings.maxGraphNodes, minEdges: -1, maxEdges: -1};
 
-  constructor(private graphStorage: GraphStorageService) {}
+  constructor(
+      private graphStorage: GraphStorageService,
+      private globalSettings: GlobalSettingsService) {
+    this._graphParams.minEdges =
+        minEdgesForConnectedGraph(this._graphParams.maxNodes);
+    this._graphParams.maxEdges =
+        maxEdgesForConnectedGraph(this._graphParams.maxNodes);
+  }
 
   ngOnInit(): void {
     this.refreshSubscription =
@@ -53,6 +69,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    this.nodesInput.nativeElement.value = this._graphParams.maxNodes.toString();
+    this.edgesInput.nativeElement.value = this._graphParams.minEdges.toString();
     this.startRendering();
   }
 
@@ -77,6 +95,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
           renderLabels: true,
           renderEdgeLabels: true,
         });
+
     this.renderer.on('clickStage', (event) => {
       if (this.state.value == 'addNode') {
         const {x, y} = event.event;
@@ -85,6 +104,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
         this.graphStorage.addNode(nodeCoords);
       }
     });
+
     this.renderer.on('clickNode', (event) => {
       switch (this.state.value) {
         case 'choose':
@@ -109,6 +129,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
           break;
       }
     });
+
     this.renderer.on('clickEdge', (event) => {
       switch (this.state.value) {
         case 'choose':
@@ -123,6 +144,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
           break;
       }
     });
+
     this.renderer.on('downNode', (event) => {
       if (!(this.state.value == 'choose')) return;
       this.isDragging = true;
@@ -132,6 +154,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.renderer!.getCustomBBox())
         this.renderer!.setCustomBBox(this.renderer!.getBBox());
     });
+
     this.renderer.getMouseCaptor().on('mousemovebody', (event) => {
       if (!this.isDragging || this.tempNode === undefined) return;
       const position = this.renderer!.viewportToGraph(event);
@@ -141,6 +164,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
       event.original.preventDefault();
       event.original.stopPropagation();
     });
+
     this.renderer.getMouseCaptor().on('mouseup', () => {
       if (!(this.state.value == 'choose')) return;
       if (this.tempNode !== undefined) {
@@ -155,29 +179,28 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
 
   randomGraph() {
     this.graphStorage.randomGraph(
-        this.nodesInput.nativeElement.value,
-        this.edgesInput.nativeElement.value);
+        Number(this.nodesInput.nativeElement.value),
+        Number(this.edgesInput.nativeElement.value));
     this.stopRendering();
     this.startRendering();
   }
 
   handleNodesNumber() {
-    const nodesInput = this.nodesInput.nativeElement as HTMLInputElement;
-    EnforceNumberInput.enforceRange(nodesInput);
-    EnforceNumberInput.enforceInteger(nodesInput);
+    EnforceNumberInput.enforceRange(this.nodesInput.nativeElement);
+    EnforceNumberInput.enforceInteger(this.nodesInput.nativeElement);
 
-    const nodesNumber = Number(nodesInput.value);
-    const edgesInput = this.edgesInput.nativeElement as HTMLInputElement;
-    const edgesNumber = Number(edgesInput.value);
-    const minEdges = minEdgesForConnectedGraph(nodesNumber);
-    const maxEdges = maxEdgesForConnectedGraph(nodesNumber);
-    edgesInput.min = minEdges.toString();
-    edgesInput.max = maxEdges.toString();
-    if (edgesNumber < minEdges)
-      edgesInput.value = edgesInput.min;
-    else if (edgesNumber > maxEdges)
-      edgesInput.value = edgesInput.max;
+    const nodesNumber = Number(this.nodesInput.nativeElement.value);
+    const edgesNumber = Number(this.edgesInput.nativeElement.value);
+    this._graphParams.minEdges = minEdgesForConnectedGraph(nodesNumber);
+    this._graphParams.maxEdges = maxEdgesForConnectedGraph(nodesNumber);
+    if (edgesNumber < this._graphParams.minEdges)
+      this.edgesInput.nativeElement.value =
+          this._graphParams.minEdges.toString();
+    else if (edgesNumber > this._graphParams.maxEdges)
+      this.edgesInput.nativeElement.value =
+          this._graphParams.maxEdges.toString();
   }
+
   handleEdgesNumber() {
     EnforceNumberInput.enforceRange(this.edgesInput.nativeElement);
     EnforceNumberInput.enforceInteger(this.edgesInput.nativeElement);

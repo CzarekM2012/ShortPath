@@ -7,6 +7,7 @@ import {Coordinates} from 'sigma/types';
 
 import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
 const IMPROPER_ALGORITHM = 'none';
 const ELEMENT_SIZE = 5;
@@ -22,7 +23,7 @@ export class GraphStorageService {
   // and @Output decorators is an antipattern. To fix.
   graphicRefresh = new EventEmitter<string>(true);
 
-  constructor() {}
+  constructor(private globalSettings: GlobalSettingsService) {}
 
   isValid(): boolean {
     // Doesn't detect singular disconnected nodes
@@ -80,6 +81,12 @@ export class GraphStorageService {
   }
 
   addNode(coords: Coordinates): void {
+    if (this.graph.order >= this.globalSettings.maxGraphNodes) {
+      alert(
+          `For the sake of readability of the nodes data display, number of nodes in the graph is limited to ${
+              this.globalSettings.maxGraphNodes}.`);
+      return;
+    }
     let attributes: Record<string, any> = {...coords, 'size': ELEMENT_SIZE};
     if (this.choosenAlgorithm in graphAlgorithms) {
       let labelValue: any = undefined;
