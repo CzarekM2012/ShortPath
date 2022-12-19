@@ -180,7 +180,6 @@ graph with given number of nodes');
       this.graph.removeNodeAttribute(this.pathEnds.endNode, 'color');
     this.graph.setNodeAttribute(nodeKey, 'color', 'red');
     this.pathEnds.endNode = nodeKey;
-    this.changeEmitter.graphRefresh();
   }
 
   refreshLabels() {

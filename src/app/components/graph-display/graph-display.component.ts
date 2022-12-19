@@ -6,7 +6,6 @@ import {Subscription} from 'rxjs';
 import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
-import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../../services/global-settings/global-settings.service';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
@@ -46,8 +45,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
       private graphStorage: GraphStorageService,
-      private globalSettings: GlobalSettingsService,
-      private changeEmitter: ChangeEmitterService) {
+      private globalSettings: GlobalSettingsService) {
     this._graphParams.minEdges =
         minEdgesForConnectedGraph(this._graphParams.maxNodes);
     this._graphParams.maxEdges =
@@ -55,9 +53,6 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscriptions.add(this.changeEmitter.graphicRefresh.subscribe(() => {
-      this.renderer?.refresh();
-    }));
     this.subscriptions.add(
         // layout control
         this.layout.active.valueChanges.subscribe((runLayout: Boolean) => {

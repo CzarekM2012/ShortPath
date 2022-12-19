@@ -43,7 +43,7 @@ export class AlgorithmSolutionService {
       });
     }
     this.graphStorage.refreshLabels();
-    this.changeEmitter.stageChange(
+    this.changeEmitter.stageDescriptionChange.next(
         newIndex >= 1 ?
             this.executionStack[newIndex - 1].description :
             'You came back to before the first stage of algorithm execution');
