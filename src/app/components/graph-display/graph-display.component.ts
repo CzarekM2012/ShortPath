@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {random} from 'graphology-layout';
 import ForceSupervisor from 'graphology-layout-force/worker';
@@ -18,10 +18,12 @@ import {DisplayState, ElementDescriptor} from '../../utility/types';
   templateUrl: './graph-display.component.html',
   styleUrls: ['./graph-display.component.css']
 })
-export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
+export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
+                                              OnChanges {
   @ViewChild('display') private display!: ElementRef;
   @ViewChild('numberOfNodes') private nodesInput!: ElementRef<HTMLInputElement>;
   @ViewChild('numberOfEdges') private edgesInput!: ElementRef<HTMLInputElement>;
+  @Input() executing!: boolean;
   @Output() private choosenElement = new EventEmitter<ElementDescriptor>();
   private choosenMarking?: GraphChange;
   private renderer?: Sigma;
@@ -72,6 +74,16 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopRendering();
     this.subscriptions.unsubscribe();
+  }
+
+
+  ngOnChanges(): void {
+    if (this.executing) {
+      this.state.reset();
+      this.state.disable();
+    } else {
+      this.state.enable();
+    }
   }
 
   private stopRendering(): void {

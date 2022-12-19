@@ -1,7 +1,7 @@
 <div class="horizontal">
   <div class="vertical">
-    <app-graph-display (choosenElement)="elementChoice($event)"></app-graph-display>
-    <app-algorithm-controller></app-algorithm-controller>
+    <app-graph-display [executing]="executing" (choosenElement)="elementChoice($event)"></app-graph-display>
+    <app-algorithm-controller [(executing)]="executing"></app-algorithm-controller>
   </div>
   <div class="vertical">
     <div #stageDescription id="description" #description>Description of current step of algorithm execution will appear

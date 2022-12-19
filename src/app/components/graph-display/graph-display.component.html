@@ -28,7 +28,7 @@
           [max]="graphParams.maxEdges">
       </div>
     </div>
-    <button (click)="randomGraph()">Random graph</button>
+    <button (click)="randomGraph()" [disabled]="executing">Random graph</button>
   </div>
   <div #display id="graph"></div>
 </div>

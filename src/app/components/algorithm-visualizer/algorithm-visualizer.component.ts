@@ -14,6 +14,7 @@ export class AlgorithmVisualizerComponent implements AfterViewInit {
   private stageDescription!: ElementRef<HTMLElement>;
   private subscriptions: Subscription = new Subscription();
   protected elementDescriptor?: ElementDescriptor;
+  protected executing: boolean = false;
 
   constructor(private changeEmitter: ChangeEmitterService) {}
 
