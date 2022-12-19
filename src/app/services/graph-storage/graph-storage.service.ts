@@ -7,6 +7,7 @@ import {Coordinates} from 'sigma/types';
 
 import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {AttributeDescriptor} from '../../utility/types';
 import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
@@ -138,10 +139,6 @@ graph with given number of nodes');
     // number_of_nodes)
     this._lastNode.key = (nodes - 1).toString();
     this._lastNode.label = INITIAL_LABEL;
-    this.graph.forEachNode((node) => {
-      this.graph.mergeNodeAttributes(
-          node, {size: ELEMENT_SIZE, label: this._nextLabel()});
-    });
 
     let edgesKeys = this.graph.edges();
     let edgeCount = edgesKeys.length;
@@ -159,8 +156,32 @@ graph with given number of nodes');
         this.graph.addEdge(ends[0], ends[1]);
     }
 
+    let nodesProperties: AttributeDescriptor[] = [];
+    let edgesProperties: AttributeDescriptor[] = [];
+    let edgeLabelAttribute: string|undefined = undefined;
+    if (this.choosenAlgorithm in graphAlgorithms) {
+      nodesProperties = graphAlgorithms[this.choosenAlgorithm].nodeProperties;
+      edgesProperties = graphAlgorithms[this.choosenAlgorithm].edgeProperties;
+      edgeLabelAttribute = graphAlgorithms[this.choosenAlgorithm].edgesLabel;
+    }
+
+    const nodesAttributes: Record < string, any >= {size: ELEMENT_SIZE};
+    nodesProperties.forEach((descriptor) => {
+      nodesAttributes[descriptor.name] = descriptor.defaultValue;
+    });
+    this.graph.forEachNode((node) => {
+      this.graph.mergeNodeAttributes(
+          node, {...nodesAttributes, label: this._nextLabel()});
+    });
+
+    const edgesAttributes: Record < string, any >= {size: ELEMENT_SIZE};
+    edgesProperties.forEach((descriptor) => {
+      edgesAttributes[descriptor.name] = descriptor.defaultValue;
+      if (descriptor.name == edgeLabelAttribute)
+        edgesAttributes['label'] = descriptor.defaultValue;
+    });
     this.graph.forEachEdge((edge) => {
-      this.graph.setEdgeAttribute(edge, 'size', ELEMENT_SIZE);
+      this.graph.mergeEdgeAttributes(edge, edgesAttributes);
     });
   }
 
