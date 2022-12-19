@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import {graphAlgorithms} from '../../algorithms/register';
 import {ExecutionStage} from '../../utility/execution-stage/execution-stage';
 import {GraphChange} from '../../utility/graph-change/graph-change';
+import {algorithmCallType} from '../../utility/types';
 import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GraphStorageService} from '../graph-storage/graph-storage.service';
 
@@ -50,27 +51,36 @@ export class AlgorithmSolutionService {
     this.currentIndex = newIndex;
   }
 
-  executeAlgorithm(algorithm: string) {
+  executeAlgorithm(mode: algorithmCallType = 'normal'): boolean {
+    if (this.graphStorage.choosenAlgorithm in graphAlgorithms) {
+      if (!this.checkConditions(this.graphStorage.choosenAlgorithm))
+        return false;
+      if (mode == 'mainThread' || typeof Worker === 'undefined') {
+        this.mainThreadAlgorithmCall(this.graphStorage.choosenAlgorithm);
+      } else {
+        this.workerAlgorithmCall(this.graphStorage.choosenAlgorithm);
+      }
+      return true;
+    } else {
+      console.error('Attempted to execute unsupported algorithm.');
+      return false;
+    }
+  }
+
+  checkConditions(algorithm: string): boolean {
     this.errorMarkings.forEach((change) => {
       change.reverse(this.graphStorage.graph);
     });
     this.errorMarkings = [];
-    if (algorithm in graphAlgorithms) {
-      for (const condition of graphAlgorithms[algorithm].correctnessChecks) {
-        const {message, markings} = condition(this.graphStorage.graph);
-        if (markings.length > 0) {
-          alert(message);
-          this.errorMarkings = markings;
-          return;
-        };
-      }
-      if (typeof Worker !== 'undefined') {
-        this.workerAlgorithmCall(algorithm);
-      } else {
-        this.mainThreadAlgorithmCall(algorithm);
-      }
-    } else
-      console.error('Attempted to execute unsupported algorithm.');
+    for (const condition of graphAlgorithms[algorithm].correctnessChecks) {
+      const {message, markings} = condition(this.graphStorage.graph);
+      if (markings.length > 0) {
+        alert(message);
+        this.errorMarkings = markings;
+        return false;
+      };
+    }
+    return true;
   }
 
   workerAlgorithmCall(algorithm: string) {

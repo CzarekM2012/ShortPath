@@ -1,9 +1,6 @@
-<select #selection (change)="handleChoice()">
-  <option value={{IMPROPER_ALGORITHM}} hidden>Choose algorithm</option>
-</select>
-<button #execution (click)="executeAlgorithm()" disabled>Execute</button>
+<button #execution (click)="executeAlgorithm('normal')">Execute</button>
 <button #return (click)="endInspection()" hidden>End inspection</button>
-<button #mainThreadExecution (click)="executeAlgorithm('mainThread')" disabled>Execute in main thread (for
+<button #mainThreadExecution (click)="executeAlgorithm('mainThread')">Execute in main thread (for
   testing)</button>
 Step:
 <button #stepBackward (click)="changeExecutionStep('backward')" disabled>&#8592;</button>

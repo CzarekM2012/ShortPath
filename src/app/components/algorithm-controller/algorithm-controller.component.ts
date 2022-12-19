@@ -1,51 +1,23 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {Component, ElementRef, ViewChild} from '@angular/core';
 
-import {graphAlgorithms} from '../../algorithms/register';
 import {AlgorithmSolutionService} from '../../services/algorithm-solution/algorithm-solution.service';
-import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput} from '../../utility/functions';
+import {algorithmCallType} from '../../utility/types';
 
 @Component({
   selector: 'app-algorithm-controller',
   templateUrl: './algorithm-controller.component.html',
   styleUrls: ['./algorithm-controller.component.css']
 })
-export class AlgorithmControllerComponent implements AfterViewInit {
-  @ViewChild('selection') algorithms!: ElementRef;
+export class AlgorithmControllerComponent {
   @ViewChild('execution') algorithmExecution!: ElementRef;
   @ViewChild('return') resetGraph!: ElementRef;
   @ViewChild('mainThreadExecution') algorithmMainThreadExecution!: ElementRef;
   @ViewChild('stepsCount') stepsInput!: ElementRef;
   @ViewChild('stepBackward') backwardButton!: ElementRef;
   @ViewChild('stepForward') forwardButton!: ElementRef;
-  IMPROPER_ALGORITHM: string = 'none';
-  choosenAlgorithm: string = this.IMPROPER_ALGORITHM;
 
-  constructor(
-      private graphStorage: GraphStorageService,
-      private algorithmSolution: AlgorithmSolutionService) {}
-
-  ngAfterViewInit(): void {
-    const algorithmsList = this.algorithms.nativeElement as HTMLSelectElement;
-    for (const key of Object.keys(graphAlgorithms)) {
-      const option = document.createElement('option');
-      option.innerText = key;
-      algorithmsList.appendChild(option);
-    }
-  }
-
-  handleChoice() {
-    const select = this.algorithms.nativeElement as HTMLSelectElement;
-    const selected = select.options.item(select.selectedIndex)!.value;
-    if (selected != this.choosenAlgorithm) {
-      this.choosenAlgorithm = selected;
-      this.graphStorage.changeAlgorithm(this.choosenAlgorithm);
-      (this.algorithmExecution.nativeElement as HTMLButtonElement).disabled =
-          false;
-      (this.algorithmMainThreadExecution.nativeElement as HTMLButtonElement)
-          .disabled = false;
-    }
-  }
+  constructor(private algorithmSolution: AlgorithmSolutionService) {}
 
   handleStepsNumber() {
     EnforceNumberInput.enforceRange(this.stepsInput.nativeElement);
@@ -59,14 +31,8 @@ export class AlgorithmControllerComponent implements AfterViewInit {
     this.algorithmSolution.step(steps);
   }
 
-  executeAlgorithm(mode: 'normal'|'mainThread' = 'normal') {
-    if (this.choosenAlgorithm != this.IMPROPER_ALGORITHM) {
-      if (mode == 'normal') {
-        this.algorithmSolution.executeAlgorithm(this.choosenAlgorithm);
-      } else {
-        this.algorithmSolution.mainThreadAlgorithmCall(this.choosenAlgorithm);
-      }
-      (this.algorithms.nativeElement as HTMLSelectElement).disabled = true;
+  executeAlgorithm(mode: algorithmCallType) {
+    if (this.algorithmSolution.executeAlgorithm(mode)) {
       (this.algorithmExecution.nativeElement as HTMLButtonElement).hidden =
           true;
       (this.resetGraph.nativeElement as HTMLButtonElement).hidden = false;
@@ -77,7 +43,6 @@ export class AlgorithmControllerComponent implements AfterViewInit {
 
   endInspection() {
     this.algorithmSolution.step(-Infinity);
-    (this.algorithms.nativeElement as HTMLSelectElement).disabled = false;
     (this.algorithmExecution.nativeElement as HTMLButtonElement).hidden = false;
     (this.resetGraph.nativeElement as HTMLButtonElement).hidden = true;
     (this.backwardButton.nativeElement as HTMLButtonElement).disabled = true;

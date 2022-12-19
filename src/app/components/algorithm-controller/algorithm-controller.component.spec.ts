@@ -19,11 +19,6 @@ describe('AlgorithmControllerComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should have algorithm choice', () => {
-    expect(component.algorithms).toBeDefined();
-  });
-
   it('should have algorithm execution button', () => {
     expect(component.algorithmExecution).toBeDefined();
   });

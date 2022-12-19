@@ -12,6 +12,8 @@ export interface ElementDescriptor {
   type: ElementType;
 }
 
+export type algorithmCallType = 'normal'|'mainThread';
+
 /**
  * Web Workers are assumed environment of algorithm execution, however fallback
  * method for executing them in the main thread is necessary.
