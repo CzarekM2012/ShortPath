@@ -94,6 +94,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
           enableEdgeClickEvents: true,
           renderLabels: true,
           renderEdgeLabels: true,
+          labelRenderedSizeThreshold: 0
         });
 
     this.renderer.on('clickStage', (event) => {
