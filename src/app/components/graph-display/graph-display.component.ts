@@ -19,25 +19,25 @@ import {DisplayState, ElementDescriptor} from '../../utility/types';
   styleUrls: ['./graph-display.component.css']
 })
 export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('display') display!: ElementRef;
-  @ViewChild('numberOfNodes') nodesInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('numberOfEdges') edgesInput!: ElementRef<HTMLInputElement>;
-  @Output() choosenElement = new EventEmitter<ElementDescriptor>();
-  state: FormControl =
-      new FormControl<DisplayState>('choose', {nonNullable: true});
-  choosenMarking?: GraphChange;
-  renderer?: Sigma;
-  layout: {
+  @ViewChild('display') private display!: ElementRef;
+  @ViewChild('numberOfNodes') private nodesInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('numberOfEdges') private edgesInput!: ElementRef<HTMLInputElement>;
+  @Output() private choosenElement = new EventEmitter<ElementDescriptor>();
+  private choosenMarking?: GraphChange;
+  private renderer?: Sigma;
+  private subscriptions: Subscription = new Subscription();
+  // temporarily remembered node, used for adding edges and drag
+  private tempNode?: string;
+  private isDragging: boolean = false;
+  protected layout: {
     worker?: ForceSupervisor, active: FormControl
   } = {active: new FormControl<Boolean>(true, {nonNullable: true})};
-  subscriptions: Subscription = new Subscription();
-  // temporarily remembered node, used for adding edges and drag
-  tempNode?: string;
-  isDragging: boolean = false;
-  //_graphParams.maxNodes cannot be accessed during initialization of
-  //_graphParams, so minEdges and maxEdges have temporary values assigned,
-  // proper values are assigned in constructor
-  _graphParams: {
+  protected state: FormControl =
+      new FormControl<DisplayState>('choose', {nonNullable: true});
+  // graphParams.maxNodes cannot be accessed during initialization of
+  // graphParams, so minEdges and maxEdges have temporary values assigned,
+  //  proper values are assigned in constructor
+  protected graphParams: {
     maxNodes: number,  // also initial value of nodesInput
     minEdges: number,  // also initial value of edgesInput
     maxEdges: number,
@@ -46,10 +46,10 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
       private graphStorage: GraphStorageService,
       private globalSettings: GlobalSettingsService) {
-    this._graphParams.minEdges =
-        minEdgesForConnectedGraph(this._graphParams.maxNodes);
-    this._graphParams.maxEdges =
-        maxEdgesForConnectedGraph(this._graphParams.maxNodes);
+    this.graphParams.minEdges =
+        minEdgesForConnectedGraph(this.graphParams.maxNodes);
+    this.graphParams.maxEdges =
+        maxEdgesForConnectedGraph(this.graphParams.maxNodes);
   }
 
   ngOnInit(): void {
@@ -64,8 +64,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.nodesInput.nativeElement.value = this._graphParams.maxNodes.toString();
-    this.edgesInput.nativeElement.value = this._graphParams.minEdges.toString();
+    this.nodesInput.nativeElement.value = this.graphParams.maxNodes.toString();
+    this.edgesInput.nativeElement.value = this.graphParams.minEdges.toString();
     this.startRendering();
   }
 
@@ -74,12 +74,12 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  stopRendering(): void {
+  private stopRendering(): void {
     this.layout.worker?.kill();
     this.renderer?.kill();
   }
 
-  startRendering(): void {
+  private startRendering(): void {
     random.assign(this.graphStorage.graph);
     this.layout.worker = new ForceSupervisor(this.graphStorage.graph);
     this.layout.active.setValue(true);
@@ -172,7 +172,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  randomGraph() {
+  protected randomGraph() {
     this.graphStorage.randomGraph(
         Number(this.nodesInput.nativeElement.value),
         Number(this.edgesInput.nativeElement.value));
@@ -180,23 +180,23 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
     this.startRendering();
   }
 
-  handleNodesNumber() {
+  protected handleNodesNumber() {
     EnforceNumberInput.enforceRange(this.nodesInput.nativeElement);
     EnforceNumberInput.enforceInteger(this.nodesInput.nativeElement);
 
     const nodesNumber = Number(this.nodesInput.nativeElement.value);
     const edgesNumber = Number(this.edgesInput.nativeElement.value);
-    this._graphParams.minEdges = minEdgesForConnectedGraph(nodesNumber);
-    this._graphParams.maxEdges = maxEdgesForConnectedGraph(nodesNumber);
-    if (edgesNumber < this._graphParams.minEdges)
+    this.graphParams.minEdges = minEdgesForConnectedGraph(nodesNumber);
+    this.graphParams.maxEdges = maxEdgesForConnectedGraph(nodesNumber);
+    if (edgesNumber < this.graphParams.minEdges)
       this.edgesInput.nativeElement.value =
-          this._graphParams.minEdges.toString();
-    else if (edgesNumber > this._graphParams.maxEdges)
+          this.graphParams.minEdges.toString();
+    else if (edgesNumber > this.graphParams.maxEdges)
       this.edgesInput.nativeElement.value =
-          this._graphParams.maxEdges.toString();
+          this.graphParams.maxEdges.toString();
   }
 
-  handleEdgesNumber() {
+  protected handleEdgesNumber() {
     EnforceNumberInput.enforceRange(this.edgesInput.nativeElement);
     EnforceNumberInput.enforceInteger(this.edgesInput.nativeElement);
   }
@@ -205,7 +205,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   // be found by getElementAttribute. Consider adding observables emitting
   // changes to graph and subscribtions in elements storing copies of this info
   // allowing to adjust them
-  markChoosen(element: ElementDescriptor) {
+  private markChoosen(element: ElementDescriptor) {
     if (this.choosenMarking !== undefined &&
         hasElement(this.graphStorage.graph, this.choosenMarking.element) &&
         getElementAttribute(
@@ -216,7 +216,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
         GraphChange.markElement(this.graphStorage.graph, element, 'choose');
   }
 
-  resetTempNode() {
+  protected resetTempNode() {
     this.tempNode = undefined;
   }
 }

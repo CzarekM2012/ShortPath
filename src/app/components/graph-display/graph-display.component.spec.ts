@@ -19,16 +19,4 @@ describe('GraphDisplayComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should have graph display', () => {
-    expect(component.display).toBeDefined();
-  });
-
-  it('should have number of nodes input', () => {
-    expect(component.nodesInput).toBeDefined();
-  });
-
-  it('should have number of edges input', () => {
-    expect(component.edgesInput).toBeDefined();
-  });
 });

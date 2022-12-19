@@ -12,7 +12,7 @@ import {AttributeDescriptor, ElementDescriptor} from '../../utility/types';
   styleUrls: ['./element-info-display.component.css']
 })
 export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
-  @ViewChild('display') display?: ElementRef;
+  @ViewChild('display') private display?: ElementRef;
   @Input() elementDescriptor?: ElementDescriptor;
 
   constructor(private graphStorage: GraphStorageService) {}
@@ -29,10 +29,12 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       return;
     };
     let nodes: HTMLElement[][] = [];
-    if (this.graphStorage.choosenAlgorithm in graphAlgorithms) {
+    if (this.graphStorage.getChoosenAlgorithm() in graphAlgorithms) {
       const attributes = this.elementDescriptor.type == 'edge' ?
-          graphAlgorithms[this.graphStorage.choosenAlgorithm].edgeProperties :
-          graphAlgorithms[this.graphStorage.choosenAlgorithm].nodeProperties;
+          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
+              .edgeProperties :
+          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
+              .nodeProperties;
       nodes = attributes.map((attribute) => {
         return this.createDataElement(
             attribute,
@@ -73,7 +75,7 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
         .replaceChildren(...(nodes.flat()));
   }
 
-  createDataElement(attribute: AttributeDescriptor, value: number): []|
+  private createDataElement(attribute: AttributeDescriptor, value: number): []|
       (HTMLLabelElement|HTMLInputElement)[]|
       (HTMLLabelElement|HTMLSpanElement)[] {
     if (!attribute.visible) {

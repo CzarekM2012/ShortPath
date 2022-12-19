@@ -9,9 +9,9 @@ import {GraphStorageService} from '../graph-storage/graph-storage.service';
 
 @Injectable({providedIn: 'root'})
 export class AlgorithmSolutionService {
-  executionStack: ExecutionStage[] = [];
-  currentIndex: number = 0;
-  errorMarkings: GraphChange[] = [];
+  private executionStack: ExecutionStage[] = [];
+  private currentIndex: number = 0;
+  private errorMarkings: GraphChange[] = [];
 
   constructor(
       private graphStorage: GraphStorageService,
@@ -52,13 +52,13 @@ export class AlgorithmSolutionService {
   }
 
   executeAlgorithm(mode: algorithmCallType = 'normal'): boolean {
-    if (this.graphStorage.choosenAlgorithm in graphAlgorithms) {
-      if (!this.checkConditions(this.graphStorage.choosenAlgorithm))
+    if (this.graphStorage.getChoosenAlgorithm() in graphAlgorithms) {
+      if (!this.checkConditions(this.graphStorage.getChoosenAlgorithm()))
         return false;
       if (mode == 'mainThread' || typeof Worker === 'undefined') {
-        this.mainThreadAlgorithmCall(this.graphStorage.choosenAlgorithm);
+        this.mainThreadAlgorithmCall(this.graphStorage.getChoosenAlgorithm());
       } else {
-        this.workerAlgorithmCall(this.graphStorage.choosenAlgorithm);
+        this.workerAlgorithmCall(this.graphStorage.getChoosenAlgorithm());
       }
       return true;
     } else {
@@ -67,7 +67,7 @@ export class AlgorithmSolutionService {
     }
   }
 
-  checkConditions(algorithm: string): boolean {
+  private checkConditions(algorithm: string): boolean {
     this.errorMarkings.forEach((change) => {
       change.reverse(this.graphStorage.graph);
     });
@@ -83,8 +83,8 @@ export class AlgorithmSolutionService {
     return true;
   }
 
-  workerAlgorithmCall(algorithm: string) {
-    if (!this._checkEnds()) return;
+  private workerAlgorithmCall(algorithm: string) {
+    if (!this.checkEnds()) return;
     this.executionStack = [];
     const worker = graphAlgorithms[algorithm].getWorker();
     //  Values of properties are preserved, but methods are lost due to
@@ -106,8 +106,8 @@ export class AlgorithmSolutionService {
     });
   }
 
-  mainThreadAlgorithmCall(algorithm: string) {
-    if (!this._checkEnds()) return;
+  private mainThreadAlgorithmCall(algorithm: string) {
+    if (!this.checkEnds()) return;
     this.executionStack = [];
     alert(
         'Your browser does not support webworkers, making it impossible to ' +
@@ -123,7 +123,7 @@ export class AlgorithmSolutionService {
     this.step(-Infinity);
   }
 
-  _checkEnds() {
+  private checkEnds() {
     if (this.graphStorage.pathEnds.startNode === undefined ||
         this.graphStorage.pathEnds.endNode === undefined) {
       alert(

@@ -8,7 +8,6 @@ import {Coordinates} from 'sigma/types';
 import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 import {AttributeDescriptor} from '../../utility/types';
-import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
 const INITIAL_LABEL = String.fromCharCode('A'.charCodeAt(0));
@@ -17,18 +16,21 @@ const ELEMENT_SIZE = 5;
 
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {
+  private lastNode:
+      {key: string, label: string} = {key: '-1', label: INITIAL_LABEL};
+  private choosenAlgorithm: string = IMPROPER_ALGORITHM;
   graph: UndirectedGraph = new UndirectedGraph();
-  _lastNode: {key: string, label: string} = {key: '-1', label: INITIAL_LABEL};
-  choosenAlgorithm: string = IMPROPER_ALGORITHM;
   pathEnds: {startNode?: string, endNode?: string} = {};
 
-  constructor(
-      private globalSettings: GlobalSettingsService,
-      private changeEmitter: ChangeEmitterService) {}
+  constructor(private globalSettings: GlobalSettingsService) {}
 
-  isValid(): boolean {
+  private isValid(): boolean {
     // Doesn't detect singular disconnected nodes
     return countConnectedComponents(this.graph) == 1;  // is connected
+  }
+
+  getChoosenAlgorithm() {
+    return this.choosenAlgorithm;
   }
 
   changeAlgorithm(algorithm: string) {
@@ -84,7 +86,7 @@ export class GraphStorageService {
     let attributes: Record<string, any> = {
       ...coords,
       size: ELEMENT_SIZE,
-      label: this._nextLabel()
+      label: this.nextLabel(),
     };
     if (this.choosenAlgorithm in graphAlgorithms) {
       const algorithm = graphAlgorithms[this.choosenAlgorithm];
@@ -92,9 +94,9 @@ export class GraphStorageService {
         attributes[descriptor.name] = descriptor.defaultValue;
       });
     }
-    const nodeKey = (Number(this._lastNode.key) + 1).toString();
+    const nodeKey = (Number(this.lastNode.key) + 1).toString();
     this.graph.addNode(nodeKey, attributes);
-    this._lastNode.key = nodeKey;
+    this.lastNode.key = nodeKey;
   }
 
   addEdge(nodeKey1: string, nodeKey2: string): void {
@@ -137,24 +139,9 @@ graph with given number of nodes');
     this.graph = complete(UndirectedGraph, nodes);
     // nodes from `complete` generator have numeric keys from range [0,
     // number_of_nodes)
-    this._lastNode.key = (nodes - 1).toString();
-    this._lastNode.label = INITIAL_LABEL;
-
-    let edgesKeys = this.graph.edges();
-    let edgeCount = edgesKeys.length;
-    // remove random edges from graph until it has number of edges equal to
-    // one given to function
-    while (edgeCount > edges) {
-      let edgeIndex = Math.floor(Math.random() * (edgesKeys.length));
-      const edge = edgesKeys[edgeIndex];
-      edgesKeys.splice(edgeIndex, 1);
-      const ends = this.graph.extremities(edge);
-      this.graph.dropEdge(edge);
-      if (this.isValid())
-        edgeCount--;
-      else  // removing edge disconnected the graph, re-add it
-        this.graph.addEdge(ends[0], ends[1]);
-    }
+    this.lastNode.key = (nodes - 1).toString();
+    this.lastNode.label = INITIAL_LABEL;
+    this.removeEdgesPreservingConnectedness(edges);
 
     let nodesProperties: AttributeDescriptor[] = [];
     let edgesProperties: AttributeDescriptor[] = [];
@@ -171,7 +158,7 @@ graph with given number of nodes');
     });
     this.graph.forEachNode((node) => {
       this.graph.mergeNodeAttributes(
-          node, {...nodesAttributes, label: this._nextLabel()});
+          node, {...nodesAttributes, label: this.nextLabel()});
     });
 
     const edgesAttributes: Record < string, any >= {size: ELEMENT_SIZE};
@@ -183,6 +170,24 @@ graph with given number of nodes');
     this.graph.forEachEdge((edge) => {
       this.graph.mergeEdgeAttributes(edge, edgesAttributes);
     });
+  }
+
+  private removeEdgesPreservingConnectedness(edges: number) {
+    let edgesKeys = this.graph.edges();
+    let edgeCount = edgesKeys.length;
+    // remove random edges from graph until it has number of edges equal to
+    // one given to function
+    while (edgeCount > edges) {
+      let edgeIndex = Math.floor(Math.random() * (edgesKeys.length));
+      const edge = edgesKeys[edgeIndex];
+      edgesKeys.splice(edgeIndex, 1);
+      const ends = this.graph.extremities(edge);
+      this.graph.dropEdge(edge);
+      if (this.isValid())
+        edgeCount--;
+      else  // removing edge disconnected the graph, re-add it
+        this.graph.addEdge(ends[0], ends[1]);
+    }
   }
 
   setPathEnd(nodeKey: string, type: 'start'|'end') {
@@ -214,20 +219,20 @@ graph with given number of nodes');
     }
   }
 
-  _nextLabel(): string {
-    const newLabelCharCode = this._lastNode.label.charCodeAt(0) + 1;
+  private nextLabel(): string {
+    const newLabelCharCode = this.lastNode.label.charCodeAt(0) + 1;
     const lastCharCode = 'Z'.charCodeAt(0);
     const charactersCount = lastCharCode - 'A'.charCodeAt(0) + 1;
     if (newLabelCharCode <= lastCharCode ||
         this.graph.order >= charactersCount) {
-      this._lastNode.label = String.fromCharCode(newLabelCharCode);
-      return this._lastNode.label;
+      this.lastNode.label = String.fromCharCode(newLabelCharCode);
+      return this.lastNode.label;
     }
-    this._lastNode.label = INITIAL_LABEL;
+    this.lastNode.label = INITIAL_LABEL;
     this.graph.forEachNode((node) => {
-      this.graph.setNodeAttribute(node, 'label', this._nextLabel());
+      this.graph.setNodeAttribute(node, 'label', this.nextLabel());
     });
     // TODO: notify of labels change
-    return this._nextLabel();
+    return this.nextLabel();
   }
 }

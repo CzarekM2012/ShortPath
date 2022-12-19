@@ -44,13 +44,12 @@ export function hasElement(graph: Graph, element: ElementDescriptor) {
 export namespace GraphChecks {
   export namespace staticChecks {
     export function isConnected(graph: Graph): GraphCheckResult {
-      const connectedNodes = largestConnectedComponentSubgraph(graph).nodes();
-      const allNodes = graph.nodes();
-      if (connectedNodes.length == allNodes.length)
+      const largestSubgraph = largestConnectedComponentSubgraph(graph);
+      if (largestSubgraph.order == graph.order)
         return {message: '', markings: []};
       const markings: GraphChange[] = [];
-      allNodes.forEach((node) => {
-        if (!(node in connectedNodes))
+      graph.forEachNode((node) => {
+        if (!largestSubgraph.hasNode(node))
           markings.push(GraphChange.markElement(
               graph, {key: node, type: 'node'}, 'error'));
       });
@@ -95,28 +94,26 @@ export namespace GraphChecks {
 
       if (elementType == 'edge') {
         graph.forEachEdge((edge) => {
-          if (min !== undefined &&
-              min > graph.getEdgeAttribute(edge, attributeName)) {
+          const value = graph.getEdgeAttribute(edge, attributeName);
+          if (min !== undefined && min > value) {
             markings.push(GraphChange.markElement(
                 graph, {key: edge, type: elementType}, 'error'));
             return;
           }
-          if (max !== undefined &&
-              max < graph.getEdgeAttribute(edge, attributeName)) {
+          if (max !== undefined && max < value) {
             markings.push(GraphChange.markElement(
                 graph, {key: edge, type: elementType}, 'error'));
           }
         });
       } else {
         graph.forEachNode((node) => {
-          if (min !== undefined &&
-              min > graph.getNodeAttribute(node, attributeName)) {
+          const value = graph.getNodeAttribute(node, attributeName);
+          if (min !== undefined && min > value) {
             markings.push(GraphChange.markElement(
                 graph, {key: node, type: elementType}, 'error'));
             return;
           }
-          if (max !== undefined &&
-              max < graph.getNodeAttribute(node, attributeName)) {
+          if (max !== undefined && max < value) {
             markings.push(GraphChange.markElement(
                 graph, {key: node, type: elementType}, 'error'));
           }

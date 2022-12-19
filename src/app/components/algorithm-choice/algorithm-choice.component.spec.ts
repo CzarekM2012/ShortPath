@@ -19,8 +19,4 @@ describe('AlgorithmChoiceComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should have description display', () => {
-    expect(component.descriptionArea).toBeDefined();
-  });
 });

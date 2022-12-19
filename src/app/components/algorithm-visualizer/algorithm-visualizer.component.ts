@@ -10,9 +10,10 @@ import {ElementDescriptor} from '../../utility/types';
   styleUrls: ['./algorithm-visualizer.component.css']
 })
 export class AlgorithmVisualizerComponent implements AfterViewInit {
-  @ViewChild('stageDescription') stageDescription!: ElementRef<HTMLElement>;
-  elementDescriptor?: ElementDescriptor;
-  subscriptions: Subscription = new Subscription();
+  @ViewChild('stageDescription')
+  private stageDescription!: ElementRef<HTMLElement>;
+  private subscriptions: Subscription = new Subscription();
+  protected elementDescriptor?: ElementDescriptor;
 
   constructor(private changeEmitter: ChangeEmitterService) {}
 
@@ -27,7 +28,7 @@ export class AlgorithmVisualizerComponent implements AfterViewInit {
     this.subscriptions.unsubscribe();
   }
 
-  elementChoice(event: ElementDescriptor) {
+  protected elementChoice(event: ElementDescriptor) {
     this.elementDescriptor = event;
   }
 }

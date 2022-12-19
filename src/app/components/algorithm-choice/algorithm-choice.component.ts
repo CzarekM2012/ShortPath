@@ -11,15 +11,15 @@ import {GraphStorageService} from '../../services/graph-storage/graph-storage.se
 })
 export class AlgorithmChoiceComponent implements AfterViewInit,
                                                  AfterContentInit {
-  @ViewChild('description') descriptionArea!: ElementRef<HTMLElement>;
-  algorithms: string[] = Object.keys(graphAlgorithms);
-  algorithmChoice: FormControl = new FormControl<string|null>(null);
+  @ViewChild('description') private descriptionArea!: ElementRef<HTMLElement>;
+  protected algorithms: string[] = Object.keys(graphAlgorithms);
+  protected algorithmChoice: FormControl = new FormControl<string|null>(null);
 
   constructor(private graphStorage: GraphStorageService) {}
 
   ngAfterContentInit(): void {
-    if (this.graphStorage.choosenAlgorithm in graphAlgorithms) {
-      this.algorithmChoice.setValue(this.graphStorage.choosenAlgorithm);
+    if (this.graphStorage.getChoosenAlgorithm() in graphAlgorithms) {
+      this.algorithmChoice.setValue(this.graphStorage.getChoosenAlgorithm());
     }
   }
 
@@ -32,7 +32,7 @@ export class AlgorithmChoiceComponent implements AfterViewInit,
     this.updateDescription();
   }
 
-  updateDescription() {
+  private updateDescription() {
     const value = this.algorithmChoice.value as string | null;
     if (value === null) return;
     this.descriptionArea.nativeElement.innerText =
@@ -41,7 +41,7 @@ export class AlgorithmChoiceComponent implements AfterViewInit,
 
   // Element this function is linked to is disabled when
   // this.algorithmChoice.value === null
-  beforeVisualisation() {
+  protected beforeVisualisation() {
     const value = this.algorithmChoice.value as string;
     this.graphStorage.changeAlgorithm(value);
   }

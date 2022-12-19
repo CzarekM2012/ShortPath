@@ -10,28 +10,27 @@ import {algorithmCallType} from '../../utility/types';
   styleUrls: ['./algorithm-controller.component.css']
 })
 export class AlgorithmControllerComponent {
-  @ViewChild('execution') algorithmExecution!: ElementRef;
-  @ViewChild('return') resetGraph!: ElementRef;
-  @ViewChild('mainThreadExecution') algorithmMainThreadExecution!: ElementRef;
-  @ViewChild('stepsCount') stepsInput!: ElementRef;
-  @ViewChild('stepBackward') backwardButton!: ElementRef;
-  @ViewChild('stepForward') forwardButton!: ElementRef;
+  @ViewChild('execution') private algorithmExecution!: ElementRef;
+  @ViewChild('return') private resetGraph!: ElementRef;
+  @ViewChild('stepsCount') private stepsInput!: ElementRef;
+  @ViewChild('stepBackward') private backwardButton!: ElementRef;
+  @ViewChild('stepForward') private forwardButton!: ElementRef;
 
   constructor(private algorithmSolution: AlgorithmSolutionService) {}
 
-  handleStepsNumber() {
+  protected handleStepsNumber() {
     EnforceNumberInput.enforceRange(this.stepsInput.nativeElement);
     EnforceNumberInput.enforceInteger(this.stepsInput.nativeElement);
   }
 
-  changeExecutionStep(direction: 'backward'|'forward') {
+  protected changeExecutionStep(direction: 'backward'|'forward') {
     const stepsInput = (this.stepsInput.nativeElement as HTMLInputElement);
     let steps = Number(stepsInput.value);
     if (direction == 'backward') steps = -steps;
     this.algorithmSolution.step(steps);
   }
 
-  executeAlgorithm(mode: algorithmCallType) {
+  protected executeAlgorithm(mode: algorithmCallType) {
     if (this.algorithmSolution.executeAlgorithm(mode)) {
       (this.algorithmExecution.nativeElement as HTMLButtonElement).hidden =
           true;
@@ -41,7 +40,7 @@ export class AlgorithmControllerComponent {
     }
   }
 
-  endInspection() {
+  protected endInspection() {
     this.algorithmSolution.step(-Infinity);
     (this.algorithmExecution.nativeElement as HTMLButtonElement).hidden = false;
     (this.resetGraph.nativeElement as HTMLButtonElement).hidden = true;

@@ -19,8 +19,4 @@ describe('ElementInfoDisplayComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should have data display', () => {
-    expect(component.display).toBeDefined();
-  });
 });
