@@ -9,13 +9,14 @@ import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
+const INITIAL_LABEL = String.fromCharCode('A'.charCodeAt(0));
 const IMPROPER_ALGORITHM = 'none';
 const ELEMENT_SIZE = 5;
 
 @Injectable({providedIn: 'root'})
 export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
-  newNodeKey: string = '0';
+  _lastNode: {key: string, label: string} = {key: '-1', label: INITIAL_LABEL};
   choosenAlgorithm: string = IMPROPER_ALGORITHM;
   pathEnds: {startNode?: string, endNode?: string} = {};
   // Subscribing to Event emitter or even using it in context other than
@@ -59,21 +60,13 @@ export class GraphStorageService {
     });
 
     let currentEdgeLabel: string|undefined = undefined;
-    let currentNodeLabel: string|undefined = undefined;
     if (this.choosenAlgorithm in graphAlgorithms) {
       currentEdgeLabel = graphAlgorithms[this.choosenAlgorithm].edgesLabel;
-      currentNodeLabel = graphAlgorithms[this.choosenAlgorithm].nodesLabel;
     }
     const newEdgeLabel = graphAlgorithms[algorithm].edgesLabel;
-    const newNodeLabel = graphAlgorithms[algorithm].nodesLabel;
     if (currentEdgeLabel !== undefined && newEdgeLabel === undefined) {
       this.graph.forEachEdge((edgeKey) => {
         this.graph.removeEdgeAttribute(edgeKey, 'label');
-      });
-    }
-    if (currentNodeLabel !== undefined && newNodeLabel === undefined) {
-      this.graph.forEachNode((nodeKey) => {
-        this.graph.removeNodeAttribute(nodeKey, 'label');
       });
     }
     this.choosenAlgorithm = algorithm;
@@ -87,19 +80,21 @@ export class GraphStorageService {
               this.globalSettings.maxGraphNodes}.`);
       return;
     }
-    let attributes: Record<string, any> = {...coords, 'size': ELEMENT_SIZE};
+
+    let attributes: Record<string, any> = {
+      ...coords,
+      size: ELEMENT_SIZE,
+      label: this._nextLabel()
+    };
     if (this.choosenAlgorithm in graphAlgorithms) {
-      let labelValue: any = undefined;
       const algorithm = graphAlgorithms[this.choosenAlgorithm];
       algorithm.nodeProperties.forEach((descriptor) => {
         attributes[descriptor.name] = descriptor.defaultValue;
-        if (descriptor.name == algorithm.nodesLabel)
-          labelValue = descriptor.defaultValue;
       });
-      if (labelValue !== undefined) attributes['label'] = labelValue;
     }
-    this.graph.addNode(this.newNodeKey, attributes);
-    this.newNodeKey = (parseInt(this.newNodeKey) + 1).toString();
+    const nodeKey = (Number(this._lastNode.key) + 1).toString();
+    this.graph.addNode(nodeKey, attributes);
+    this._lastNode.key = nodeKey;
   }
 
   addEdge(nodeKey1: string, nodeKey2: string): void {
@@ -142,7 +137,12 @@ graph with given number of nodes');
     this.graph = complete(UndirectedGraph, nodes);
     // nodes from `complete` generator have numeric keys from range [0,
     // number_of_nodes)
-    this.newNodeKey = nodes.toString();
+    this._lastNode.key = (nodes - 1).toString();
+    this._lastNode.label = INITIAL_LABEL;
+    this.graph.forEachNode((node) => {
+      this.graph.mergeNodeAttributes(
+          node, {size: ELEMENT_SIZE, label: this._nextLabel()});
+    });
 
     let edgesKeys = this.graph.edges();
     let edgeCount = edgesKeys.length;
@@ -159,9 +159,6 @@ graph with given number of nodes');
       else  // removing edge disconnected the graph, re-add it
         this.graph.addEdge(ends[0], ends[1]);
     }
-    this.graph.forEachNode((node) => {
-      this.graph.setNodeAttribute(node, 'size', ELEMENT_SIZE);
-    });
 
     this.graph.forEachEdge((edge) => {
       this.graph.setEdgeAttribute(edge, 'size', ELEMENT_SIZE);
@@ -196,18 +193,28 @@ graph with given number of nodes');
   refreshLabels() {
     if (!(this.choosenAlgorithm in graphAlgorithms)) return;
     const edgeLabel = graphAlgorithms[this.choosenAlgorithm].edgesLabel;
-    const nodeLabel = graphAlgorithms[this.choosenAlgorithm].nodesLabel;
     if (edgeLabel !== undefined) {
       this.graph.forEachEdge((edgeKey) => {
         this.graph.setEdgeAttribute(
             edgeKey, 'label', this.graph.getEdgeAttribute(edgeKey, edgeLabel));
       });
     }
-    if (nodeLabel !== undefined) {
-      this.graph.forEachNode((nodeKey) => {
-        this.graph.setNodeAttribute(
-            nodeKey, 'label', this.graph.getNodeAttribute(nodeKey, nodeLabel));
-      });
+  }
+
+  _nextLabel(): string {
+    const newLabelCharCode = this._lastNode.label.charCodeAt(0) + 1;
+    const lastCharCode = 'Z'.charCodeAt(0);
+    const charactersCount = lastCharCode - 'A'.charCodeAt(0) + 1;
+    if (newLabelCharCode <= lastCharCode ||
+        this.graph.order >= charactersCount) {
+      this._lastNode.label = String.fromCharCode(newLabelCharCode);
+      return this._lastNode.label;
     }
+    this._lastNode.label = INITIAL_LABEL;
+    this.graph.forEachNode((node) => {
+      this.graph.setNodeAttribute(node, 'label', this._nextLabel());
+    });
+    // TODO: notify of labels change
+    return this._nextLabel();
   }
 }
