@@ -1,7 +1,7 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {Subscription} from 'rxjs';
 
-import {AlgorithmSolutionService} from '../../services/algorithm-solution/algorithm-solution.service';
-import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
+import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
 import {ElementDescriptor} from '../../utility/types';
 
 @Component({
@@ -9,26 +9,22 @@ import {ElementDescriptor} from '../../utility/types';
   templateUrl: './algorithm-visualizer.component.html',
   styleUrls: ['./algorithm-visualizer.component.css']
 })
-export class AlgorithmVisualizerComponent implements OnInit, AfterViewInit {
-  @ViewChild('stageDescription') stageDescription!: ElementRef;
+export class AlgorithmVisualizerComponent implements AfterViewInit {
+  @ViewChild('stageDescription') stageDescription!: ElementRef<HTMLElement>;
   elementDescriptor?: ElementDescriptor;
-  descriptionSubscription: any;
+  subscriptions: Subscription = new Subscription();
 
-  constructor(
-      private graphStorage: GraphStorageService,
-      private algorithmSolution: AlgorithmSolutionService) {}
+  constructor(private changeEmitter: ChangeEmitterService) {}
 
-  ngOnInit(): void {
-    this.descriptionSubscription =
-        this.graphStorage.graphicRefresh.subscribe((text) => {
-          (this.stageDescription.nativeElement as HTMLElement).innerText = text;
-        });
+  ngAfterViewInit(): void {
+    this.subscriptions.add(
+        this.changeEmitter.stageDescriptionChange.subscribe((description) => {
+          this.stageDescription.nativeElement.innerText = description;
+        }));
   }
 
-  ngAfterViewInit(): void {}
-
   ngOnDestroy(): void {
-    this.descriptionSubscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   elementChoice(event: ElementDescriptor) {

@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as assert from 'assert';
 import {UndirectedGraph} from 'graphology';
 import {countConnectedComponents} from 'graphology-components';
@@ -7,6 +7,7 @@ import {Coordinates} from 'sigma/types';
 
 import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
 const INITIAL_LABEL = String.fromCharCode('A'.charCodeAt(0));
@@ -19,12 +20,10 @@ export class GraphStorageService {
   _lastNode: {key: string, label: string} = {key: '-1', label: INITIAL_LABEL};
   choosenAlgorithm: string = IMPROPER_ALGORITHM;
   pathEnds: {startNode?: string, endNode?: string} = {};
-  // Subscribing to Event emitter or even using it in context other than
-  // comunication between parent and children components through @Input
-  // and @Output decorators is an antipattern. To fix.
-  graphicRefresh = new EventEmitter<string>(true);
 
-  constructor(private globalSettings: GlobalSettingsService) {}
+  constructor(
+      private globalSettings: GlobalSettingsService,
+      private changeEmitter: ChangeEmitterService) {}
 
   isValid(): boolean {
     // Doesn't detect singular disconnected nodes
@@ -181,13 +180,7 @@ graph with given number of nodes');
       this.graph.removeNodeAttribute(this.pathEnds.endNode, 'color');
     this.graph.setNodeAttribute(nodeKey, 'color', 'red');
     this.pathEnds.endNode = nodeKey;
-    this.triggerGraphicRefresh();
-  }
-
-  triggerGraphicRefresh(
-      text: string =
-          'Overall description of choosen algorithm or current step of its execution will appear here') {
-    this.graphicRefresh.emit(text);
+    this.changeEmitter.graphRefresh();
   }
 
   refreshLabels() {

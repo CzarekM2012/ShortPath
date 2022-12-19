@@ -6,6 +6,7 @@ import {Subscription} from 'rxjs';
 import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
+import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../../services/global-settings/global-settings.service';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
@@ -34,7 +35,6 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   // temporarily remembered node, used for adding edges and drag
   tempNode?: string;
   isDragging: boolean = false;
-  refreshSubscription: any;
   //_graphParams.maxNodes cannot be accessed during initialization of
   //_graphParams, so minEdges and maxEdges have temporary values assigned,
   // proper values are assigned in constructor
@@ -46,7 +46,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
       private graphStorage: GraphStorageService,
-      private globalSettings: GlobalSettingsService) {
+      private globalSettings: GlobalSettingsService,
+      private changeEmitter: ChangeEmitterService) {
     this._graphParams.minEdges =
         minEdgesForConnectedGraph(this._graphParams.maxNodes);
     this._graphParams.maxEdges =
@@ -54,10 +55,9 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.refreshSubscription =
-        this.graphStorage.graphicRefresh.subscribe((_) => {
-          this.renderer?.refresh();
-        });
+    this.subscriptions.add(this.changeEmitter.graphicRefresh.subscribe(() => {
+      this.renderer?.refresh();
+    }));
     this.subscriptions.add(
         // layout control
         this.layout.active.valueChanges.subscribe((runLayout: Boolean) => {
@@ -76,7 +76,6 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopRendering();
-    this.refreshSubscription.unsubscribe();
     this.subscriptions.unsubscribe();
   }
 

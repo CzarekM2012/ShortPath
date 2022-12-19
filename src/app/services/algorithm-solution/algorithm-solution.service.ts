@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import {graphAlgorithms} from '../../algorithms/register';
 import {ExecutionStage} from '../../utility/execution-stage/execution-stage';
 import {GraphChange} from '../../utility/graph-change/graph-change';
+import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GraphStorageService} from '../graph-storage/graph-storage.service';
 
 @Injectable({providedIn: 'root'})
@@ -11,7 +12,9 @@ export class AlgorithmSolutionService {
   currentIndex: number = 0;
   errorMarkings: GraphChange[] = [];
 
-  constructor(private graphStorage: GraphStorageService) {}
+  constructor(
+      private graphStorage: GraphStorageService,
+      private changeEmitter: ChangeEmitterService) {}
 
   step(step: number) {
     let newIndex = this.currentIndex + step;
@@ -40,7 +43,7 @@ export class AlgorithmSolutionService {
       });
     }
     this.graphStorage.refreshLabels();
-    this.graphStorage.triggerGraphicRefresh(
+    this.changeEmitter.stageChange(
         newIndex >= 1 ?
             this.executionStack[newIndex - 1].description :
             'You came back to before the first stage of algorithm execution');
