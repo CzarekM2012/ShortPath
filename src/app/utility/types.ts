@@ -7,10 +7,19 @@ export type DisplayState = 'choose'|'addNode'|'addEdge'|'remove';
 
 export type ElementType = 'node'|'edge';
 
-export interface ElementDescriptor {
+export class ElementDescriptor {
   key: string;
   type: ElementType;
+  constructor(key: string, type: ElementType) {
+    this.key = key;
+    this.type = type;
+  }
+  isEqualTo(other: ElementDescriptor) {
+    return this.key == other.key && this.type == other.type;
+  }
 }
+
+export type ElementRemovalNotification = ElementDescriptor|'all';
 
 export type algorithmCallType = 'normal'|'mainThread';
 

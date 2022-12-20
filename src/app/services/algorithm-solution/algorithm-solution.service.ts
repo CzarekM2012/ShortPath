@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {graphAlgorithms} from '../../algorithms/register';
 import {ExecutionStage} from '../../utility/execution-stage/execution-stage';
 import {GraphChange} from '../../utility/graph-change/graph-change';
-import {algorithmCallType} from '../../utility/types';
+import {algorithmCallType, ElementDescriptor} from '../../utility/types';
 import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GraphStorageService} from '../graph-storage/graph-storage.service';
 
@@ -93,8 +93,10 @@ export class AlgorithmSolutionService {
       const restoredStage = new ExecutionStage();
       restoredStage.description = data.description
       restoredStage.changes = data.changes.map((degeneratedChange) => {
+        const restoredDescriptor = new ElementDescriptor(
+            degeneratedChange.element.key, degeneratedChange.element.type);
         return new GraphChange(
-            degeneratedChange.element, degeneratedChange.property,
+            restoredDescriptor, degeneratedChange.property,
             degeneratedChange.formerValue, degeneratedChange.newValue);
       });
       this.executionStack.push(restoredStage);

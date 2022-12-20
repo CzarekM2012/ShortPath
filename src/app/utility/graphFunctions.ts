@@ -51,7 +51,7 @@ export namespace GraphChecks {
       graph.forEachNode((node) => {
         if (!largestSubgraph.hasNode(node))
           markings.push(GraphChange.markElement(
-              graph, {key: node, type: 'node'}, 'error'));
+              graph, new ElementDescriptor(node, 'node'), 'error'));
       });
       return {
         message: 'A path between any pair of nodes in graph must exist',
@@ -97,12 +97,12 @@ export namespace GraphChecks {
           const value = graph.getEdgeAttribute(edge, attributeName);
           if (min !== undefined && min > value) {
             markings.push(GraphChange.markElement(
-                graph, {key: edge, type: elementType}, 'error'));
+                graph, new ElementDescriptor(edge, elementType), 'error'));
             return;
           }
           if (max !== undefined && max < value) {
             markings.push(GraphChange.markElement(
-                graph, {key: edge, type: elementType}, 'error'));
+                graph, new ElementDescriptor(edge, elementType), 'error'));
           }
         });
       } else {
@@ -110,12 +110,12 @@ export namespace GraphChecks {
           const value = graph.getNodeAttribute(node, attributeName);
           if (min !== undefined && min > value) {
             markings.push(GraphChange.markElement(
-                graph, {key: node, type: elementType}, 'error'));
+                graph, new ElementDescriptor(node, elementType), 'error'));
             return;
           }
           if (max !== undefined && max < value) {
             markings.push(GraphChange.markElement(
-                graph, {key: node, type: elementType}, 'error'));
+                graph, new ElementDescriptor(node, elementType), 'error'));
           }
         });
       }

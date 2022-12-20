@@ -6,12 +6,13 @@ import {Subscription} from 'rxjs';
 import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
+import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../../services/global-settings/global-settings.service';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 import {GraphChange} from '../../utility/graph-change/graph-change';
 import {getElementAttribute, hasElement} from '../../utility/graphFunctions';
-import {DisplayState, ElementDescriptor} from '../../utility/types';
+import {DisplayState, ElementDescriptor, ElementRemovalNotification} from '../../utility/types';
 
 @Component({
   selector: 'app-graph-display',
@@ -49,7 +50,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
 
   constructor(
       private graphStorage: GraphStorageService,
-      private globalSettings: GlobalSettingsService) {
+      private globalSettings: GlobalSettingsService,
+      private changeEmitter: ChangeEmitterService) {
     this.inputsSettings.minEdges =
         minEdgesForConnectedGraph(this.inputsSettings.maxNodes);
     this.inputsSettings.maxEdges =
@@ -64,6 +66,13 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
             this.layout.worker?.start();
           else
             this.layout.worker?.stop();
+        }));
+    this.subscriptions.add(this.changeEmitter.graphElementRemoved.subscribe(
+        (notification: ElementRemovalNotification) => {
+          if (this.choosenMarking !== undefined &&
+              (notification == 'all' ||
+               notification.isEqualTo(this.choosenMarking.element)))
+            this.choosenMarking = undefined;
         }));
   }
 
@@ -131,8 +140,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
     this.renderer.on('clickNode', (event) => {
       switch (this.state.value) {
         case 'choose':
-          const node: ElementDescriptor = {key: event.node, type: 'node'};
-          this.choosenElementChange.emit(node);
+          this.choosenElementChange.emit(
+              new ElementDescriptor(event.node, 'node'));
           break;
         case 'addEdge':
           if (this.tempNode == undefined) {
@@ -155,8 +164,8 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
     this.renderer.on('clickEdge', (event) => {
       switch (this.state.value) {
         case 'choose':
-          const edge: ElementDescriptor = {key: event.edge, type: 'edge'};
-          this.choosenElementChange.emit(edge);
+          this.choosenElementChange.emit(
+              new ElementDescriptor(event.edge, 'edge'));
           break;
         case 'remove':
           this.graphStorage.removeEdge(event.edge);

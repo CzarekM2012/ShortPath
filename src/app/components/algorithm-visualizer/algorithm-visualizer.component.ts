@@ -23,6 +23,13 @@ export class AlgorithmVisualizerComponent implements AfterViewInit {
         this.changeEmitter.stageDescriptionChange.subscribe((description) => {
           this.stageDescription.nativeElement.innerText = description;
         }));
+    this.subscriptions.add(
+        this.changeEmitter.graphElementRemoved.subscribe((notification) => {
+          if (this.choosenElement !== undefined &&
+              (notification == 'all' ||
+               notification.isEqualTo(this.choosenElement)))
+            this.choosenElement = undefined;
+        }));
   }
 
   ngOnDestroy(): void {

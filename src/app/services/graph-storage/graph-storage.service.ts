@@ -7,7 +7,8 @@ import {Coordinates} from 'sigma/types';
 
 import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
-import {AttributeDescriptor} from '../../utility/types';
+import {AttributeDescriptor, ElementDescriptor} from '../../utility/types';
+import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
 const INITIAL_LABEL = String.fromCharCode('A'.charCodeAt(0));
@@ -22,10 +23,12 @@ export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
   pathEnds: {startNode?: string, endNode?: string} = {};
 
-  constructor(private globalSettings: GlobalSettingsService) {}
+  constructor(
+      private globalSettings: GlobalSettingsService,
+      private changeEmitter: ChangeEmitterService) {}
 
+  // TODO: remove this function
   private isValid(): boolean {
-    // Doesn't detect singular disconnected nodes
     return countConnectedComponents(this.graph) == 1;  // is connected
   }
 
@@ -120,11 +123,17 @@ export class GraphStorageService {
   }
 
   removeNode(nodeKey: string): void {
+    if (this.pathEnds.startNode == nodeKey) this.pathEnds.startNode = undefined;
+    if (this.pathEnds.endNode == nodeKey) this.pathEnds.endNode = undefined;
     this.graph.dropNode(nodeKey);
+    this.changeEmitter.graphElementRemoved.next(
+        new ElementDescriptor(nodeKey, 'node'));
   }
 
   removeEdge(edgeKey: string): void {
     this.graph.dropEdge(edgeKey);
+    this.changeEmitter.graphElementRemoved.next(
+        new ElementDescriptor(edgeKey, 'edge'));
   }
 
   randomGraph(nodes: number, edges: number): void {
@@ -136,6 +145,7 @@ graph with given number of nodes');
         edges >= minEdgesForConnectedGraph(nodes),
         'Given number of edges is lower than minimum number of edges for \
 graph with given number of nodes');
+    this.changeEmitter.graphElementRemoved.next('all');
     this.graph = complete(UndirectedGraph, nodes);
     // nodes from `complete` generator have numeric keys from range [0,
     // number_of_nodes)
