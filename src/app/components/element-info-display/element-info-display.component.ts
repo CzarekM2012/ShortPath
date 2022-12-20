@@ -12,8 +12,8 @@ import {AttributeDescriptor, ElementDescriptor} from '../../utility/types';
   styleUrls: ['./element-info-display.component.css']
 })
 export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
-  @ViewChild('display') private display?: ElementRef;
-  @Input() elementDescriptor?: ElementDescriptor;
+  @ViewChild('display') private display?: ElementRef<HTMLElement>;
+  @Input() choosenElement?: ElementDescriptor;
 
   constructor(private graphStorage: GraphStorageService) {}
 
@@ -23,14 +23,13 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
     // first input check before display has been linked to HTMLElement
     if (this.display === undefined) return;
     // element whose data was displayed has beend unchecked/removed
-    if (this.elementDescriptor === undefined) {
-      (this.display.nativeElement as HTMLElement)
-          .replaceChildren('Choose a node or an edge');
+    if (this.choosenElement === undefined) {
+      this.display.nativeElement.replaceChildren('Choose a node or an edge');
       return;
     };
     let nodes: HTMLElement[][] = [];
     if (this.graphStorage.getChoosenAlgorithm() in graphAlgorithms) {
-      const attributes = this.elementDescriptor.type == 'edge' ?
+      const attributes = this.choosenElement.type == 'edge' ?
           graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
               .edgeProperties :
           graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
@@ -39,12 +38,11 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
         return this.createDataElement(
             attribute,
             getElementAttribute(
-                this.graphStorage.graph, this.elementDescriptor!,
-                attribute.name));
+                this.graphStorage.graph, this.choosenElement!, attribute.name));
       });
     }
 
-    if (this.elementDescriptor.type == 'node') {
+    if (this.choosenElement.type == 'node') {
       const startLabel = document.createElement('label');
       startLabel.setAttribute('for', 'startRadio');
       startLabel.textContent = `start node:\t`;
@@ -53,9 +51,9 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       startInput.type = 'radio';
       startInput.name = 'chooseEnd'
       startInput.onchange = () => {
-        this.graphStorage.setPathEnd(this.elementDescriptor!.key, 'start');
+        this.graphStorage.setPathEnd(this.choosenElement!.key, 'start');
       };
-      if (this.elementDescriptor.key == this.graphStorage.pathEnds.startNode)
+      if (this.choosenElement.key == this.graphStorage.pathEnds.startNode)
         startInput.checked = true;
       const endLabel = document.createElement('label');
       endLabel.setAttribute('for', 'endRadio');
@@ -65,9 +63,9 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       endInput.type = 'radio';
       endInput.name = 'chooseEnd'
       endInput.onchange = () => {
-        this.graphStorage.setPathEnd(this.elementDescriptor!.key, 'end');
+        this.graphStorage.setPathEnd(this.choosenElement!.key, 'end');
       };
-      if (this.elementDescriptor.key == this.graphStorage.pathEnds.endNode)
+      if (this.choosenElement.key == this.graphStorage.pathEnds.endNode)
         endInput.checked = true;
       nodes.push([startLabel, startInput], [endLabel, endInput]);
     }
@@ -91,7 +89,7 @@ export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
       input.value = value.toString();
       input.onchange = () => {
         setElementAttribute(
-            this.graphStorage.graph, this.elementDescriptor!, attribute.name,
+            this.graphStorage.graph, this.choosenElement!, attribute.name,
             getTypeCastedValue(input));
       };
       return [label, input];

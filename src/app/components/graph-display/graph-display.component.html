@@ -20,12 +20,12 @@
       <div class="horizontal">
         <label for="nodes">Nodes:</label>
         <input #numberOfNodes type="number" (change)="handleNodesNumber()" name="nodes" min="2"
-          [max]="graphParams.maxNodes">
+          [max]="inputsSettings.maxNodes">
       </div>
       <div class="horizontal">
         <label for="edges">Edges:</label>
-        <input #numberOfEdges type="number" (change)="handleEdgesNumber()" name="edges" [min]="graphParams.minEdges"
-          [max]="graphParams.maxEdges">
+        <input #numberOfEdges type="number" (change)="handleEdgesNumber()" name="edges" [min]="inputsSettings.minEdges"
+          [max]="inputsSettings.maxEdges">
       </div>
     </div>
     <button (click)="randomGraph()" [disabled]="executing">Random graph</button>

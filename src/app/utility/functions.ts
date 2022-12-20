@@ -37,7 +37,7 @@ export namespace EnforceNumberInput {
   }
 }
 /**
- * Inputs of types: number, string are supported
+ * Inputs of types: number, text are supported
  * @param input HTMLInputElement object
  * @returns Value of passed input. Value is returned as object of type
  *     appropriate to type property of input object

@@ -13,7 +13,7 @@ export class AlgorithmVisualizerComponent implements AfterViewInit {
   @ViewChild('stageDescription')
   private stageDescription!: ElementRef<HTMLElement>;
   private subscriptions: Subscription = new Subscription();
-  protected elementDescriptor?: ElementDescriptor;
+  protected choosenElement?: ElementDescriptor;
   protected executing: boolean = false;
 
   constructor(private changeEmitter: ChangeEmitterService) {}
@@ -27,9 +27,5 @@ export class AlgorithmVisualizerComponent implements AfterViewInit {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  protected elementChoice(event: ElementDescriptor) {
-    this.elementDescriptor = event;
   }
 }
