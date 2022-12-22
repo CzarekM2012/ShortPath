@@ -11,7 +11,7 @@ import {AttributeDescriptor, ElementDescriptor} from '../../utility/types';
 import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
 import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
-const INITIAL_LABEL = String.fromCharCode('A'.charCodeAt(0));
+const INITIAL_LABEL = String.fromCharCode('A'.charCodeAt(0) - 1);
 const IMPROPER_ALGORITHM = 'none';
 const ELEMENT_SIZE = 5;
 
