@@ -1,0 +1,8 @@
+<div class="horizontal">
+  <button (click)="viewing='node'">Nodes</button>
+  <button (click)="viewing='edge'">Edges</button>
+</div>
+<div id="tableContainer">
+  <table #nodesTable [hidden]="viewing!='node'"></table>
+  <table #edgesTable [hidden]="viewing!='edge'"></table>
+</div>

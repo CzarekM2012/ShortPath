@@ -8,13 +8,14 @@ import {AlgorithmChoiceComponent} from './components/algorithm-choice/algorithm-
 import {AlgorithmControllerComponent} from './components/algorithm-controller/algorithm-controller.component';
 import {AlgorithmVisualizerComponent} from './components/algorithm-visualizer/algorithm-visualizer.component';
 import {ElementInfoDisplayComponent} from './components/element-info-display/element-info-display.component';
+import {ElementsDataTableComponent} from './components/elements-data-table/elements-data-table.component';
 import {GraphDisplayComponent} from './components/graph-display/graph-display.component';
 
 @NgModule({
   declarations: [
     AppComponent, GraphDisplayComponent, ElementInfoDisplayComponent,
     AlgorithmControllerComponent, AlgorithmChoiceComponent,
-    AlgorithmVisualizerComponent
+    AlgorithmVisualizerComponent, ElementsDataTableComponent
   ],
   imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule],
   providers: [],
