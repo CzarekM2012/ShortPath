@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
 
 import {graphAlgorithms} from '../../algorithms/register';
@@ -16,7 +16,8 @@ const CHOOSEN_ELEMENT_PROPERTY_NAME = 'choosenElement';
   templateUrl: './elements-data-table.component.html',
   styleUrls: ['./elements-data-table.component.css']
 })
-export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
+export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
+                                                   OnDestroy {
   @ViewChild('nodesTable') private nodesTable!: ElementRef<HTMLTableElement>;
   @ViewChild('edgesTable') private edgesTable!: ElementRef<HTMLTableElement>;
   @Input() executing!: boolean;
@@ -65,6 +66,10 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
     this.generateHeaderRow('edge', algorithm.edgeProperties);
     this.generateContents();
     this.refreshTable();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
