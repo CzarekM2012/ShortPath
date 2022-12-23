@@ -129,9 +129,14 @@ export class GraphStorageService {
   removeNode(nodeKey: string): void {
     if (this.pathEnds.startNode == nodeKey) this.pathEnds.startNode = undefined;
     if (this.pathEnds.endNode == nodeKey) this.pathEnds.endNode = undefined;
+    const connectedEdges = this.graph.edges(nodeKey);
     this.graph.dropNode(nodeKey);
     this.changeEmitter.graphElementRemoved.next(
         new ElementDescriptor(nodeKey, 'node'));
+    connectedEdges.forEach((edgeKey) => {
+      this.changeEmitter.graphElementRemoved.next(
+          new ElementDescriptor(edgeKey, 'edge'));
+    });
   }
 
   removeEdge(edgeKey: string): void {

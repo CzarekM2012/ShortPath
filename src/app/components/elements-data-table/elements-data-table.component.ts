@@ -30,6 +30,23 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
 
   ngAfterViewInit(): void {
     this.subscriptions.add(
+        this.changeEmitter.graphElementRemoved.subscribe((notification) => {
+          if (notification == 'all') {
+            this.rows.edges.elements = [];
+            this.rows.nodes.elements = [];
+            this.refreshTable();
+          } else {
+            const table = notification.type == 'node' ?
+                this.rows.nodes.elements :
+                this.rows.edges.elements;
+            const indexToRemove = table.findIndex((row) => {
+              return row.id == notification.key;
+            });
+            table.splice(indexToRemove, 1);
+            this.refreshTable();
+          }
+        }));
+    this.subscriptions.add(
         this.changeEmitter.graphElementAdded.subscribe((notification) => {
           if (notification == 'all') {
             this.generateContents();
@@ -96,6 +113,7 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
               .edgeProperties;
 
     const row = document.createElement('tr');
+    row.id = element.key;
     const labelCell = document.createElement('td');
     if (element.type == 'node') {
       labelCell.innerText =
