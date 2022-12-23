@@ -3,6 +3,6 @@
   <button (click)="viewing='edge'">Edges</button>
 </div>
 <div id="tableContainer">
-  <table #nodesTable [hidden]="viewing!='node'"></table>
-  <table #edgesTable [hidden]="viewing!='edge'"></table>
+  <table #nodesTable [hidden]="viewing!='node'">No nodes to show</table>
+  <table #edgesTable [hidden]="viewing!='edge'">No edges to show</table>
 </div>

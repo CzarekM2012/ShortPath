@@ -99,6 +99,8 @@ export class GraphStorageService {
     }
     const nodeKey = (Number(this.lastNode.key) + 1).toString();
     this.graph.addNode(nodeKey, attributes);
+    this.changeEmitter.graphElementAdded.next(
+        new ElementDescriptor(nodeKey, 'node'));
     this.lastNode.key = nodeKey;
   }
 
@@ -120,6 +122,8 @@ export class GraphStorageService {
       if (labelValue !== undefined) attributes['label'] = labelValue;
     }
     this.graph.addEdge(nodeKey1, nodeKey2, attributes);
+    this.changeEmitter.graphElementAdded.next(
+        new ElementDescriptor(this.graph.edge(nodeKey1, nodeKey2)!, 'edge'));
   }
 
   removeNode(nodeKey: string): void {
@@ -180,6 +184,7 @@ graph with given number of nodes');
     this.graph.forEachEdge((edge) => {
       this.graph.mergeEdgeAttributes(edge, edgesAttributes);
     });
+    this.changeEmitter.graphElementAdded.next('all');
   }
 
   private removeEdgesPreservingConnectedness(edges: number) {

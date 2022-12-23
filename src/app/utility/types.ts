@@ -19,7 +19,7 @@ export class ElementDescriptor {
   }
 }
 
-export type ElementRemovalNotification = ElementDescriptor|'all';
+export type ElementNotification = ElementDescriptor|'all';
 
 export type algorithmCallType = 'normal'|'mainThread';
 

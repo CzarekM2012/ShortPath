@@ -12,7 +12,7 @@ import {GraphStorageService} from '../../services/graph-storage/graph-storage.se
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 import {GraphChange} from '../../utility/graph-change/graph-change';
 import {getElementAttribute, hasElement} from '../../utility/graphFunctions';
-import {DisplayState, ElementDescriptor, ElementRemovalNotification} from '../../utility/types';
+import {DisplayState, ElementDescriptor, ElementNotification} from '../../utility/types';
 
 @Component({
   selector: 'app-graph-display',
@@ -68,7 +68,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
             this.layout.worker?.stop();
         }));
     this.subscriptions.add(this.changeEmitter.graphElementRemoved.subscribe(
-        (notification: ElementRemovalNotification) => {
+        (notification: ElementNotification) => {
           if (this.choosenMarking !== undefined &&
               (notification == 'all' ||
                notification.isEqualTo(this.choosenMarking.element)))

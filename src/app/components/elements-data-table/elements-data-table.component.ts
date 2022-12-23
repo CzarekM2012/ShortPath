@@ -1,4 +1,5 @@
 import {AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild} from '@angular/core';
+import {Subscription} from 'rxjs';
 
 import {graphAlgorithms} from '../../algorithms/register';
 import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
@@ -21,34 +22,28 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
     nodes: {header?: HTMLTableRowElement, elements: HTMLTableRowElement[]},
     edges: {header?: HTMLTableRowElement, elements: HTMLTableRowElement[]},
   } = {nodes: {elements: []}, edges: {elements: []}};
+  private subscriptions = new Subscription();
 
-  constructor(private graphStorage: GraphStorageService) {}
+  constructor(
+      private graphStorage: GraphStorageService,
+      private changeEmitter: ChangeEmitterService) {}
 
   ngAfterViewInit(): void {
-    if (this.graphStorage.getChoosenAlgorithm() in graphAlgorithms) {
-      const algorithm =
-          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()];
-
-      this.rows.nodes.header =
-          this.generateHeaderRow('node', algorithm.nodeProperties);
-      this.graphStorage.graph.forEachNode((node) => {
-        const descriptor = new ElementDescriptor(node, 'node');
-        const row =
-            this.generateElementRow(descriptor, algorithm.nodeProperties);
-        this.rows.nodes.elements.push(row);
-      });
-
-      this.rows.edges.header =
-          this.generateHeaderRow('edge', algorithm.edgeProperties);
-      this.graphStorage.graph.forEachEdge((edge) => {
-        const descriptor = new ElementDescriptor(edge, 'edge');
-        const row =
-            this.generateElementRow(descriptor, algorithm.edgeProperties);
-        this.rows.edges.elements.push(row);
-      });
-
-      this.refreshTable();
-    }
+    this.subscriptions.add(
+        this.changeEmitter.graphElementAdded.subscribe((notification) => {
+          if (notification == 'all') {
+            this.generateContents();
+            this.refreshTable();
+          } else {
+            this.generateElementRow(notification);
+            this.refreshTable();
+          }
+        }));
+    const algorithm = graphAlgorithms[this.graphStorage.getChoosenAlgorithm()];
+    this.generateHeaderRow('node', algorithm.nodeProperties);
+    this.generateHeaderRow('edge', algorithm.edgeProperties);
+    this.generateContents();
+    this.refreshTable();
   }
 
   ngOnChanges(): void {
@@ -67,8 +62,14 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
   }
 
   private generateHeaderRow(
-      elementType: ElementType,
-      attributes: AttributeDescriptor[]): HTMLTableRowElement {
+      elementType: ElementType, attributes?: AttributeDescriptor[]) {
+    if (attributes === undefined)
+      attributes = elementType == 'node' ?
+          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
+              .nodeProperties :
+          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
+              .edgeProperties;
+
     const headerRow = document.createElement('tr');
     const labelColumnHeader = document.createElement('th');
     labelColumnHeader.innerText = elementType;
@@ -78,12 +79,22 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
       columnHeader.innerText = attribute.name;
       headerRow.appendChild(columnHeader);
     });
-    return headerRow;
+    if (elementType == 'node') {
+      this.rows.nodes.header = headerRow;
+    } else {
+      this.rows.edges.header = headerRow;
+    }
   }
 
   private generateElementRow(
-      element: ElementDescriptor,
-      attributes: AttributeDescriptor[]): HTMLTableRowElement {
+      element: ElementDescriptor, attributes?: AttributeDescriptor[]) {
+    if (attributes === undefined)
+      attributes = element.type == 'node' ?
+          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
+              .nodeProperties :
+          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
+              .edgeProperties;
+
     const row = document.createElement('tr');
     const labelCell = document.createElement('td');
     if (element.type == 'node') {
@@ -102,7 +113,10 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
         row.appendChild(this.generateAttributeCell(element, attribute));
       }
     });
-    return row;
+    if (element.type == 'node')
+      this.rows.nodes.elements.push(row);
+    else
+      this.rows.edges.elements.push(row)
   }
 
   private generateAttributeCell(
@@ -141,11 +155,34 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
   }
 
   private refreshTable() {
-    this.orderElementRows(this.rows.nodes.elements);
-    this.orderElementRows(this.rows.edges.elements);
-    this.nodesTable.nativeElement.replaceChildren(
-        this.rows.nodes.header!, ...this.rows.nodes.elements);
-    this.edgesTable.nativeElement.replaceChildren(
-        this.rows.edges.header!, ...this.rows.edges.elements);
+    if (this.rows.nodes.elements.length > 0) {
+      this.orderElementRows(this.rows.nodes.elements);
+      this.nodesTable.nativeElement.replaceChildren(
+          this.rows.nodes.header!, ...this.rows.nodes.elements);
+    } else {
+      this.nodesTable.nativeElement.replaceChildren('No nodes to show');
+    }
+
+    if (this.rows.edges.elements.length > 0) {
+      this.orderElementRows(this.rows.edges.elements);
+      this.edgesTable.nativeElement.replaceChildren(
+          this.rows.edges.header!, ...this.rows.edges.elements);
+    } else {
+      this.edgesTable.nativeElement.replaceChildren('No edges to show');
+    }
+  }
+
+  private generateContents() {
+    const algorithm = graphAlgorithms[this.graphStorage.getChoosenAlgorithm()];
+
+    this.graphStorage.graph.forEachNode((node) => {
+      const descriptor = new ElementDescriptor(node, 'node');
+      this.generateElementRow(descriptor, algorithm.nodeProperties);
+    });
+
+    this.graphStorage.graph.forEachEdge((edge) => {
+      const descriptor = new ElementDescriptor(edge, 'edge');
+      this.generateElementRow(descriptor, algorithm.edgeProperties);
+    });
   }
 }
