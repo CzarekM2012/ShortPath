@@ -1,15 +1,8 @@
 import Graph from 'graphology';
 
+import {globalSettings} from '../globalSettings';
 import {getElementAttribute, removeElementAttribute, setElementAttribute} from '../graphFunctions';
 import {ElementDescriptor} from '../types';
-
-const COLORS = {
-  'inspect': 'yellow',
-  'approve': 'green',
-  'reject': 'red',
-  'choose': 'blueviolet',
-  'error': 'black',
-};
 
 export class GraphChange {
   element: ElementDescriptor;
@@ -41,10 +34,13 @@ export class GraphChange {
     let currentValue = getElementAttribute(graph, element, markingProperty);
     // TODO: Think of a better way to separate markings that should be ignored
     // by markings from algorithm execution
-    if (currentValue in [COLORS['choose'], COLORS['error']])
+    if (currentValue in
+            [globalSettings.markingColors['choose'],
+             globalSettings.markingColors['error']])
       currentValue = undefined;
-    const change =
-        new GraphChange(element, markingProperty, currentValue, COLORS[type]);
+    const change = new GraphChange(
+        element, markingProperty, currentValue,
+        globalSettings.markingColors[type]);
     // change is applied immediately in order to maintain continuity of
     // formerValue and newValue between stages, need to think of a better way to
     // realize it

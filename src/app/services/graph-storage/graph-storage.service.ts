@@ -7,9 +7,9 @@ import {Coordinates} from 'sigma/types';
 
 import {graphAlgorithms} from '../../algorithms/register';
 import {analyzeAlgorithmChange, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {globalSettings} from '../../utility/globalSettings';
 import {AttributeDescriptor, ElementDescriptor} from '../../utility/types';
 import {ChangeEmitterService} from '../change-emitter/change-emitter.service';
-import {GlobalSettingsService} from '../global-settings/global-settings.service';
 
 const INITIAL_LABEL = String.fromCharCode('A'.charCodeAt(0) - 1);
 const IMPROPER_ALGORITHM = 'none';
@@ -23,9 +23,7 @@ export class GraphStorageService {
   graph: UndirectedGraph = new UndirectedGraph();
   pathEnds: {startNode?: string, endNode?: string} = {};
 
-  constructor(
-      private globalSettings: GlobalSettingsService,
-      private changeEmitter: ChangeEmitterService) {}
+  constructor(private changeEmitter: ChangeEmitterService) {}
 
   // TODO: remove this function
   private isValid(): boolean {
@@ -79,10 +77,10 @@ export class GraphStorageService {
   }
 
   addNode(coords: Coordinates): void {
-    if (this.graph.order >= this.globalSettings.maxGraphNodes) {
+    if (this.graph.order >= globalSettings.graphMaxNodes) {
       alert(
           `For the sake of readability of the nodes data display, number of nodes in the graph is limited to ${
-              this.globalSettings.maxGraphNodes}.`);
+              globalSettings.graphMaxNodes}.`);
       return;
     }
 

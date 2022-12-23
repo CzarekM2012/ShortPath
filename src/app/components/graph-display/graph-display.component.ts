@@ -7,9 +7,9 @@ import {Sigma} from 'sigma';
 import {Coordinates} from 'sigma/types';
 
 import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
-import {GlobalSettingsService} from '../../services/global-settings/global-settings.service';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
+import {globalSettings} from '../../utility/globalSettings';
 import {GraphChange} from '../../utility/graph-change/graph-change';
 import {getElementAttribute, hasElement} from '../../utility/graphFunctions';
 import {DisplayState, ElementDescriptor, ElementNotification} from '../../utility/types';
@@ -46,11 +46,10 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
     maxNodes: number,  // also initial value of nodesInput
     minEdges: number,  // also initial value of edgesInput
     maxEdges: number,
-  } = {maxNodes: this.globalSettings.maxGraphNodes, minEdges: -1, maxEdges: -1};
+  } = {maxNodes: globalSettings.graphMaxNodes, minEdges: -1, maxEdges: -1};
 
   constructor(
       private graphStorage: GraphStorageService,
-      private globalSettings: GlobalSettingsService,
       private changeEmitter: ChangeEmitterService) {
     this.inputsSettings.minEdges =
         minEdgesForConnectedGraph(this.inputsSettings.maxNodes);
