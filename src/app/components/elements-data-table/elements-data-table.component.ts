@@ -61,6 +61,21 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
             this.refreshTable();
           }
         }));
+    this.subscriptions.add(
+        this.changeEmitter.graphNodesLabelChange.subscribe((labelsChanges) => {
+          const changedEdges: Set<string> = new Set();
+          labelsChanges.forEach((node) => {
+            this.graphStorage.graph.edges(node).forEach((edge) => {
+              changedEdges.add(edge);
+            });
+            const nodeDescriptor = new ElementDescriptor(node, 'node');
+            this.refreshRowLabelFor(nodeDescriptor);
+          });
+          changedEdges.forEach((edge) => {
+            const edgeDescriptor = new ElementDescriptor(edge, 'edge');
+            this.refreshRowLabelFor(edgeDescriptor);
+          });
+        }));
     const algorithm = graphAlgorithms[this.graphStorage.getChoosenAlgorithm()];
     this.generateHeaderRow('node', algorithm.nodeProperties);
     this.generateHeaderRow('edge', algorithm.edgeProperties);
@@ -150,16 +165,8 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
     const row = document.createElement('tr');
     row.id = element.key;
     const labelCell = document.createElement('td');
-    if (element.type == 'node') {
-      labelCell.innerText =
-          this.graphStorage.graph.getNodeAttribute(element.key, 'label');
-    } else {
-      const ends = this.graphStorage.graph.extremities(element.key);
-      const labels = ends.map((node) => {
-        return this.graphStorage.graph.getNodeAttribute(node, 'label');
-      });
-      labelCell.innerText = `${labels[0]}<=>${labels[1]}`;
-    }
+    labelCell.id = 'label';
+    labelCell.innerText = this.generateLabel(element);
     row.appendChild(labelCell);
     attributes.forEach((attribute) => {
       if (attribute.visible) {
@@ -243,5 +250,31 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
     const table = element.type == 'node' ? this.rows.nodes.elements :
                                            this.rows.edges.elements;
     return table.find((row) => {return row.id == element.key});
+  }
+
+  private generateLabel(element: ElementDescriptor): string {
+    let label = '';
+    if (element.type == 'node') {
+      label = this.graphStorage.graph.getNodeAttribute(element.key, 'label');
+    } else {
+      const ends = this.graphStorage.graph.extremities(element.key);
+      const labels =
+          ends.map((node) => {
+                return this.graphStorage.graph.getNodeAttribute(node, 'label');
+              })
+              .sort();
+      label = `${labels[0]}<=>${labels[1]}`;
+    }
+    return label;
+  }
+
+  private refreshRowLabelFor(element: ElementDescriptor) {
+    const row = this.findRow(element);
+    if (row !== undefined) {
+      const labelCell = row.querySelector<HTMLElement>('#label');
+      if (labelCell !== null) {
+        labelCell.innerText = this.generateLabel(element);
+      }
+    }
   }
 }

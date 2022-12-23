@@ -246,11 +246,15 @@ graph with given number of nodes');
       this.lastNode.label = String.fromCharCode(newLabelCharCode);
       return this.lastNode.label;
     }
+    // We already used last character as label and need to assign next, the
+    // number of nodes is low enough to reassign labels
     this.lastNode.label = INITIAL_LABEL;
+    const labelChanges: string[] = [];
     this.graph.forEachNode((node) => {
       this.graph.setNodeAttribute(node, 'label', this.nextLabel());
+      labelChanges.push(node);
     });
-    // TODO: notify of labels change
+    this.changeEmitter.graphNodesLabelChange.next(labelChanges);
     return this.nextLabel();
   }
 }

@@ -8,5 +8,6 @@ export class ChangeEmitterService {
   stageDescriptionChange: Subject<string> = new Subject();
   graphElementRemoved: Subject<ElementNotification> = new Subject();
   graphElementAdded: Subject<ElementNotification> = new Subject();
+  graphNodesLabelChange: Subject < string[] >= new Subject;
   constructor() {}
 }
