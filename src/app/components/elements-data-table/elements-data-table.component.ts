@@ -1,12 +1,15 @@
-import {AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
 
 import {graphAlgorithms} from '../../algorithms/register';
 import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {getTypeCastedValue} from '../../utility/functions';
+import {globalSettings} from '../../utility/globalSettings';
 import {getElementAttribute, setElementAttribute} from '../../utility/graphFunctions';
 import {AttributeDescriptor, ElementDescriptor, ElementType} from '../../utility/types';
+
+const CHOOSEN_ELEMENT_PROPERTY_NAME = 'choosenElement';
 
 @Component({
   selector: 'app-elements-data-table',
@@ -17,6 +20,7 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
   @ViewChild('nodesTable') private nodesTable!: ElementRef<HTMLTableElement>;
   @ViewChild('edgesTable') private edgesTable!: ElementRef<HTMLTableElement>;
   @Input() executing!: boolean;
+  @Input() choosenElement?: ElementDescriptor;
   protected viewing: ElementType = 'node';
   private rows: {
     nodes: {header?: HTMLTableRowElement, elements: HTMLTableRowElement[]},
@@ -63,19 +67,45 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
     this.refreshTable();
   }
 
-  ngOnChanges(): void {
-    // ngOnChanges executes once before view has been initialized
-    if (this.nodesTable !== undefined && this.edgesTable !== undefined) {
-      console.log(`executing: ${this.executing}`);
-      const inputs =
-          Array.from(this.nodesTable.nativeElement.querySelectorAll('input'));
-      inputs.push(...Array.from(
-          this.edgesTable.nativeElement.querySelectorAll('input')));
-      console.log(inputs);
-      inputs.forEach((input) => {
-        input.disabled = this.executing;
-      });
-    };
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('executing' in changes) {
+      // ngOnChanges executes once before view has been initialized
+      if (this.nodesTable !== undefined && this.edgesTable !== undefined) {
+        console.log(`executing: ${this.executing}`);
+        const inputs =
+            Array.from(this.nodesTable.nativeElement.querySelectorAll('input'));
+        inputs.push(...Array.from(
+            this.edgesTable.nativeElement.querySelectorAll('input')));
+        console.log(inputs);
+        inputs.forEach((input) => {
+          input.disabled = this.executing;
+        });
+      };
+    }
+    if (CHOOSEN_ELEMENT_PROPERTY_NAME in changes) {
+      const previouslyChoosen: ElementDescriptor|undefined =
+          changes[CHOOSEN_ELEMENT_PROPERTY_NAME].previousValue;
+      if (previouslyChoosen !== undefined) {
+        const row = this.findRow(previouslyChoosen);
+        if (row !== undefined) row.style.backgroundColor = '';
+      }
+      const currentlyChoosen: ElementDescriptor|undefined =
+          changes[CHOOSEN_ELEMENT_PROPERTY_NAME].currentValue;
+      if (currentlyChoosen !== undefined) {
+        const row = this.findRow(currentlyChoosen);
+        if (row !== undefined) {
+          if (this.viewing != currentlyChoosen.type) {
+            this.viewing = currentlyChoosen.type;
+            setTimeout(() => {
+              row.scrollIntoView();
+            }, 50);
+          } else {
+            row.scrollIntoView();
+          }
+          row.style.backgroundColor = globalSettings.markingColors['choose'];
+        }
+      }
+    }
   }
 
   private generateHeaderRow(
@@ -202,5 +232,11 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges {
       const descriptor = new ElementDescriptor(edge, 'edge');
       this.generateElementRow(descriptor, algorithm.edgeProperties);
     });
+  }
+
+  private findRow(element: ElementDescriptor) {
+    const table = element.type == 'node' ? this.rows.nodes.elements :
+                                           this.rows.edges.elements;
+    return table.find((row) => {return row.id == element.key});
   }
 }
