@@ -1,6 +1,6 @@
 <button #execution (click)="executeAlgorithm('normal')" [hidden]="executing">Execute</button>
-<button #mainThreadExecution (click)="executeAlgorithm('mainThread')" [hidden]="executing">Execute in main thread (for
-  testing)</button>
+<button #mainThreadExecution *ngIf="!production" (click)="executeAlgorithm('mainThread')" [hidden]="executing">Execute
+  in main thread (for testing)</button>
 <button #return (click)="endInspection()" [hidden]="!executing">End inspection</button>
 Step:
 <button #stepBackward (click)="changeExecutionStep('backward')" [disabled]="!executing">&#8592;</button>

@@ -13,6 +13,7 @@ export class AlgorithmControllerComponent {
   @ViewChild('stepsCount') private stepsInput!: ElementRef<HTMLInputElement>;
   @Output() private executingChange = new EventEmitter<boolean>();
   @Input() executing!: boolean;
+  @Input() production!: boolean;
 
   constructor(private algorithmSolution: AlgorithmSolutionService) {}
 
