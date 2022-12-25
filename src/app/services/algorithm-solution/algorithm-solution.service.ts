@@ -33,17 +33,26 @@ export class AlgorithmSolutionService {
       end = newIndex;
     }
     let changes = this.executionStack.slice(begin, end);
+
+    let attributesChangesNotifications:
+        {element: ElementDescriptor, attribute: string}[] = [];
     if (newIndex > this.currentIndex) {
       changes.forEach((stage) => {
-        stage.apply(this.graphStorage.graph);
+        const notifications = stage.apply(this.graphStorage.graph);
+        attributesChangesNotifications.push(...notifications);
       });
     } else {
       changes.reverse();
       changes.forEach((stage) => {
-        stage.reverse(this.graphStorage.graph);
+        const notifications = stage.reverse(this.graphStorage.graph);
+        attributesChangesNotifications.push(...notifications);
       });
     }
-    this.graphStorage.refreshLabels();
+
+    attributesChangesNotifications.forEach((notification) => {
+      this.changeEmitter.graphElementAttributeChange.next(
+          {...notification, origin: 'algorithm'});
+    });
     this.changeEmitter.stageDescriptionChange.next(
         newIndex >= 1 ?
             this.executionStack[newIndex - 1].description :

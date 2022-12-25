@@ -1,6 +1,7 @@
 import Graph from 'graphology';
 
 import {GraphChange} from '../graph-change/graph-change';
+import {ElementDescriptor} from '../types';
 
 export class ExecutionStage {
   changes: GraphChange[] = [];
@@ -19,14 +20,20 @@ export class ExecutionStage {
   }
 
   apply(graph: Graph) {
+    const changed: {element: ElementDescriptor, attribute: string}[] = [];
     this.changes.forEach((change) => {
       change.apply(graph);
-    })
+      changed.push({element: change.element, attribute: change.property});
+    });
+    return changed;
   }
 
   reverse(graph: Graph) {
+    const changed: {element: ElementDescriptor, attribute: string}[] = [];
     this.changes.forEach((change) => {
       change.reverse(graph);
-    })
+      changed.push({element: change.element, attribute: change.property});
+    });
+    return changed;
   }
 }

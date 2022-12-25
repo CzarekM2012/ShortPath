@@ -21,6 +21,12 @@ export class ElementDescriptor {
 
 export type ElementNotification = ElementDescriptor|'all';
 
+export type ElementAttributeChangeNotification = {
+  element: ElementDescriptor,
+  attribute: string,
+  origin: 'manual'|'algorithm',
+};
+
 export type algorithmCallType = 'normal'|'mainThread';
 
 /**

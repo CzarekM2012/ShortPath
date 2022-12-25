@@ -76,6 +76,12 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
             this.refreshRowLabelFor(edgeDescriptor);
           });
         }));
+    this.subscriptions.add(
+        this.changeEmitter.graphElementAttributeChange.subscribe(
+            ({element, attribute, origin}) => {
+              if (origin == 'manual') return;
+              this.refreshAttributeFor(element, attribute);
+            }));
     const algorithm = graphAlgorithms[this.graphStorage.getChoosenAlgorithm()];
     this.generateHeaderRow('node', algorithm.nodeProperties);
     this.generateHeaderRow('edge', algorithm.edgeProperties);
@@ -91,12 +97,10 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
     if ('executing' in changes) {
       // ngOnChanges executes once before view has been initialized
       if (this.nodesTable !== undefined && this.edgesTable !== undefined) {
-        console.log(`executing: ${this.executing}`);
         const inputs =
             Array.from(this.nodesTable.nativeElement.querySelectorAll('input'));
         inputs.push(...Array.from(
             this.edgesTable.nativeElement.querySelectorAll('input')));
-        console.log(inputs);
         inputs.forEach((input) => {
           input.disabled = this.executing;
         });
@@ -186,17 +190,20 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
     if (attribute.userModifiable) {
       const input = document.createElement('input');
       input.type = 'number';
+      input.id = attribute.name;
       input.disabled = this.executing;
-      const value =
+      input.value =
           getElementAttribute(this.graphStorage.graph, element, attribute.name);
-      input.value = value;
       input.onchange = () => {
         setElementAttribute(
             this.graphStorage.graph, element, attribute.name,
             getTypeCastedValue(input));
+        this.changeEmitter.graphElementAttributeChange.next(
+            {element: element, attribute: attribute.name, origin: 'manual'});
       };
       tableCell.appendChild(input);
     } else {
+      tableCell.id = attribute.name;
       tableCell.innerText =
           getElementAttribute(this.graphStorage.graph, element, attribute.name);
     }
@@ -274,6 +281,26 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
       const labelCell = row.querySelector<HTMLElement>('#label');
       if (labelCell !== null) {
         labelCell.innerText = this.generateLabel(element);
+      }
+    }
+  }
+
+  private refreshAttributeFor(element: ElementDescriptor, attribute: string) {
+    const row = this.findRow(element);
+    if (row !== undefined) {
+      const nonModifiableCell =
+          row.querySelector<HTMLTableCellElement>(`td#${attribute}`);
+      if (nonModifiableCell !== null) {
+        nonModifiableCell.innerText =
+            getElementAttribute(this.graphStorage.graph, element, attribute);
+        return;
+      }
+      const modifiableCell =
+          row.querySelector<HTMLInputElement>(`input#${attribute}`);
+      if (modifiableCell !== null) {
+        modifiableCell.value =
+            getElementAttribute(this.graphStorage.graph, element, attribute);
+        return;
       }
     }
   }

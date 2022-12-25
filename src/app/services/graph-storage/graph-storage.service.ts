@@ -1,8 +1,9 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import * as assert from 'assert';
 import {UndirectedGraph} from 'graphology';
 import {countConnectedComponents} from 'graphology-components';
 import {complete} from 'graphology-generators/classic';
+import {Subscription} from 'rxjs';
 import {Coordinates} from 'sigma/types';
 
 import {graphAlgorithms} from '../../algorithms/register';
@@ -16,14 +17,29 @@ const IMPROPER_ALGORITHM = 'none';
 const ELEMENT_SIZE = 5;
 
 @Injectable({providedIn: 'root'})
-export class GraphStorageService {
+export class GraphStorageService implements OnDestroy {
   private lastNode:
       {key: string, label: string} = {key: '-1', label: INITIAL_LABEL};
   private choosenAlgorithm: string = IMPROPER_ALGORITHM;
   graph: UndirectedGraph = new UndirectedGraph();
   pathEnds: {startNode?: string, endNode?: string} = {};
+  subscriptions = new Subscription();
 
-  constructor(private changeEmitter: ChangeEmitterService) {}
+  constructor(private changeEmitter: ChangeEmitterService) {
+    changeEmitter.graphElementAttributeChange.subscribe(
+        ({element, attribute}) => {
+          if (element.type == 'edge' &&
+              attribute == graphAlgorithms[this.choosenAlgorithm].edgesLabel) {
+            const newEdgeLabel =
+                this.graph.getEdgeAttribute(element.key, attribute);
+            this.graph.setEdgeAttribute(element.key, 'label', newEdgeLabel);
+          };
+        });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 
   // TODO: remove this function
   private isValid(): boolean {
