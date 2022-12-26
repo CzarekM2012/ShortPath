@@ -17,7 +17,7 @@ export class ElementDescriptor {
   isEqualTo(other: ElementDescriptor) {
     return this.key == other.key && this.type == other.type;
   }
-}
+};
 
 export type ElementNotification = ElementDescriptor|'all';
 
@@ -44,14 +44,14 @@ export type algorithmCallType = 'normal'|'mainThread';
  * In case of execution in the main thread, submitStage is provided by ShortPath
  * environment
  */
-export type mainThreadAlgorithmCall =
+export type MainThreadAlgorithmCall =
     (graph: Graph, source: string, destination: string,
      submitStage: (stage: ExecutionStage) => void) => void;
 
 export type GraphCheckResult = {
   message: string,
   markings: GraphChange[],
-}
+};
 
 export type GraphCheck = (graph: Graph) => GraphCheckResult;
 
@@ -60,4 +60,14 @@ export type AttributeDescriptor = {
   defaultValue: number,
   visible: boolean,
   userModifiable: boolean,
-}
+};
+
+export type AlgorithmDefinition = {
+  description: string,
+  nodeProperties: AttributeDescriptor[],
+  edgeProperties: AttributeDescriptor[],
+  getWorker: () => Worker,
+  mainThreadFunction: MainThreadAlgorithmCall,
+  correctnessChecks: GraphCheck[],
+  edgesLabel?: string,
+};

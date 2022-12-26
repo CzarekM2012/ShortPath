@@ -1,41 +1,37 @@
 import {GraphChecks} from '../utility/graphFunctions';
-import {AttributeDescriptor, GraphCheck, mainThreadAlgorithmCall} from '../utility/types';
+import {AlgorithmDefinition} from '../utility/types';
 
-import {dijkstraAlgorithm} from './dijkstra/dijkstra-algorithm';
+import {dijkstraAlgorithm, dijkstraConsts} from './dijkstra/dijkstra-algorithm';
 
-export const graphAlgorithms: {
-  [key: string]: {
-    description: string,
-    nodeProperties: AttributeDescriptor[],
-    edgeProperties: AttributeDescriptor[],
-    getWorker: () => Worker,
-    mainThreadFunction: mainThreadAlgorithmCall,
-    correctnessChecks: GraphCheck[],
-    edgesLabel?: string,
-  }
-} = {
+export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
   'Dijkstra': {
-    description: 'description of Dijkstra algorithm',
+    description: dijkstraConsts.description,
     nodeProperties: [
       {
-        name: 'distance',
+        name: dijkstraConsts.nDistName,
         defaultValue: Infinity,
         visible: true,
-        userModifiable: false,
+        userModifiable: false
       },
     ],
     edgeProperties: [
-      {name: 'cost', defaultValue: 1, visible: true, userModifiable: true},
+      {
+        name: dijkstraConsts.eCostName,
+        defaultValue: 1,
+        visible: true,
+        userModifiable: true,
+      },
     ],
-    edgesLabel: 'cost',
-    getWorker: () => {return new Worker(
-        new URL('dijkstra/dijkstra.worker', import.meta.url))},
+    edgesLabel: dijkstraConsts.eCostName,
+    getWorker: () => {
+      return new Worker(new URL('dijkstra/dijkstra.worker', import.meta.url));
+    },
     mainThreadFunction: dijkstraAlgorithm,
     correctnessChecks: [
       GraphChecks.staticChecks.isConnected,
       (graph) => {
         return GraphChecks.dynamicChecks.areAttributesInRange(
-            graph, 'edge', 'cost', {min: 0});
+            graph, 'edge', dijkstraConsts.eCostName, {min: 0});
       },
     ],
   },
