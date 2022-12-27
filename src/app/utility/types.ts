@@ -60,6 +60,11 @@ export type AttributeDescriptor = {
   defaultValue: number,
   visible: boolean,
   userModifiable: boolean,
+}|{
+  name: string,
+  defaultValue: string,
+  visible: boolean,
+  userModifiable: false,
 };
 
 export type AlgorithmDefinition = {
