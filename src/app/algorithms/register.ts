@@ -47,16 +47,4 @@ export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
     mainThreadFunction: () => {alert('A* is unsupported as of yet')},
     correctnessChecks: [],
   },
-  'Bellman-Ford': {
-    description: 'description of Bellman-Ford algorithm',
-    nodeProperties: [
-      {name: 'distance', defaultValue: 0, visible: true, userModifiable: false}
-    ],
-    edgeProperties: [],
-    getWorker: () => {
-      return new Worker('');
-    },
-    mainThreadFunction: () => {alert('Bellman-Ford is unsupported as of yet')},
-    correctnessChecks: [],
-  },
 }

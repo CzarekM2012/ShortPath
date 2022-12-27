@@ -38,7 +38,6 @@ ShortPath is an educational environment designed to help with understanding of g
 ## Planned algorithms:
 
 - A* algorithm
-- Bellman-Ford algorithm
 
 
 ## TODO:
