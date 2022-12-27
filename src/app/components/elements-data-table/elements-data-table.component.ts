@@ -146,9 +146,11 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
     labelColumnHeader.innerText = elementType;
     headerRow.appendChild(labelColumnHeader);
     attributes.forEach((attribute) => {
-      const columnHeader = document.createElement('th');
-      columnHeader.innerText = attribute.name;
-      headerRow.appendChild(columnHeader);
+      if (attribute.visible) {
+        const columnHeader = document.createElement('th');
+        columnHeader.innerText = attribute.name;
+        headerRow.appendChild(columnHeader);
+      }
     });
     if (elementType == 'node') {
       this.rows.nodes.header = headerRow;
