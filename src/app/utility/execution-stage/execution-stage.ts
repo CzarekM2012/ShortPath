@@ -8,15 +8,17 @@ export class ExecutionStage {
   description: string = '';
   constructor() {}
 
-  addChange(change: GraphChange) {
-    const indexToReplace = this.changes.findIndex((member) => {
-      GraphChange.areRedundant(member, change);
+  addChange(...changes: GraphChange[]) {
+    changes.forEach((change) => {
+      const indexToReplace = this.changes.findIndex((member) => {
+        GraphChange.areRedundant(member, change);
+      });
+      if (indexToReplace != -1) {
+        this.changes[indexToReplace] = change;
+      } else {
+        this.changes.push(change);
+      }
     });
-    if (indexToReplace != -1) {
-      this.changes[indexToReplace] = change;
-      return;
-    } else
-      this.changes.push(change);
   }
 
   apply(graph: Graph) {
