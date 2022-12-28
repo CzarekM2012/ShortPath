@@ -1,6 +1,7 @@
 import {GraphChecks} from '../utility/graphFunctions';
 import {AlgorithmDefinition} from '../utility/types';
 
+import {leastEdgesAllHaveMinCost} from './a-star/a-star-algorithm';
 import {dijkstraAlgorithm, dijkstraConsts} from './dijkstra/dijkstra-algorithm';
 
 export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
@@ -35,16 +36,46 @@ export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
       },
     ],
   },
-  'A*': {
-    description: 'description of A* algorithm',
+  'A* (minimal number of edges heuristic)': {
+    description: leastEdgesAllHaveMinCost.strings.description,
     nodeProperties: [
-      {name: 'distance', defaultValue: 10, visible: true, userModifiable: false}
+      {
+        name: leastEdgesAllHaveMinCost.strings.nodesAttributes.distance,
+        defaultValue: Infinity,
+        visible: true,
+        userModifiable: false,
+      },
+      {
+        name: leastEdgesAllHaveMinCost.strings.nodesAttributes.heuristic,
+        defaultValue: Infinity,
+        visible: true,
+        userModifiable: false,
+      },
+      {
+        name: leastEdgesAllHaveMinCost.strings.nodesAttributes.predecessorKey,
+        defaultValue: '?',
+        visible: false,
+        userModifiable: false,
+      },
+      {
+        name: leastEdgesAllHaveMinCost.strings.nodesAttributes.predecessorLabel,
+        defaultValue: '?',
+        visible: true,
+        userModifiable: false,
+      },
     ],
-    edgeProperties: [],
+    edgeProperties: [
+      {
+        name: leastEdgesAllHaveMinCost.strings.edgesAttributes.cost,
+        defaultValue: 1,
+        visible: true,
+        userModifiable: true,
+      },
+    ],
     getWorker: () => {
-      return new Worker('');
+      return new Worker(new URL('a-star/a-star.worker', import.meta.url));
     },
-    mainThreadFunction: () => {alert('A* is unsupported as of yet')},
+    mainThreadFunction: leastEdgesAllHaveMinCost.aStar,
     correctnessChecks: [],
   },
 }
