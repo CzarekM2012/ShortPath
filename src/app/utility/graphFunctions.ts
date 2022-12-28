@@ -131,3 +131,9 @@ export namespace GraphChecks {
     }
   }
 }
+
+export function firstCharCap(word: string): string {
+  const fistChar = word.slice(0, 1);
+  const restOfTheWord = word.slice(1);
+  return fistChar.toUpperCase() + restOfTheWord;
+}
