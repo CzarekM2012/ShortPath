@@ -84,6 +84,7 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
   }
 
   ngOnDestroy(): void {
+    this.reverseChoiceMarking();
     this.stopRendering();
     this.subscriptions.unsubscribe();
   }
@@ -98,15 +99,19 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
       }
     }
     if ('choosenElement' in changes) {
-      if (this.choosenMarking !== undefined &&
-          getElementAttribute(
-              this.graphStorage.graph, this.choosenMarking.element, 'color') ==
-              this.choosenMarking.newValue)
-        this.choosenMarking.reverse(this.graphStorage.graph);
+      this.reverseChoiceMarking();
       if (this.choosenElement != undefined)
         this.choosenMarking = GraphChange.markElement(
             this.graphStorage.graph, this.choosenElement, 'choose');
     }
+  }
+
+  private reverseChoiceMarking() {
+    if (this.choosenMarking !== undefined &&
+        getElementAttribute(
+            this.graphStorage.graph, this.choosenMarking.element, 'color') ==
+            this.choosenMarking.newValue)
+      this.choosenMarking.reverse(this.graphStorage.graph);
   }
 
   private stopRendering(): void {
