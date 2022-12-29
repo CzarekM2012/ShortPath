@@ -1,11 +1,17 @@
-.switchContainer {
+.inputContainer {
   display: inline-grid;
   grid-auto-flow: dense;
   align-items: center;
 }
 
-.switchContainer label {
+.inputContainer label,
+.inputContainer input[type="number"] {
   grid-column: 2;
+}
+
+#buttonsRow {
+  display: flex;
+  justify-content: space-between;
 }
 
 #graph {

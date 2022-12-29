@@ -277,6 +277,11 @@ graph with given number of nodes');
       labelChanges.push(node);
     });
     this.changeEmitter.graphNodesLabelChange.next(labelChanges);
-    return this.nextLabel();
+  }
+
+  clearGraph() {
+    this.graph.clear();
+    this.lastNode.label = INITIAL_LABEL;
+    this.changeEmitter.graphElementRemoved.next('all');
   }
 }

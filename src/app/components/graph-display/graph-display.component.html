@@ -1,6 +1,6 @@
-<div class="vertical">
+<div id="buttonsRow">
   <div class="horizontal">
-    <div class="switchContainer">
+    <div class="inputContainer">
       <input type="radio" name="state" value="choose" [formControl]="state" id="stateChoose" (change)="resetTempNode()">
       <label for="stateChoose">Choose</label>
       <input type="radio" name="state" value="addNode" [formControl]="state" id="stateAddNode"
@@ -12,23 +12,22 @@
       <input type="radio" name="state" value="remove" [formControl]="state" id="stateRemove" (change)="resetTempNode()">
       <label for="stateRemove">Remove</label>
     </div>
-    <div class="switchContainer">
+    <div class="inputContainer">
       <input type="checkbox" id="layout" [formControl]="layout.active">
       <label for="layout">Graph layout</label>
     </div>
-    <div class="vertical">
-      <div class="horizontal">
-        <label for="nodes">Nodes:</label>
-        <input #numberOfNodes type="number" (change)="handleNodesNumber()" name="nodes" min="2"
-          [max]="inputsSettings.maxNodes">
-      </div>
-      <div class="horizontal">
-        <label for="edges">Edges:</label>
-        <input #numberOfEdges type="number" (change)="handleEdgesNumber()" name="edges" [min]="inputsSettings.minEdges"
-          [max]="inputsSettings.maxEdges">
-      </div>
+  </div>
+  <div class="horizontal">
+    <div class="inputContainer">
+      <label for="nodes">Nodes:</label>
+      <input #numberOfNodes type="number" (change)="handleNodesNumber()" name="nodes" min="2"
+        [max]="inputsSettings.maxNodes">
+      <label for="edges">Edges:</label>
+      <input #numberOfEdges type="number" (change)="handleEdgesNumber()" name="edges" [min]="inputsSettings.minEdges"
+        [max]="inputsSettings.maxEdges">
     </div>
     <button (click)="randomGraph()" [disabled]="executing">Random graph</button>
+    <button (click)="clearGraph()" [disabled]="executing">Clear graph</button>
   </div>
-  <div #display id="graph"></div>
 </div>
+<div #display id="graph"></div>

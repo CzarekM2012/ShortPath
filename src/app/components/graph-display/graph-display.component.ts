@@ -213,6 +213,12 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
     this.startRendering();
   }
 
+  protected clearGraph() {
+    this.graphStorage.clearGraph();
+    this.stopRendering();
+    this.startRendering();
+  }
+
   protected handleNodesNumber() {
     EnforceNumberInput.enforceRange(this.nodesInput.nativeElement);
     EnforceNumberInput.enforceInteger(this.nodesInput.nativeElement);
