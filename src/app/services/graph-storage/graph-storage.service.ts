@@ -41,11 +41,6 @@ export class GraphStorageService implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // TODO: remove this function
-  private isValid(): boolean {
-    return countConnectedComponents(this.graph) == 1;  // is connected
-  }
-
   getChoosenAlgorithm() {
     return this.choosenAlgorithm;
   }
@@ -174,7 +169,7 @@ graph with given number of nodes');
     // number_of_nodes)
     this.lastNode.key = (nodes - 1).toString();
     this.lastNode.label = INITIAL_LABEL;
-    this.removeEdgesPreservingConnectedness(edges);
+    this.removeEdgesPreservingConnectedness(this.graph.size - edges);
 
     let nodesProperties: AttributeDescriptor[] = [];
     let edgesProperties: AttributeDescriptor[] = [];
@@ -206,19 +201,25 @@ graph with given number of nodes');
     this.changeEmitter.graphElementAdded.next('all');
   }
 
-  private removeEdgesPreservingConnectedness(edges: number) {
+
+  /**
+   * Removes edges from stored graph in such a way that it remains connected.
+   * Method assumes that this operation is possible, checks for passed values
+   * need to be made before calling it.
+   * @param removedEdges Number of edges that should be removed
+   */
+  private removeEdgesPreservingConnectedness(removedEdges: number) {
     let edgesKeys = this.graph.edges();
-    let edgeCount = edgesKeys.length;
     // remove random edges from graph until it has number of edges equal to
     // one given to function
-    while (edgeCount > edges) {
+    while (removedEdges > 0) {
       let edgeIndex = Math.floor(Math.random() * (edgesKeys.length));
       const edge = edgesKeys[edgeIndex];
       edgesKeys.splice(edgeIndex, 1);
       const ends = this.graph.extremities(edge);
       this.graph.dropEdge(edge);
-      if (this.isValid())
-        edgeCount--;
+      if (countConnectedComponents(this.graph) == 1)
+        removedEdges--;
       else  // removing edge disconnected the graph, re-add it
         this.graph.addEdge(ends[0], ends[1]);
     }
@@ -264,6 +265,11 @@ graph with given number of nodes');
     }
     // We already used last character as label and need to assign next, the
     // number of nodes is low enough to reassign labels
+    this.reassignLabels();
+    return this.nextLabel();
+  }
+
+  private reassignLabels() {
     this.lastNode.label = INITIAL_LABEL;
     const labelChanges: string[] = [];
     this.graph.forEachNode((node) => {

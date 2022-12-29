@@ -11,7 +11,7 @@ import {GraphStorageService} from '../../services/graph-storage/graph-storage.se
 import {EnforceNumberInput, maxEdgesForConnectedGraph, minEdgesForConnectedGraph} from '../../utility/functions';
 import {globalSettings} from '../../utility/globalSettings';
 import {GraphChange} from '../../utility/graph-change/graph-change';
-import {getElementAttribute, hasElement} from '../../utility/graphFunctions';
+import {getElementAttribute} from '../../utility/graphFunctions';
 import {DisplayState, ElementDescriptor, ElementNotification} from '../../utility/types';
 
 @Component({
@@ -99,7 +99,6 @@ export class GraphDisplayComponent implements OnInit, AfterViewInit, OnDestroy,
     }
     if ('choosenElement' in changes) {
       if (this.choosenMarking !== undefined &&
-          hasElement(this.graphStorage.graph, this.choosenMarking.element) &&
           getElementAttribute(
               this.graphStorage.graph, this.choosenMarking.element, 'color') ==
               this.choosenMarking.newValue)

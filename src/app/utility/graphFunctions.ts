@@ -34,13 +34,6 @@ export function setElementAttribute(
     graph.setNodeAttribute(element.key, attributeName, value);
 }
 
-export function hasElement(graph: Graph, element: ElementDescriptor) {
-  if (element.type == 'edge')
-    return graph.hasEdge(element.key);
-  else
-    return graph.hasNode(element.key);
-}
-
 export namespace GraphChecks {
   export namespace staticChecks {
     export function isConnected(graph: Graph): GraphCheckResult {

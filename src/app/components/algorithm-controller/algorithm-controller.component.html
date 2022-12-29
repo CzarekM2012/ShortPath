@@ -1,8 +1,8 @@
-<button #execution (click)="executeAlgorithm('normal')" [hidden]="executing">Execute</button>
-<button #mainThreadExecution *ngIf="!production" (click)="executeAlgorithm('mainThread')" [hidden]="executing">Execute
-  in main thread (for testing)</button>
-<button #return (click)="endInspection()" [hidden]="!executing">End inspection</button>
+<button (click)="executeAlgorithm('normal')" [hidden]="executing">Execute</button>
+<button *ngIf="!production" (click)="executeAlgorithm('mainThread')" [hidden]="executing">Execute in main thread (for
+  testing)</button>
+<button (click)="endInspection()" [hidden]="!executing">End inspection</button>
 Step:
-<button #stepBackward (click)="changeExecutionStep('backward')" [disabled]="!executing">&#8592;</button>
+<button (click)="changeExecutionStep('backward')" [disabled]="!executing">&#8592;</button>
 <input #stepsCount type="number" min="1" value="1" (change)="handleStepsNumber()">
-<button #stepForward (click)="changeExecutionStep('forward')" [disabled]="!executing">&#8594;</button>
+<button (click)="changeExecutionStep('forward')" [disabled]="!executing">&#8594;</button>
