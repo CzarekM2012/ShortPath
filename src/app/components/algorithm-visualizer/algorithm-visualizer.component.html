@@ -1,3 +1,10 @@
+<header>
+  <button id="toChoice" [routerLink]="'/choice'" (click)="algorithmSolution.step(-'Infinity')">Return to algorithm
+    choice
+  </button>
+  <h1>Short Path</h1>
+</header>
+
 <div class="horizontal">
   <div class="vertical">
     <app-graph-display [executing]="executing" [(choosenElement)]="choosenElement"></app-graph-display>

@@ -1,3 +1,20 @@
+header {
+  position: relative;
+  background-color: #beffff;
+  text-align: center;
+}
+
+h1 {
+  display: inline-block;
+}
+
+#toChoice {
+  position: absolute;
+  top: 15%;
+  left: 0;
+  height: 70%;
+}
+
 #description {
-    border: 1px solid black;
+  border: 1px solid black;
 }

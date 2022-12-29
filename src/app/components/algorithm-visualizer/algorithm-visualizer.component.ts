@@ -2,6 +2,7 @@ import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {Subscription} from 'rxjs';
 
 import {environment} from '../../../environments/environment';
+import {AlgorithmSolutionService} from '../../services/algorithm-solution/algorithm-solution.service';
 import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
 import {ElementDescriptor} from '../../utility/types';
 
@@ -18,7 +19,9 @@ export class AlgorithmVisualizerComponent implements AfterViewInit {
   protected executing: boolean = false;
   protected production: boolean = environment.production;
 
-  constructor(private changeEmitter: ChangeEmitterService) {}
+  constructor(
+      private changeEmitter: ChangeEmitterService,
+      protected algorithmSolution: AlgorithmSolutionService) {}
 
   ngAfterViewInit(): void {
     this.subscriptions.add(
