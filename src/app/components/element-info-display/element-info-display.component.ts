@@ -1,102 +1,72 @@
-import {AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild} from '@angular/core';
+import {Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
 
-import {graphAlgorithms} from '../../algorithms/register';
 import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
-import {getTypeCastedValue} from '../../utility/functions';
-import {getElementAttribute, setElementAttribute} from '../../utility/graphFunctions';
-import {AttributeDescriptor, ElementDescriptor} from '../../utility/types';
+import {ElementDescriptor} from '../../utility/types';
 
 @Component({
   selector: 'app-element-info-display',
   templateUrl: './element-info-display.component.html',
   styleUrls: ['./element-info-display.component.css']
 })
-export class ElementInfoDisplayComponent implements AfterViewInit, OnChanges {
+export class ElementInfoDisplayComponent implements OnChanges {
   @ViewChild('display') private display?: ElementRef<HTMLElement>;
   @Input() choosenElement?: ElementDescriptor;
+  @Input() executing!: boolean;
 
   constructor(private graphStorage: GraphStorageService) {}
 
-  ngAfterViewInit(): void {}
+  ngOnChanges(changes: SimpleChanges): void {
+    // first input check happens before HTMLElement linked to display has been
+    // initialized
+    if (this.display !== undefined) {
+      if ('executing' in changes) {
+        const inputs =
+            Array.from(this.display.nativeElement.querySelectorAll('input'));
+        inputs.forEach((input) => {
+          input.disabled = this.executing;
+        });
+      }
+      if ('choosenElement' in changes) {
+        // element whose data was displayed has been unchecked/removed or an
+        // edge was choosen
+        if (this.choosenElement === undefined ||
+            this.choosenElement.type == 'edge') {
+          this.display.nativeElement.replaceChildren(
+              'Choose a node to set it as the start or the end of the path');
+        } else {
+          const startLabel = document.createElement('label');
+          startLabel.setAttribute('for', 'startRadio');
+          startLabel.textContent = `start node:\t`;
+          const startInput = document.createElement('input');
+          startInput.id = 'startRadio'
+          startInput.type = 'radio';
+          startInput.name = 'chooseEnd'
+          startInput.disabled = this.executing;
+          startInput.onchange = () => {
+            this.graphStorage.setPathEnd(this.choosenElement!.key, 'start');
+          };
+          if (this.choosenElement.key == this.graphStorage.pathEnds.startNode)
+            startInput.checked = true;
 
-  ngOnChanges() {
-    // first input check before display has been linked to HTMLElement
-    if (this.display === undefined) return;
-    // element whose data was displayed has beend unchecked/removed
-    if (this.choosenElement === undefined) {
-      this.display.nativeElement.replaceChildren('Choose a node or an edge');
-      return;
-    };
-    let nodes: HTMLElement[][] = [];
-    if (this.graphStorage.getChoosenAlgorithm() in graphAlgorithms) {
-      const attributes = this.choosenElement.type == 'edge' ?
-          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
-              .edgeProperties :
-          graphAlgorithms[this.graphStorage.getChoosenAlgorithm()]
-              .nodeProperties;
-      nodes = attributes.map((attribute) => {
-        return this.createDataElement(
-            attribute,
-            getElementAttribute(
-                this.graphStorage.graph, this.choosenElement!, attribute.name));
-      });
-    }
+          const endLabel = document.createElement('label');
+          endLabel.setAttribute('for', 'endRadio');
+          endLabel.textContent = `end node:\t`;
+          const endInput = document.createElement('input');
+          endInput.id = 'endRadio'
+          endInput.type = 'radio';
+          endInput.name = 'chooseEnd'
+          endInput.disabled = this.executing;
+          endInput.onchange = () => {
+            this.graphStorage.setPathEnd(this.choosenElement!.key, 'end');
+          };
+          if (this.choosenElement.key == this.graphStorage.pathEnds.endNode)
+            endInput.checked = true;
 
-    if (this.choosenElement.type == 'node') {
-      const startLabel = document.createElement('label');
-      startLabel.setAttribute('for', 'startRadio');
-      startLabel.textContent = `start node:\t`;
-      const startInput = document.createElement('input');
-      startInput.id = 'startRadio'
-      startInput.type = 'radio';
-      startInput.name = 'chooseEnd'
-      startInput.onchange = () => {
-        this.graphStorage.setPathEnd(this.choosenElement!.key, 'start');
-      };
-      if (this.choosenElement.key == this.graphStorage.pathEnds.startNode)
-        startInput.checked = true;
-      const endLabel = document.createElement('label');
-      endLabel.setAttribute('for', 'endRadio');
-      endLabel.textContent = `end node:\t`;
-      const endInput = document.createElement('input');
-      endInput.id = 'endRadio'
-      endInput.type = 'radio';
-      endInput.name = 'chooseEnd'
-      endInput.onchange = () => {
-        this.graphStorage.setPathEnd(this.choosenElement!.key, 'end');
-      };
-      if (this.choosenElement.key == this.graphStorage.pathEnds.endNode)
-        endInput.checked = true;
-      nodes.push([startLabel, startInput], [endLabel, endInput]);
-    }
-    (this.display.nativeElement as HTMLElement)
-        .replaceChildren(...(nodes.flat()));
-  }
-
-  private createDataElement(attribute: AttributeDescriptor, value: number): []|
-      (HTMLLabelElement|HTMLInputElement)[]|
-      (HTMLLabelElement|HTMLSpanElement)[] {
-    if (!attribute.visible) {
-      return [];
-    }
-    const label = document.createElement('label')
-    label.setAttribute('for', attribute.name);
-    label.textContent = `${attribute.name}:`;
-    if (attribute.userModifiable) {
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.name = attribute.name;
-      input.value = value.toString();
-      input.onchange = () => {
-        setElementAttribute(
-            this.graphStorage.graph, this.choosenElement!, attribute.name,
-            getTypeCastedValue(input));
-      };
-      return [label, input];
-    } else {
-      const output = document.createElement('span');
-      output.textContent = value.toString();
-      return [label, output];
+          const nodes: HTMLElement[] =
+              [startLabel, startInput, endLabel, endInput];
+          this.display.nativeElement.replaceChildren(...nodes);
+        }
+      }
     }
   }
 }
