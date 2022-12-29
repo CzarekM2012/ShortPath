@@ -4,6 +4,7 @@ import {Subscription} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {AlgorithmSolutionService} from '../../services/algorithm-solution/algorithm-solution.service';
 import {ChangeEmitterService} from '../../services/change-emitter/change-emitter.service';
+import {GraphStorageService} from '../../services/graph-storage/graph-storage.service';
 import {ElementDescriptor} from '../../utility/types';
 
 @Component({
@@ -17,11 +18,14 @@ export class AlgorithmVisualizerComponent implements AfterViewInit {
   private subscriptions: Subscription = new Subscription();
   protected choosenElement?: ElementDescriptor;
   protected executing: boolean = false;
+  protected readyToVisualize: boolean =
+      this.graphStorage.isValidAlgorithmChoosen();
   protected production: boolean = environment.production;
 
   constructor(
       private changeEmitter: ChangeEmitterService,
-      protected algorithmSolution: AlgorithmSolutionService) {}
+      protected algorithmSolution: AlgorithmSolutionService,
+      protected graphStorage: GraphStorageService) {}
 
   ngAfterViewInit(): void {
     this.subscriptions.add(

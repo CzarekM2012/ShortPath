@@ -45,6 +45,10 @@ export class GraphStorageService implements OnDestroy {
     return this.choosenAlgorithm;
   }
 
+  isValidAlgorithmChoosen() {
+    return this.choosenAlgorithm in graphAlgorithms;
+  }
+
   changeAlgorithm(algorithm: string) {
     if (!(algorithm in graphAlgorithms) || algorithm == this.choosenAlgorithm)
       return;
