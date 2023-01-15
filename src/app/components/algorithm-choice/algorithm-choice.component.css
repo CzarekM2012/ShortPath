@@ -24,16 +24,6 @@
   align-items: left;
 }
 
-header {
-  position: relative;
-  background-color: #beffff;
-  text-align: center;
-}
-
-h1 {
-  display: inline-block;
-}
-
 #toVisualisation {
   position: absolute;
   top: 15%;

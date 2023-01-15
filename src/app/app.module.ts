@@ -10,12 +10,14 @@ import {AlgorithmVisualizerComponent} from './components/algorithm-visualizer/al
 import {ElementInfoDisplayComponent} from './components/element-info-display/element-info-display.component';
 import {ElementsDataTableComponent} from './components/elements-data-table/elements-data-table.component';
 import {GraphDisplayComponent} from './components/graph-display/graph-display.component';
+import {PageTemplateComponent} from './components/page-template/page-template.component';
 
 @NgModule({
   declarations: [
     AppComponent, GraphDisplayComponent, ElementInfoDisplayComponent,
     AlgorithmControllerComponent, AlgorithmChoiceComponent,
-    AlgorithmVisualizerComponent, ElementsDataTableComponent
+    AlgorithmVisualizerComponent, ElementsDataTableComponent,
+    PageTemplateComponent
   ],
   imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule],
   providers: [],

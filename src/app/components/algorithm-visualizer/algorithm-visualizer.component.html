@@ -1,26 +1,25 @@
-<header>
-  <button id="toChoice" [routerLink]="'/choice'" (click)="algorithmSolution.step(-'Infinity')">Return to algorithm
-    choice
+<app-page-template>
+  <button headerLeftButton id="toChoice" [routerLink]="'/choice'" (click)="algorithmSolution.step(-'Infinity')">Choose
+    algorithm
   </button>
-  <h1>Short Path</h1>
-</header>
 
-<ng-container *ngIf="readyToVisualize; else noAlgorithmChoosen">
-  <div class="horizontal">
-    <div class="vertical">
-      <app-graph-display [executing]="executing" [(choosenElement)]="choosenElement"></app-graph-display>
-      <app-algorithm-controller [(executing)]="executing" [production]="production"></app-algorithm-controller>
+  <ng-container *ngIf="readyToVisualize; else noAlgorithmChoosen">
+    <div class="horizontal">
+      <div class="vertical">
+        <app-graph-display [executing]="executing" [(choosenElement)]="choosenElement"></app-graph-display>
+        <app-algorithm-controller [(executing)]="executing" [production]="production"></app-algorithm-controller>
+      </div>
+      <div class="vertical">
+        <div #stageDescription id="description" #description>Description of current step of algorithm execution will
+          appear here</div>
+        <app-element-info-display [executing]="executing" [choosenElement]="choosenElement"></app-element-info-display>
+        <app-elements-data-table [executing]="executing" [choosenElement]="choosenElement"></app-elements-data-table>
+      </div>
     </div>
-    <div class="vertical">
-      <div #stageDescription id="description" #description>Description of current step of algorithm execution will
-        appear
-        here</div>
-      <app-element-info-display [executing]="executing" [choosenElement]="choosenElement"></app-element-info-display>
-      <app-elements-data-table [executing]="executing" [choosenElement]="choosenElement"></app-elements-data-table>
-    </div>
-  </div>
-</ng-container>
+  </ng-container>
+  <ng-template #noAlgorithmChoosen>
+    <h2>No proper algorithm has been choosen. You need to go back to algorithm choice page and choose an algorithm.
+    </h2>
+  </ng-template>
 
-<ng-template #noAlgorithmChoosen>
-  <h1>No proper algorithm has been choosen. You need to go back to algorithm choice page and choose an algorithm.</h1>
-</ng-template>
+</app-page-template>

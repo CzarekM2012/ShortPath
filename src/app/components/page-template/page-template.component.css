@@ -1,0 +1,26 @@
+#pageContainer {
+  position: relative;
+  min-height: 100vh;
+}
+
+#contentContainer {
+  padding-bottom: 2rem;
+}
+
+header {
+  position: relative;
+  background-color: #beffff;
+  text-align: center;
+}
+
+h1 {
+  display: inline-block;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: right;
+  height: 2rem;
+}
