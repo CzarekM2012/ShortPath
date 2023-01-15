@@ -1,0 +1,10 @@
+div {
+  text-align: center;
+}
+
+button {
+  position: absolute;
+  top: 15%;
+  right: 0;
+  height: 70%;
+}

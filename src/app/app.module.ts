@@ -11,13 +11,14 @@ import {ElementInfoDisplayComponent} from './components/element-info-display/ele
 import {ElementsDataTableComponent} from './components/elements-data-table/elements-data-table.component';
 import {GraphDisplayComponent} from './components/graph-display/graph-display.component';
 import {PageTemplateComponent} from './components/page-template/page-template.component';
+import {TitleCardComponent} from './components/title-card/title-card.component';
 
 @NgModule({
   declarations: [
     AppComponent, GraphDisplayComponent, ElementInfoDisplayComponent,
     AlgorithmControllerComponent, AlgorithmChoiceComponent,
     AlgorithmVisualizerComponent, ElementsDataTableComponent,
-    PageTemplateComponent
+    PageTemplateComponent, TitleCardComponent
   ],
   imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule],
   providers: [],
