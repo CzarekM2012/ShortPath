@@ -106,8 +106,6 @@ function generalAStar(
       };
       const neighbourNewDist = current.dist + edge.cost
 
-      stage.addChange(
-          GraphChange.markElement(graph, neighbour.desc, 'inspect'));
       stage.addChange(GraphChange.markElement(graph, edge.desc, 'inspect'));
       stage.description = `Length of the shortest path from starting node (${
           sourceData.label}) to ${neighbour.label} through current node (${
@@ -164,7 +162,6 @@ function generalAStar(
       }
       submitStage(stage);
       stage = new ExecutionStage();
-      stage.addChange(GraphChange.markElement(graph, neighbour.desc, 'reject'));
       stage.addChange(GraphChange.markElement(graph, edge.desc, 'reject'));
     });
     stage.addChange(GraphChange.markElement(graph, current.desc, 'reject'));
@@ -371,6 +368,11 @@ function A_Star(graph, source, target, heuristic)
     });
     // Call algorithm
     generalAStar(graph, source, destination, submitStage, heuristic);
+    // Clean up values needed for heuristic
+    graph.removeAttribute(MIN_COST);
+    graph.forEachNode((node) => {
+      graph.removeNodeAttribute(node, EDGES);
+    });
   }
 
   function heuristic(graph: UndirectedGraph, node: string): number {
