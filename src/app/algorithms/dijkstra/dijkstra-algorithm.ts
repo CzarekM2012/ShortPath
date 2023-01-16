@@ -2,29 +2,69 @@ import {UndirectedGraph} from 'graphology';
 
 import {ExecutionStage} from '../../utility/execution-stage/execution-stage';
 import {GraphChange} from '../../utility/graph-change/graph-change';
+import {firstCharCap} from '../../utility/graphFunctions';
 import {ElementDescriptor} from '../../utility/types';
 
-const DIST = 'distance';
+const DIST = 'dist';
 const COST = 'cost';
-const DESCRIPTION =
-    'One of the most widely known algorithms for finding the shortest ' +
-    'path between nodes in a graph. Works by separating nodes of the ' +
-    'graph into two sets: visited (initially empty) and unvisited ' +
-    '(initially all nodes). Nodes from unvisited set are inspected one ' +
-    'by one and moved to the visited set until the destination node is ' +
-    'encountered.\n\n' +
-    `Each node of the graph is assigned attribute "${DIST}", its value ` +
-    'is equal to the length of the shortest path between the node and ' +
-    'the starting node.\nEach edge of the graph is assigned attribute ' +
-    `"${COST}", its value describes length of the edge.\nCosts of the ` +
-    'specific edges will also be written directly on the graph ' +
-    'visualisation.\n\n' +
-    'Costs of edges of the graph are required to be positive.';
 
-export const dijkstraConsts = {
-  description: DESCRIPTION,
-  nDistName: DIST,
-  eCostName: COST,
+export const dijkstraStrings = {
+  descriptions: {
+    general:
+        `One of the most widely known algorithms for finding the shortest ` +
+        `path between nodes in a graph. It can be used find shortest paths ` +
+        `between choosen source node and all other nodes in the graph.
+Algorithm keeps a list of nodes paired with lengths of shortest found paths ` +
+        `leading to them. Main loop of the algorithm chooses node associated ` +
+        `with the shortest path on the list, starting from source node.` +
+        `Record for choosen node is removed from the list. Lengths of paths ` +
+        `leading through choosen node to its neighbours are calculated. If ` +
+        `lengths of paths leading to these nodes were unknown or larger than ` +
+        `newly calculated, they are updated.
+Main loop of the algorithm is repeated until the list is empty or destination ` +
+        `node has been removed from it, depending on usage of the algorithm. [1]`,
+    history:
+        `This algorithm has been created by Dutch computer scientist Edsger ` +
+        `W. Dijkstra. It was conceived in 1956 in order to present the ` +
+        `capabilities of new computer ARMAC [2], created by the Mathematical ` +
+        `Center in Amsterdam, where Dijkstra was working at the time. It got ` +
+        `published in 1959. In one of his last inverviews, Dijkstra spoke about ` +
+        `the circumstances of its creation.
+
+“What’s the shortest way to travel from Rotterdam to Groningen, in ` +
+        `general: from given city to given city. It is the algorithm for the ` +
+        `shortest path, which I designed in about twenty minutes. One morning I ` +
+        `was shopping in Amsterdam with my young fiancée, and tired, we sat down ` +
+        `on the café terrace to drink a cup of coffee and I was just thinking ` +
+        `about whether I could do this, and I then designed the algorithm for ` +
+        `the shortest path. As I said, it was a twenty-minute invention. In ` +
+        `fact, it was published in ’59, three years late. The publication is ` +
+        `still readable, it is, in fact, quite nice. One of the reasons that it ` +
+        `is so nice was that I designed it without pencil and paper. I learned ` +
+        `later that one of the advantages of designing without pencil and paper ` +
+        `is that you are almost forced to avoid all avoidable complexities. ` +
+        `Eventually that algorithm became, to my great amazement, one of the ` +
+        `cornerstones of my fame. I found it in the early ’60’s in a German book ` +
+        `on management science - - “Das Dijkstra’sche Verfahren.” Suddenly, ` +
+        `there was a method named after me.” [3]`,
+    pseudocode: `Deferred until implementation of predecessor tracking`,
+    attributesDefinitions: {
+      nodes: {
+        [DIST]: 'Length of the shortest path between the node and the ' +
+            'starting node, can not be changed.'
+      },
+      edges: {
+        [COST]: 'Length of the edge, can be changed, needs to be a positive ' +
+            'number, marked on graph visualisation.'
+      }
+    },
+    references:
+        `[1] E. W. Dijkstra, “A note on two problems in connexion with graphs”, Numerische Mathematik, t. 1, nr. 1, s. 269–271, 1959, ISSN: 0945-3245. DOI: 10.1007/BF01386390. adr.: https://doi.org/10.1007/BF01386390.
+[2] “ARMAC | Unsung Heroes in Dutch Computing History”, Accessed (31.12.2022): https://web.archive.org/web/20131113021126/http://www-set.win.tue.nl/UnsungHeroes/machines/armac.html, 2013.
+[3] E. W. Dijkstra, Oral history interview with Edsger W. Dijkstra, Accessed (31.12.2022): http://purl.umn.edu/96226, 2001.`
+  },
+  nodesAttributes: {distance: DIST},
+  edgesAttributes: {cost: COST},
 };
 
 type nodeData = {

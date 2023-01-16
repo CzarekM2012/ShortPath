@@ -3,17 +3,31 @@
     [disabled]="algorithmChoice.value === null" (click)="beforeVisualisation()">Visualize algorithm
   </button>
 
-  <div class="horizontal">
+  <div id="main" class="horizontal">
     <div id="choice" class=" scrollable">
       <div class="doubleColumn" *ngFor="let algorithm of algorithms">
         <input type="radio" id="{{algorithm}}" value="{{algorithm}}" name="algorithm" [formControl]="algorithmChoice">
         <label for="{{algorithm}}">{{algorithm}}</label>
       </div>
     </div>
-    <div id="description" class="scrollable" #description>
-      <p>Choose an algorithm to visualize from the list.</p>
-      <p>Algorithms are visualized on undirected graphs.</p>
-      <p>In order to present all required information clearly, number of nodes in graph is limited to 10.</p>
+    <div id="readingArea" class="vertical">
+      <div class="horizontal">
+        <button (click)="viewing='description'" [disabled]="algorithmChoice.value === null">Description</button>
+        <button (click)="viewing='origin'" [disabled]="algorithmChoice.value === null">Origin</button>
+        <button (click)="viewing='definitions'" [disabled]="algorithmChoice.value === null">Parameters
+          definition</button>
+        <button (click)="viewing='pseudocode'" [disabled]="algorithmChoice.value === null">Pseudocode</button>
+        <button (click)="viewing='references'" [disabled]="algorithmChoice.value === null">References</button>
+      </div>
+      <div #description class="scrollable" [hidden]="viewing!='description'">
+        <p>Choose an algorithm to visualize from the list.</p>
+        <p>Algorithms are visualized on undirected graphs.</p>
+        <p>In order to present all required information clearly, number of nodes in graph is limited to 10.</p>
+      </div>
+      <div #origin class="scrollable" [hidden]="viewing!='origin'"></div>
+      <div #pseudocode class="scrollable" [hidden]="viewing!='pseudocode'"></div>
+      <div #definitions class="scrollable" [hidden]="viewing!='definitions'"></div>
+      <div #references class="scrollable" [hidden]="viewing!='references'"></div>
     </div>
   </div>
 </app-page-template>

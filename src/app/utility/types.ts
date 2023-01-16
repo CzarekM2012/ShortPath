@@ -5,6 +5,9 @@ import {GraphChange} from './graph-change/graph-change';
 
 export type DisplayState = 'choose'|'addNode'|'addEdge'|'remove';
 
+export type AlgorithmDescriptionDisplayMode =
+    'description'|'origin'|'pseudocode'|'definitions'|'references';
+
 export type ElementType = 'node'|'edge';
 
 export class ElementDescriptor {
@@ -67,8 +70,21 @@ export type AttributeDescriptor = {
   userModifiable: false,
 };
 
+export type AlgorithmDescriptions = {
+  general: string,
+  history: string,
+  pseudocode: string,
+  references: string,
+  attributesDefinitions?: GraphElementsAttributesDescriptions,
+};
+
+export type GraphElementsAttributesDescriptions = {
+  nodes: {[key: string]: string},
+  edges: {[key: string]: string},
+};
+
 export type AlgorithmDefinition = {
-  description: string,
+  descriptions: AlgorithmDescriptions,
   nodeProperties: AttributeDescriptor[],
   edgeProperties: AttributeDescriptor[],
   getWorker: () => Worker,

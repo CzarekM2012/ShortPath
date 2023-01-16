@@ -2,14 +2,14 @@ import {GraphChecks} from '../utility/graphFunctions';
 import {AlgorithmDefinition} from '../utility/types';
 
 import {leastEdgesAllHaveMinCost} from './a-star/a-star-algorithm';
-import {dijkstraAlgorithm, dijkstraConsts} from './dijkstra/dijkstra-algorithm';
+import {dijkstraAlgorithm, dijkstraStrings} from './dijkstra/dijkstra-algorithm';
 
 export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
   'Dijkstra': {
-    description: dijkstraConsts.description,
+    descriptions: dijkstraStrings.descriptions,
     nodeProperties: [
       {
-        name: dijkstraConsts.nDistName,
+        name: dijkstraStrings.nodesAttributes.distance,
         defaultValue: Infinity,
         visible: true,
         userModifiable: false
@@ -17,13 +17,13 @@ export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
     ],
     edgeProperties: [
       {
-        name: dijkstraConsts.eCostName,
+        name: dijkstraStrings.edgesAttributes.cost,
         defaultValue: 1,
         visible: true,
         userModifiable: true,
       },
     ],
-    edgesLabel: dijkstraConsts.eCostName,
+    edgesLabel: dijkstraStrings.edgesAttributes.cost,
     getWorker: () => {
       return new Worker(new URL('dijkstra/dijkstra.worker', import.meta.url));
     },
@@ -32,12 +32,12 @@ export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
       GraphChecks.staticChecks.isConnected,
       (graph) => {
         return GraphChecks.dynamicChecks.areAttributesInRange(
-            graph, 'edge', dijkstraConsts.eCostName, {min: 0});
+            graph, 'edge', dijkstraStrings.edgesAttributes.cost, {min: 0});
       },
     ],
   },
   'A* (minimal number of edges heuristic)': {
-    description: leastEdgesAllHaveMinCost.strings.description,
+    descriptions: leastEdgesAllHaveMinCost.strings.descriptions,
     nodeProperties: [
       {
         name: leastEdgesAllHaveMinCost.strings.nodesAttributes.distance,

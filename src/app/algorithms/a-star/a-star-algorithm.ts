@@ -6,9 +6,9 @@ import {GraphChange} from '../../utility/graph-change/graph-change';
 import {firstCharCap} from '../../utility/graphFunctions';
 import {ElementDescriptor} from '../../utility/types';
 
-const DIST = 'distance';
-const HEUR = 'heuristic';
-const PRED_LABEL = 'predecessor';
+const DIST = 'dist';
+const HEUR = 'guess';
+const PRED_LABEL = 'pred';
 const PRED_KEY = 'predecessorKey';
 const COST = 'cost';
 
@@ -218,40 +218,134 @@ function readPath(graph: UndirectedGraph, source: string, destination: string):
  */
 export namespace leastEdgesAllHaveMinCost {
   export const strings = {
-    description: `Widely used algorithm for finding the shortest path ` +
-        `between nodes in a graph.
-        It works by extending paths starting in source node with nodes ` +
-        `neighboring them, until destination node is found. Decision, which ` +
-        `path should be extended and which node should be used for that, is ` +
-        `based on value of heuristic function (approximation of the distance ` +
-        `to the destination). For each of the nodes that can be used for ` +
-        `extension of a path, length of the path that is closest to it, length ` +
-        `of the edge connecting it with the end of that path and value of ` +
-        `heuristic function are added together, node which has the lowest value ` +
-        `of this sum is choosen.
-        Performance of the algorithm is heavily impacted by the accuracy of the ` +
-        `used heuristic. Its one major drawback is the fact that all encountered ` +
-        `nodes are stored in memory and there are algorithms that outperform it ` +
-        `because of that, but it is still the best solution in many cases.
+    descriptions: {
+      general:
+          `Algorithm for finding the shortest path between nodes in a graph ` +
+          `with many uses, including: natural language parsing, navigation and ` +
+          `computer games.
+It works by extending paths starting in source node with neighboring ` +
+          `them nodes, until destination node is found. Decision, which ` +
+          `path should be extended and which node should be used for that, is ` +
+          `based on value of heuristic function (approximation of the distance ` +
+          `to the destination). For each of the nodes that can be used for ` +
+          `extension of a path, length of the path that it would extend, length ` +
+          `of the edge connecting it with the end of that path and value of ` +
+          `heuristic function are added together, node which has the lowest value ` +
+          `of this sum is choosen.
+Performance of the algorithm is heavily impacted by the accuracy of the ` +
+          `used heuristic. Its one major drawback is the fact that all encountered ` +
+          `nodes are stored in memory and there are algorithms that outperform it ` +
+          `because of that, but it is still the best solution in many cases.
 
-        Each node is described by a set of attributes:
-        ${DIST} - length of the shortest path from the starting node to the node,
-        ${HEUR} - approximation of the length of the shortest path from the ` +
-        `starting node to the destination node, leading through the node,
-        ${PRED_LABEL} - node that precedes the node on the path;
+Heuristic function used in this implementation of the algorithm finds ` +
+          `the minimum number of edges that needs to be traversed to move from ` +
+          `the node to the destination and multiplies it by the "${
+              COST}" of the shortest edge in the graph. Because of that, ` +
+          `algorithm will be most effective on graphs with edges of similar ` +
+          `length, on the other hand, graphs with both paths consisting of many ` +
+          `short edges and those with fewer long edges will cause it to waste ` +
+          `time extending paths with fewer edges. [1]`,
+      history: `This algorithm has been conceived at Stanford Research Institute, ` +
+          `Nils J. Nilsson, Peter E. Hart and Bertram Raphael, members of the ` +
+          `team that created „Shakey”, one of the first mobile robots controlled ` +
+          `by an artificial intelligence. It was developed for the robot's navigation ` +
+          `system in order facilitate effective, safe navigation between two points, in ` +
+          `environment with many obstacles.
 
-        Each edge is described by a "${COST}" attribute which denotes the ` +
-        `length of the edge.
+Nilsson inspired by the method of heuristic search, proposed by J. Doran and Donald ` +
+          `Michie [2], proposed considering orientation points, available for extending ` +
+          `path in order of rising distance from destination in straight line, ignoring ` +
+          `the obstacles. Raphael noticed that, the sum of distance traveled up to that ` +
+          `point and Nilsson's approximation of remaining distance, would be a better ` +
+          `criterion. They described this idea to Peter Hart, whose following actions ` +
+          `are described by Nilsson in his book in following way:
 
-        Heuristic function used in this algorithm finds the minimum number of ` +
-        `edges that needs to be traversed to move from the node to the ` +
-        `destination and multiplies it by the "${COST}" of the shortest ` +
-        `edge in the graph. Because of that, algorithm will be most effective ` +
-        `on graphs with edges of similar length, on the other hand, graphs with ` +
-        `both paths consisting of many short edges and those with fewer long ` +
-        `edges will cause it to waste time extending paths with fewer edges.
+“Raphael and I described this idea to Peter Hart, who had recently obtained a Ph.D. from ` +
+          `Stanford and joined our group at SRI. Hart recalls “going home that day, sitting ` +
+          `in a particular chair and staring at the wall for more than an hour, and ` +
+          `concluding” that if the estimate of remaining distance (whatever it might be) was ` +
+          `never larger than the actual remaining distance, then the use of such an estimate ` +
+          `in our new scoring scheme would always find a path having the shortest distance to ` +
+          `the goal. ( . . . ) Furthermore, he thought such a procedure would generate search ` +
+          `trees no larger than any other procedures that were also guaranteed to find shortest ` +
+          `paths and that used heuristic estimates no better than ours.”
 
-        "${firstCharCap(COST)}" of each edge is required to be positive`,
+Authors managed to construct proofs for Hart's claims and named the resulting search process ` +
+          `„A*” („A” stood for algorithm and „*” denoted its property of finding shortest paths).
+
+Since its creation, A* has been expanded in many ways. Modifications authored by Richard Korf ` +
+          `to make it more practical in situations, when available memory is limited are a good ` +
+          `of such expansions. [3]`,
+      pseudocode: `// Read the path, by following predecessors of graph nodes
+// starting from target.
+function readPath(target, ${PRED_LABEL})
+   path := []
+   current := target
+   while current != UNDEFINED:
+      path.pushFront(current)
+      current := ${PRED_LABEL}[current]
+   return path
+
+
+function A_Star(graph, source, target, heuristic)
+   // Step 1: Assign starting values of ${DIST}, ${HEUR} and ${PRED_LABEL}
+   //     for each node in graph
+   for each node in graph.nodes:
+      // Making ${DIST}, ${HEUR} and ${PRED_LABEL} data structures returning
+      // these starting values when trying to access values for
+      // missing keys may reduce the amount of required memory.
+      ${DIST}[node] := INFINITY
+      ${HEUR}[node] := INFINITY
+      ${PRED_LABEL}[node] := UNDEFINED
+   ${DIST}[source] := 0
+   ${HEUR}[source] := heuristic(source)
+
+   openNodes := [source]
+   while openNodes is not empty
+      current := node in openNodes with min ${HEUR}[node]
+
+   if current == target
+      return readPath(current, ${PRED_LABEL})
+
+   // Step 4: Remove current node from openNodes. Calculate lengths
+   //     of paths from source, through current, to each neighbour
+   //     of current. If new path is better, update description of
+   //     neighbour. Add updated, missing neighbours to openNodes
+   openNodes.remove(current)
+      for each neighbour of current
+         new${firstCharCap(DIST)} := ${DIST}[current] + ${
+          COST}(current, neighbour)
+         if new${firstCharCap(DIST)} < ${DIST}[neighbour]
+            ${DIST}[neighbour] := new${firstCharCap(DIST)}
+            ${HEUR}[neighbour] := new${
+          firstCharCap(DIST)} + heuristic(neighbour)
+            ${PRED_LABEL}[neighbour] := current
+            if neighbour not in openNodes
+               openNodes.add(neighbour)
+
+   // All paths got extended as much as they could have been but
+   // goal was never reached
+   return FAILURE`,
+      attributesDefinitions: {
+        nodes: {
+          [DIST]: 'Length of the shortest path from the starting node to the ' +
+              'node, can not be changed.',
+          [HEUR]: 'Approximation of the length of the shortest path from the ' +
+              'starting node to the destination node, leading through the ' +
+              'node, can not be changed.',
+          [PRED_LABEL]:
+              'Node that precedes the node on the path, can not be changed.'
+        },
+        edges: {
+          [COST]: 'Length of the edge, can be changed, needs to be a positive ' +
+              'number, marked on graph visualisation.'
+        }
+      },
+      references:
+          `[1] P. E. Hart, N. J. Nilsson i B. Raphael, “A Formal Basis for the Heuristic Determination of Minimum Cost Paths”, IEEE transactions on systems science and cybernetics, t. 4, nr. 2, p. 100–107, 1968, ISSN: 0536-1567. DOI: 10.1109/TSSC.1968.300136.
+[2] J. E. Doran i D. Michie, “Experiments with the Graph Traverser Program”, Proceedings of the Royal Society of London. Series A, Mathematical and Physical Sciences, t. 294, nr. 1437, p. 235–259, 1966, ISSN: 00804630. adr.: http://www.jstor.org/stable/ 2415467.
+[3] N. J. Nilsson, “Shakey, the SRI Robot”, w The quest for artificial intelligence: a history of ideas and achievements, Cambridge University Press, 2010, p. 162–176, ISBN: 978-0-521-11639-8 978-0-521-12293-1.`
+    },
     nodesAttributes: {
       distance: DIST,
       heuristic: HEUR,

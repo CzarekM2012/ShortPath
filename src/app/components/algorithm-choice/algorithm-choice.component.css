@@ -3,12 +3,13 @@
   width: 20%;
 }
 
-#description {
+#readingArea {
   border-left: 1px solid black;
   width: 80%;
+  white-space: break-spaces;
 }
 
-.horizontal {
+#main {
   min-height: 20vh;
   max-height: 85vh;
 }
