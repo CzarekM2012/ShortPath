@@ -14,6 +14,18 @@ export const graphAlgorithms: {[key: string]: AlgorithmDefinition;} = {
         visible: true,
         userModifiable: false
       },
+      {
+        name: dijkstraStrings.nodesAttributes.predecessorLabel,
+        defaultValue: '?',
+        visible: true,
+        userModifiable: false
+      },
+      {
+        name: dijkstraStrings.nodesAttributes.predecessorKey,
+        defaultValue: '?',
+        visible: false,
+        userModifiable: false
+      },
     ],
     edgeProperties: [
       {

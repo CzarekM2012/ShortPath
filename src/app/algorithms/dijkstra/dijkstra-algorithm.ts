@@ -6,6 +6,8 @@ import {firstCharCap} from '../../utility/graphFunctions';
 import {ElementDescriptor} from '../../utility/types';
 
 const DIST = 'dist';
+const PRED_LABEL = 'pred';
+const PRED_KEY = 'predKey';
 const COST = 'cost';
 
 export const dijkstraStrings = {
@@ -47,11 +49,55 @@ Main loop of the algorithm is repeated until the list is empty or destination ` 
         `cornerstones of my fame. I found it in the early ’60’s in a German book ` +
         `on management science - - “Das Dijkstra’sche Verfahren.” Suddenly, ` +
         `there was a method named after me.” [3]`,
-    pseudocode: `Deferred until implementation of predecessor tracking`,
+    pseudocode:
+        `// Read the path, by following predecessors of graph nodes starting
+// from target.
+function readPath(target, ${PRED_LABEL}):
+   path := []
+   current := target
+   while current != UNDEFINED
+      path.pushFront(current)
+      current := ${PRED_LABEL}[current]
+   return path
+
+
+function Dijkstra(graph, source, target):
+   // Step 1: Assign starting values of ${DIST} and ${
+            PRED_LABEL} for each node in
+   //         graph
+   UnlabeledNodes := []
+   for each node in graph.nodes:
+      // Making ${DIST} and ${
+            PRED_LABEL} data structures returning these starting
+      // values when trying to access values for missing keys may reduce
+      // the amount of required memory.
+      ${DIST}[node] := INFINITY
+      ${PRED_LABEL}[node] := UNDEFINED
+      UnlabeledNodes.push(node)
+   ${DIST}[source] := 0
+
+   while UnlabeledNodes is not empty:
+      current := node in UnlabeledNodes with min ${DIST}[node]
+      if current == target:
+         break
+      // Step 2: Make ${DIST} and ${
+            PRED_LABEL} of chosen node permanent. Update these
+      //         values for each neighbour of chosen node, unless they were
+      //         made permanent before.
+      UnlabeledNodes.remove(current)
+      for each neighbour of current in UnlabeledNodes:
+         new${firstCharCap(DIST)} := ${DIST}[current] + ${
+            COST}(current, neighbour)
+         if new${firstCharCap(DIST)} < ${DIST}[neighbour]:
+            ${DIST}[neighbour] := new${firstCharCap(DIST)}
+            ${PRED_LABEL}[neighbour] := current
+   return readPath(target, ${PRED_LABEL}) `,
     attributesDefinitions: {
       nodes: {
         [DIST]: 'Length of the shortest path between the node and the ' +
-            'starting node, can not be changed.'
+            'starting node, can not be changed.',
+        [PRED_LABEL]: 'Node that precedes the node on the path, can not be ' +
+            'changed.'
       },
       edges: {
         [COST]: 'Length of the edge, can be changed, needs to be a positive ' +
@@ -63,105 +109,123 @@ Main loop of the algorithm is repeated until the list is empty or destination ` 
 [2] “ARMAC | Unsung Heroes in Dutch Computing History”, Accessed (31.12.2022): https://web.archive.org/web/20131113021126/http://www-set.win.tue.nl/UnsungHeroes/machines/armac.html, 2013.
 [3] E. W. Dijkstra, Oral history interview with Edsger W. Dijkstra, Accessed (31.12.2022): http://purl.umn.edu/96226, 2001.`
   },
-  nodesAttributes: {distance: DIST},
+  nodesAttributes: {
+    distance: DIST,
+    predecessorLabel: PRED_LABEL,
+    predecessorKey: PRED_KEY,
+  },
   edgesAttributes: {cost: COST},
 };
 
-type nodeData = {
-  key: string,
+type NodeData = {
+  desc: ElementDescriptor,
   dist: number,
   label: string,
+};
+
+type EdgeData = {
+  desc: ElementDescriptor,
+  cost: number,
 };
 
 export function dijkstraAlgorithm(
     graph: UndirectedGraph, source: string, destination: string,
     submitStage: (stage: ExecutionStage) => void) {
-  const sourceLabel = graph.getNodeAttribute(source, 'label');
+  const sourceData: NodeData = {
+    desc: new ElementDescriptor(source, 'node'),
+    dist: 0,
+    label: graph.getNodeAttribute(source, 'label'),
+  };
+
   let stage = new ExecutionStage();
-  stage.addChange(GraphChange.markElement(
-      graph, new ElementDescriptor(source, 'node'), 'inspect'));
+  stage.addChange(GraphChange.markElement(graph, sourceData.desc, 'inspect'));
+  stage.addChange(
+      GraphChange.setProperty(graph, sourceData.desc, DIST, sourceData.dist));
+  const startingNodePredecessorLabel = 'starting node - no predecessor';
   stage.addChange(GraphChange.setProperty(
-      graph, new ElementDescriptor(source, 'node'), DIST, 0));
-  stage.description = `Starting node (${
-      sourceLabel}) is set as the current node, its ${DIST} is set to 0.
+      graph, sourceData.desc, PRED_LABEL, startingNodePredecessorLabel));
+  stage.description =
+      `Starting node (${sourceData.desc}) is set as the current node, its ${
+          DIST} is set to ${sourceData.dist} and ${PRED_LABEL} - to "${
+          startingNodePredecessorLabel}".
       All nodes are considered to be unvisited.
       Since paths leading nodes other than the starting one are unknown, their ${
-      DIST} is set to Infinity.`
+          DIST} is set to Infinity and ${PRED_LABEL} - to "?".`
   submitStage(stage);
   let unvisited = graph.nodes();
-  let current: nodeData = {
-    key: source,
+  let current: NodeData = {
+    desc: new ElementDescriptor(source, 'node'),
     dist: graph.getNodeAttribute(source, DIST),
     label: graph.getNodeAttribute(source, 'label'),
   };
-  while (current.key != destination) {
+  while (current.desc.key != destination) {
     stage = new ExecutionStage()
-    graph.forEachNeighbor(current.key, (neighbourKey: string) => {
+    graph.forEachNeighbor(current.desc.key, (neighbourKey: string) => {
       if (unvisited.includes(neighbourKey)) {
-        const neighbour: nodeData = {
-          key: neighbourKey,
+        const neighbour: NodeData = {
+          desc: new ElementDescriptor(neighbourKey, 'node'),
           dist: graph.getNodeAttribute(neighbourKey, DIST),
           label: graph.getNodeAttribute(neighbourKey, 'label'),
         };
-        const edge = graph.edge(current.key, neighbour.key) as string;
-        const edgeCost = graph.getEdgeAttribute(edge, COST);
-        const neighbourNewDistance = current.dist + edgeCost;
-        stage.addChange(GraphChange.markElement(
-            graph, new ElementDescriptor(edge, 'edge'), 'inspect'));
+        const edgeKey = graph.edge(current.desc.key, neighbourKey) as string;
+        const edge: EdgeData = {
+          desc: new ElementDescriptor(edgeKey, 'edge'),
+          cost: graph.getEdgeAttribute(edgeKey, COST),
+        };
+        const neighbourNewDist = current.dist + edge.cost;
+        stage.addChange(GraphChange.markElement(graph, edge.desc, 'inspect'));
         stage.description = `Edge connecting the current node (${
             current.label}) with its unvisited neighbour (${
-            neighbour.label}) is inspected.\n`;
-        if (neighbourNewDistance < neighbour.dist) {
-          stage.addChange(GraphChange.setProperty(
-              graph, new ElementDescriptor(neighbour.key, 'node'), DIST,
-              neighbourNewDistance));
-          stage.description += `Sum of the ${DIST} of ${
-              current.label} and the ${COST} of the edge ${current.label}${
-              neighbour.label} (${current.dist} + ${edgeCost} = ${
-              neighbourNewDistance}) is lower than the ${DIST} of ${
-              neighbour.label} (${neighbour.dist}).
-              It means that using edge ${current.label}${
-              neighbour.label} creates a shorter path from ${sourceLabel} to ${
-              neighbour.label}.
-              ${DIST} of ${neighbour.label} is set to ${neighbourNewDistance}.`
+            neighbour.label}) is inspected. Length of path leading to ${
+            neighbour.label} using it is equal to ${neighbourNewDist}`;
+
+        if (neighbourNewDist < neighbour.dist) {
+          stage.description += `Path from ${sourceData.label} to ${
+              neighbour.label} using edge ${current.label}${
+              neighbour.label} is shorter than previous path between ${
+              sourceData.label} and ${neighbour.label}.
+              "${firstCharCap(DIST)}" of ${
+              neighbour.label} is set to the length new path (${
+              neighbourNewDist})
+              Node ${current.label} is set as "${PRED_LABEL}" of ${
+              neighbour.label}.`
+
+          neighbour.dist = neighbourNewDist;
+          stage.addChange(...setPredecessor(graph, neighbour, current));
         } else {
-          stage.description += `Sum of the ${DIST} of ${
-              current.label} and the ${COST} of the edge ${current.label}${
-              neighbour.label} (${current.dist} + ${edgeCost} = ${
-              neighbourNewDistance}) is higher than or equal to the ${
-              DIST} of ${neighbour.label} (${neighbour.dist}).
-              It means that using edge ${current.label}-${
-              neighbour.label} does not create a shorter path from ${
-              sourceLabel} to ${neighbour.label}.
-              Value of ${DIST} of ${neighbour.label} does not change.`
+          stage.description += `Path from ${sourceData.label} to ${
+              neighbour.label} using edge ${current.label}${
+              neighbour.label} is longer or equal to previous path between ${
+              sourceData.label} and ${neighbour.label}.
+              Values describing ${neighbour.label} remain unchanged.`
         }
         submitStage(stage);
         stage = new ExecutionStage();
-        stage.addChange(GraphChange.markElement(
-            graph, new ElementDescriptor(edge, 'edge'), 'reject'));
+        stage.addChange(GraphChange.markElement(graph, edge.desc, 'reject'));
       }
     });
-    stage.addChange(GraphChange.markElement(
-        graph, new ElementDescriptor(current.key, 'node'), 'reject'));
-    const currentIndex = unvisited.indexOf(current.key);
+    stage.addChange(GraphChange.markElement(graph, current.desc, 'reject'));
+
+    const currentIndex = unvisited.indexOf(current.desc.key);
     unvisited.splice(currentIndex, 1);
     unvisited.sort((a: string, b: string) => {
       const aDistance = graph.getNodeAttribute(a, DIST);
       const bDistance = graph.getNodeAttribute(b, DIST);
       return aDistance - bDistance;
     });
-    const newCurrent: nodeData = {
-      key: unvisited[0],
+    const newCurrent: NodeData = {
+      desc: new ElementDescriptor(unvisited[0], 'node'),
       dist: graph.getNodeAttribute(unvisited[0], DIST),
       label: graph.getNodeAttribute(unvisited[0], 'label'),
     };
-    stage.addChange(GraphChange.markElement(
-        graph, new ElementDescriptor(newCurrent.key, 'node'), 'inspect'));
+    stage.addChange(GraphChange.markElement(graph, newCurrent.desc, 'inspect'));
     stage.description = `All of the edges connecting current node (${
         current.label}) with its unvisited neighbours have been inspected.
         ${current.label} is removed from the set of unvisited nodes.
         Unvisited node with the lowest ${DIST} (${
-        newCurrent.label}) choosen as new current node.`;
+        newCurrent.label}) choosen as new current node.
+        The shortest path between ${sourceData.label} and ${
+        newCurrent.label} has been found.`;
     submitStage(stage);
     current = newCurrent;
   }
@@ -174,11 +238,23 @@ export function dijkstraAlgorithm(
   const destinationLabel = graph.getNodeAttribute(destination, 'label');
   stage.description =
       `Destination node (${destinationLabel}) has been choosen as current.
-      The shortest path from the starting node (${sourceLabel}) to ${
+      The shortest path from the starting node (${sourceData.label}) to ${
           destinationLabel} has been found.
       If algorithm were to continue until the set of unvisited nodes is empty, shortest paths from ${
-          sourceLabel} to all nodes would be found.`;
+          sourceData.label} to all nodes would be found.`;
   submitStage(stage);
+}
+
+function setPredecessor(
+    graph: UndirectedGraph, node: NodeData,
+    newPredecessor: NodeData): GraphChange[] {
+  const changes: GraphChange[] = [];
+  changes.push(GraphChange.setProperty(graph, node.desc, DIST, node.dist));
+  changes.push(GraphChange.setProperty(
+      graph, node.desc, PRED_KEY, newPredecessor.desc.key));
+  changes.push(GraphChange.setProperty(
+      graph, node.desc, PRED_LABEL, newPredecessor.label));
+  return changes;
 }
 
 function readPath(graph: UndirectedGraph, source: string, destination: string):
@@ -187,18 +263,11 @@ function readPath(graph: UndirectedGraph, source: string, destination: string):
       [new ElementDescriptor(destination, 'node')];
   let current = destination;
   while (current != source) {
-    const currentDist = graph.getNodeAttribute(current, DIST);
-    // Find neighbour of current node that precedes it on the path
-    // (currentDist == neighbourDist + currentNeighbourCost)
-    const nextNode = graph.findNeighbor(current, (neighbour, attributes) => {
-      const edge = graph.edge(current, neighbour);
-      return graph.getEdgeAttribute(edge, COST) + attributes[DIST] ==
-          currentDist
-    }) as string;
-    pathElements.push(new ElementDescriptor(nextNode, 'node'));
-    const pathEdge = graph.edge(current, nextNode) as string;
-    pathElements.push(new ElementDescriptor(pathEdge, 'edge'));
-    current = nextNode;
+    const predecessor = graph.getNodeAttribute(current, PRED_KEY) as string;
+    pathElements.push(new ElementDescriptor(predecessor, 'node'));
+    const edge = graph.edge(current, predecessor) as string;
+    pathElements.push(new ElementDescriptor(edge, 'edge'));
+    current = predecessor;
   }
   return pathElements;
 }
