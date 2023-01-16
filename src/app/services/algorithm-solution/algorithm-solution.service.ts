@@ -62,7 +62,8 @@ export class AlgorithmSolutionService {
 
   executeAlgorithm(mode: algorithmCallType = 'normal'): boolean {
     if (this.graphStorage.getChoosenAlgorithm() in graphAlgorithms) {
-      if (!this.checkConditions(this.graphStorage.getChoosenAlgorithm()))
+      if (!this.checkConditions(this.graphStorage.getChoosenAlgorithm()) ||
+          !this.checkEnds())
         return false;
       if (mode == 'mainThread' || typeof Worker === 'undefined') {
         this.mainThreadAlgorithmCall(this.graphStorage.getChoosenAlgorithm());
@@ -93,7 +94,6 @@ export class AlgorithmSolutionService {
   }
 
   private workerAlgorithmCall(algorithm: string) {
-    if (!this.checkEnds()) return;
     this.executionStack = [];
     const worker = graphAlgorithms[algorithm].getWorker();
     //  Values of properties are preserved, but methods are lost due to
@@ -118,7 +118,6 @@ export class AlgorithmSolutionService {
   }
 
   private mainThreadAlgorithmCall(algorithm: string) {
-    if (!this.checkEnds()) return;
     this.executionStack = [];
     alert(
         'Your browser does not support webworkers, making it impossible to ' +
