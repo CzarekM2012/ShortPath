@@ -9,19 +9,19 @@ import {ElementDescriptor} from '../../utility/types';
   styleUrls: ['./element-info-display.component.css']
 })
 export class ElementInfoDisplayComponent implements OnChanges {
-  @ViewChild('display') private display?: ElementRef<HTMLElement>;
+  @ViewChild('content') private content?: ElementRef<HTMLElement>;
   @Input() choosenElement?: ElementDescriptor;
   @Input() executing!: boolean;
 
   constructor(private graphStorage: GraphStorageService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // first input check happens before HTMLElement linked to display has been
+    // first input check happens before HTMLElement linked to content has been
     // initialized
-    if (this.display !== undefined) {
+    if (this.content !== undefined) {
       if ('executing' in changes) {
         const inputs =
-            Array.from(this.display.nativeElement.querySelectorAll('input'));
+            Array.from(this.content.nativeElement.querySelectorAll('input'));
         inputs.forEach((input) => {
           input.disabled = this.executing;
         });
@@ -31,7 +31,7 @@ export class ElementInfoDisplayComponent implements OnChanges {
         // edge was choosen
         if (this.choosenElement === undefined ||
             this.choosenElement.type == 'edge') {
-          this.display.nativeElement.replaceChildren(
+          this.content.nativeElement.replaceChildren(
               'Choose a node to set it as the start or the end of the path');
         } else {
           const startLabel = document.createElement('label');
@@ -64,7 +64,7 @@ export class ElementInfoDisplayComponent implements OnChanges {
 
           const nodes: HTMLElement[] =
               [startLabel, startInput, endLabel, endInput];
-          this.display.nativeElement.replaceChildren(...nodes);
+          this.content.nativeElement.replaceChildren(...nodes);
         }
       }
     }

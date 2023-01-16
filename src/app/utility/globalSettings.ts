@@ -4,7 +4,7 @@ export const globalSettings = {
     'inspect': 'yellow',
     'approve': 'green',
     'reject': 'red',
-    'choose': 'blueviolet',
+    'choose': '#96c0e4',
     'error': 'black'
   },
 };

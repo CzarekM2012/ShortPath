@@ -10,7 +10,7 @@
         <app-algorithm-controller [(executing)]="executing" [production]="production"></app-algorithm-controller>
       </div>
       <div class="vertical">
-        <div #stageDescription id="description" #description>Description of current step of algorithm execution will
+        <div #stageDescription class="display" #description>Description of current step of algorithm execution will
           appear here</div>
         <app-element-info-display [executing]="executing" [choosenElement]="choosenElement"></app-element-info-display>
         <app-elements-data-table [executing]="executing" [choosenElement]="choosenElement"></app-elements-data-table>

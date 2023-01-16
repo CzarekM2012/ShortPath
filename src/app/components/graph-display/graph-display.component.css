@@ -15,7 +15,6 @@
 }
 
 #graph {
-  height: 630px;
-  width: 1120px;
-  background-color: azure;
+  height: 70vh;
+  aspect-ratio: 16/9;
 }

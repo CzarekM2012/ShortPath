@@ -144,11 +144,15 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
     const headerRow = document.createElement('tr');
     const labelColumnHeader = document.createElement('th');
     labelColumnHeader.innerText = elementType;
+    labelColumnHeader.style.textAlign = 'center';
+    labelColumnHeader.style.paddingRight = '2px';
     headerRow.appendChild(labelColumnHeader);
     attributes.forEach((attribute) => {
       if (attribute.visible) {
         const columnHeader = document.createElement('th');
         columnHeader.innerText = attribute.name;
+        columnHeader.style.textAlign = 'center';
+        columnHeader.style.paddingRight = '2px';
         headerRow.appendChild(columnHeader);
       }
     });
@@ -172,6 +176,8 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
     row.id = element.key;
     const labelCell = document.createElement('td');
     labelCell.id = 'label';
+    labelCell.style.textAlign = 'center';
+    labelCell.style.paddingRight = '2px';
     labelCell.innerText = this.generateLabel(element);
     row.appendChild(labelCell);
     attributes.forEach((attribute) => {
@@ -189,6 +195,8 @@ export class ElementsDataTableComponent implements AfterViewInit, OnChanges,
       element: ElementDescriptor,
       attribute: AttributeDescriptor): HTMLTableCellElement {
     let tableCell = document.createElement('td');
+    tableCell.style.textAlign = 'center';
+    tableCell.style.paddingRight = '2px';
     if (attribute.userModifiable) {
       const input = document.createElement('input');
       input.type = 'number';

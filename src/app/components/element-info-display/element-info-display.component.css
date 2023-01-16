@@ -1,8 +1,4 @@
-#outer {
-  border: 1px solid black;
-}
-
-#display {
+#content {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-auto-flow: row;
