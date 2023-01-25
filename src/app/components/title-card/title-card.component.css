@@ -1,4 +1,8 @@
 div {
+  font-size: large;
+}
+
+h2 {
   text-align: center;
 }
 
@@ -7,4 +11,8 @@ button {
   top: 15%;
   right: 0;
   height: 70%;
+}
+
+img {
+  height: 80vh;
 }
